@@ -8,7 +8,7 @@ use std::{
 };
 use sunspec_modbus_lib_rs::{
     ModelList, Sunspec,
-    sunspec::{
+    generated::{
         adapters::{ReadBinding, WriteBinding},
         models::{model_1, model_103, model_708},
     },

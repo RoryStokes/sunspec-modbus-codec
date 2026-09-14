@@ -2,14 +2,10 @@ use std::env;
 use std::path::PathBuf;
 
 fn main() {
-    sunspec_gen::generate_static_lib();
-
     println!("cargo:rerun-if-changed=cbindgen.toml");
     println!("cargo:rerun-if-changed=src");
     println!("cargo:rerun-if-changed=../sunspec-modbus-lib-rs/Cargo.toml");
     println!("cargo:rerun-if-changed=../sunspec-modbus-lib-rs/src");
-    println!("cargo:rerun-if-changed=../sunspec-gen/src");
-    println!("cargo:rerun-if-changed=../sunspec-gen/models");
 
     let crate_dir = env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR is not set");
     let config_path = PathBuf::from(&crate_dir).join("cbindgen.toml");

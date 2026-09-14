@@ -15,4 +15,3 @@ sunspec-modbus-lib-rs = { path = "../sunspec-modbus-lib-rs" }
 
 [build-dependencies]
 cbindgen = { workspace = true }
-sunspec-gen = { path = "../sunspec-gen" }

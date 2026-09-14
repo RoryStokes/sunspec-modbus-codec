@@ -10,7 +10,7 @@ use core::{ffi::c_char, panic::PanicInfo};
 
 use sunspec_modbus_lib_rs::Sunspec;
 use sunspec_modbus_lib_rs::model::{ModelList, StaticModelSpec};
-use sunspec_modbus_lib_rs::sunspec::adapters::{ReadBinding, WriteBinding};
+use sunspec_modbus_lib_rs::generated::adapters::{ReadBinding, WriteBinding};
 
 #[cfg(not(feature = "std"))]
 unsafe extern "C" {
