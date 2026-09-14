@@ -1,3 +1,5 @@
+use std::collections::{HashMap, HashSet};
+
 use codegen::{Block, Enum, Function, Impl, Scope, Struct, Type};
 
 use crate::model_resolution::{
@@ -138,9 +140,9 @@ fn generate_point_arrays(group: &ResolvedGroup, scope: &mut Scope, args: Vec<Str
 
     scope.raw(lines.join("\n"));
 
-    if let Some((_, inner_group)) = &group.repeating_child {
+    for (_, inner_group) in &group.repeating_children {
         let mut inner_args = args.clone();
-        inner_args.push(format!("{}_index", inner_group.name_short));
+        inner_args.push(format!("{}_index", inner_group.local_name_short));
         generate_point_arrays(inner_group, scope, inner_args);
     }
 }
@@ -558,7 +560,7 @@ fn generate_callback_functions(group: &ResolvedGroup, callback_struct: &mut Stru
         };
     }
 
-    if let Some((_, inner_group)) = &group.repeating_child {
+    for (_, inner_group) in &group.repeating_children {
         generate_callback_functions(inner_group, callback_struct);
     }
 }
@@ -607,7 +609,7 @@ fn generate_callback_read_handlers(group: &ResolvedGroup, callback_impl: &mut Im
         callback_impl.push_fn(getter);
     }
 
-    if let Some((_, inner_group)) = &group.repeating_child {
+    for (_, inner_group) in &group.repeating_children {
         generate_callback_read_handlers(inner_group, callback_impl);
     }
 }
@@ -652,7 +654,7 @@ fn generate_callback_write_handlers(group: &ResolvedGroup, callback_impl: &mut I
         callback_impl.push_fn(setter);
     }
 
-    if let Some((_, inner_group)) = &group.repeating_child {
+    for (_, inner_group) in &group.repeating_children {
         generate_callback_write_handlers(inner_group, callback_impl);
     }
 }
@@ -682,15 +684,22 @@ pub fn generate_callback_struct(model: &ResolvedModel, scope: &mut Scope) {
 }
 
 fn generate_model_length_calculator(group: &ResolvedGroup) -> String {
-    if let Some((repeat_count_pt, repeating_block)) = &group.repeating_child {
-        format!(
-            "{} + self.{} * ({})",
-            group.static_size,
-            repeat_count_pt.name_snake_case(),
-            generate_model_length_calculator(repeating_block)
-        )
-    } else {
+    let terms: Vec<String> = group
+        .repeating_children
+        .iter()
+        .map(|(count_point, repeating_block)| {
+            format!(
+                "self.{} * ({})",
+                count_point.name_snake_case(),
+                generate_model_length_calculator(repeating_block)
+            )
+        })
+        .collect();
+
+    if terms.is_empty() {
         group.static_size.to_string()
+    } else {
+        format!("{} + {}", group.static_size, terms.join(" + "))
     }
 }
 
@@ -724,33 +733,88 @@ pub fn populate_stateful_struct(
             .doc(doc_text(&point.doc));
     }
 
-    if let Some((_, inner_group)) = &group.repeating_child {
-        let name = format!("{model_name}{}", inner_group.name_pascal_case());
-        if let Some((array_len, inner_generics)) = generics.split_first() {
-            let generic_str = inner_generics.join(", ");
-            stateful_struct.field(
-                format!("pub {}", inner_group.name_snake_case()),
-                format!("[{name}<{generic_str}>; {array_len}]"),
-            );
-            populate_stateful_struct(
-                model_name,
-                inner_group.name_pascal_case(),
-                inner_group,
-                scope,
-                &generics[1..],
-            );
-        }
+    // `generics` carries one const-generic param per *distinct* repeat count among this group's
+    // repeating children (see `collect_struct_generics`), in the order it was built in. Each
+    // sibling here consumes one (its own array length) - unless it shares a count point with an
+    // already-processed sibling, in which case it reuses that one's array length instead of
+    // consuming another - plus however many its own nested repeating children need, so the
+    // remaining slice is split per sibling rather than just taking the first every time.
+    //
+    // The per-sibling field data is resolved fully before touching `stateful_struct` or `scope`
+    // again: adding fields (which needs `stateful_struct`, itself borrowed from `scope`) and
+    // recursing into a child (which needs `scope` again) can't be interleaved under the borrow
+    // checker while `stateful_struct`'s borrow is still open.
+    let mut remaining = generics;
+    let mut array_len_by_count: HashMap<String, String> = HashMap::new();
+    let mut children = Vec::new();
+    for (count_point, inner_group) in &group.repeating_children {
+        let array_len = match array_len_by_count.get(&count_point.internal_name) {
+            Some(array_len) => array_len.clone(),
+            None => {
+                let Some((array_len, rest)) = remaining.split_first() else {
+                    break;
+                };
+                remaining = rest;
+                array_len_by_count.insert(count_point.internal_name.clone(), array_len.clone());
+                array_len.clone()
+            }
+        };
+
+        let inner_generic_count = collect_struct_generics(inner_group).len();
+        let (inner_generics, after) = remaining.split_at(inner_generic_count);
+        remaining = after;
+
+        let struct_name = format!("{model_name}{}", inner_group.name_pascal_case());
+        let field_name = format!("pub {}", inner_group.name_snake_case());
+        let field_type = format!(
+            "[{struct_name}<{}>; {array_len}]",
+            inner_generics.join(", ")
+        );
+        children.push((field_name, field_type, inner_group, inner_generics));
+    }
+
+    for (field_name, field_type, ..) in &children {
+        stateful_struct.field(field_name, field_type);
+    }
+
+    for (_, _, inner_group, inner_generics) in children {
+        populate_stateful_struct(
+            model_name.clone(),
+            inner_group.name_pascal_case(),
+            inner_group,
+            scope,
+            inner_generics,
+        );
     }
 }
 
+/// One const-generic array-length parameter per *distinct* repeat count among `group`'s
+/// repeating children, in the depth-first order `populate_stateful_struct` walks to consume
+/// them. Siblings that share a count point (model 708's three curve arrays, all bounded by the
+/// same `NPt`) share the one generic here too, rather than each getting their own - per the
+/// SunSpec spec that's one field's worth of bound, so the stateful struct's array lengths stay
+/// tied together the same way its runtime traversal already does (see `resolve_model`'s
+/// `collect_count_points`). Named after the repeat count's own point where that's already
+/// unique among this group's own children; a *different* count that happens to produce the same
+/// preferred name falls back to its group's own name instead, since the same param name can't
+/// be declared twice on one struct.
 fn collect_struct_generics(group: &ResolvedGroup) -> Vec<String> {
-    if let Some((count_point, inner_group)) = &group.repeating_child {
-        let mut params = collect_struct_generics(inner_group);
-        params.insert(0, count_point.name_snake_case().to_uppercase());
-        params
-    } else {
-        vec![]
+    let mut seen_counts = HashSet::new();
+    let mut seen_names = HashSet::new();
+    let mut generics = vec![];
+    for (count_point, inner_group) in &group.repeating_children {
+        if seen_counts.insert(count_point.internal_name.clone()) {
+            let preferred = count_point.name_snake_case().to_uppercase();
+            let generic = if seen_names.insert(preferred.clone()) {
+                preferred
+            } else {
+                inner_group.name_short.to_uppercase()
+            };
+            generics.push(generic);
+        }
+        generics.extend(collect_struct_generics(inner_group));
     }
+    generics
 }
 
 fn generate_stateful_read_handlers(group: &ResolvedGroup, stateful_impl: &mut Impl) {
@@ -803,7 +867,7 @@ fn generate_stateful_read_handlers(group: &ResolvedGroup, stateful_impl: &mut Im
         stateful_impl.push_fn(getter);
     }
 
-    if let Some((_, inner_group)) = &group.repeating_child {
+    for (_, inner_group) in &group.repeating_children {
         generate_stateful_read_handlers(inner_group, stateful_impl);
     }
 }
@@ -847,7 +911,7 @@ fn generate_stateful_write_handlers(group: &ResolvedGroup, stateful_impl: &mut I
         stateful_impl.push_fn(setter);
     }
 
-    if let Some((_, inner_group)) = &group.repeating_child {
+    for (_, inner_group) in &group.repeating_children {
         generate_stateful_write_handlers(inner_group, stateful_impl);
     }
 }
@@ -900,9 +964,9 @@ fn add_group_variants(group: &ResolvedGroup, target_enum: &mut Enum, counters: V
             variant.named(counter, "u16");
         }
     }
-    if let Some((_, child_group)) = &group.repeating_child {
+    for (_, child_group) in &group.repeating_children {
         let mut new_counters = counters.clone();
-        new_counters.push(format!("{}_index", child_group.name_short));
+        new_counters.push(format!("{}_index", child_group.local_name_short));
         add_group_variants(child_group, target_enum, new_counters);
     }
 }
@@ -919,11 +983,12 @@ pub fn generate_readers(group: &ResolvedGroup) -> Vec<Function> {
             });
             getter
         })
-        .chain(if let Some((_, inner_group)) = &group.repeating_child {
-            generate_readers(inner_group)
-        } else {
-            vec![]
-        })
+        .chain(
+            group
+                .repeating_children
+                .iter()
+                .flat_map(|(_, inner_group)| generate_readers(inner_group)),
+        )
         .collect()
 }
 
@@ -940,11 +1005,12 @@ pub fn generate_writers(group: &ResolvedGroup) -> Vec<Function> {
             });
             setter
         })
-        .chain(if let Some((_, inner_group)) = &group.repeating_child {
-            generate_writers(inner_group)
-        } else {
-            vec![]
-        })
+        .chain(
+            group
+                .repeating_children
+                .iter()
+                .flat_map(|(_, inner_group)| generate_writers(inner_group)),
+        )
         .collect()
 }
 
@@ -1024,7 +1090,7 @@ fn populate_model_writer(group: &ResolvedGroup, writer_block: &mut Block) {
         }
     }
 
-    if let Some((_, inner_group)) = &group.repeating_child {
+    for (_, inner_group) in &group.repeating_children {
         populate_model_writer(inner_group, writer_block);
     }
 }
@@ -1085,48 +1151,99 @@ fn populate_model_reader(group: &ResolvedGroup, reader_block: &mut Block) {
         }
     }
 
-    if let Some((_, inner_group)) = &group.repeating_child {
+    for (_, inner_group) in &group.repeating_children {
         populate_model_reader(inner_group, reader_block);
-    } else {
-        let mut unmatched_block = Block::new("_ =>");
-        unmatched_block.line("Err(ModbusException::IllegalDataAddress)");
-        reader_block.push_block(unmatched_block);
     }
 }
 
+/// Emits the iterator-chaining code for every repeating child of `group`, recursively. A
+/// group's children are laid out sequentially - each one's block starts right after the
+/// previous sibling's full (fixed + repeating) span - so `address_offset` accumulates across
+/// siblings as well as depth.
 fn chain_repeating_group_iterator(
     group: &ResolvedGroup,
     address_offset: String,
     indices: Vec<String>,
 ) -> Vec<String> {
-    let prefix = &group.name_short;
-    let mut index_args = indices.clone();
-    index_args.push(format!("{prefix}_index"));
+    let mut result = vec![];
+    let mut running_offset = address_offset;
 
-    let index_arg_str = if index_args.len() == 1 {
-        index_args[0].clone()
-    } else {
-        format!("({})", index_args.join(", "))
-    };
+    for (_, inner_group) in &group.repeating_children {
+        let prefix = &inner_group.name_short;
+        // The loop variable only needs to be unique within this closure, unlike `prefix`
+        // (shared with the enclosing function's `_count`/`_size` locals and the `_POINTS`
+        // static, which do need disambiguating) - so it's named after the group alone, not
+        // qualified by any fixed group it was promoted through.
+        let index = &inner_group.local_name_short;
+        let mut index_args = indices.clone();
+        index_args.push(format!("{index}_index"));
 
-    let mut result = vec![
-        format!(".chain((0..{prefix}_count).flat_map(move |{prefix}_index| {{"),
-        format!("let {prefix}_address = {address_offset} + {prefix}_index * {prefix}_size;"),
-        format!("{}_POINTS.iter()", prefix.to_uppercase()),
-        format!(
+        let index_arg_str = if index_args.len() == 1 {
+            index_args[0].clone()
+        } else {
+            format!("({})", index_args.join(", "))
+        };
+
+        result.push(format!(
+            ".chain((0..{prefix}_count).flat_map(move |{index}_index| {{"
+        ));
+        result.push(format!(
+            "let {prefix}_address = {running_offset} + {index}_index * {prefix}_size;"
+        ));
+        result.push(format!("{}_POINTS.iter()", prefix.to_uppercase()));
+        result.push(format!(
             ".map(move |p| ({prefix}_address + p.start_address, p.size, (p.point)({index_arg_str})))"
-        ),
-    ];
+        ));
 
-    if let Some((_, inner_group)) = &group.repeating_child {
+        // `inner_group`'s own repeating children (if any) are nested inside each of its
+        // instances, right after that instance's own static fields - not at the instance's
+        // own start address, which is where `inner_group`'s own `_POINTS` are addressed from.
         result.extend(chain_repeating_group_iterator(
             inner_group,
-            format!("{prefix}_address"),
+            format!("{prefix}_address + {}", inner_group.static_size),
             index_args,
-        ))
+        ));
+
+        result.push("}))".to_string());
+
+        running_offset = format!("{running_offset} + {prefix}_count * {prefix}_size");
     }
-    result.push("}))".to_string());
+
     result
+}
+
+/// Emits `let {prefix}_count = self.<count>;` / `let {prefix}_size = ...;` declarations for
+/// every repeating group nested under `group`, in a bottom-up order so each declaration can
+/// reference its own children's `_count`/`_size` locals - mirroring the structure
+/// `chain_repeating_group_iterator` walks to build the matching address expressions. A group
+/// with several repeating children (model 708's `Crv`) sums each one's contribution to its own
+/// `_size`, since one instance of the group contains all of them.
+fn declare_repeat_counts_and_sizes(group: &ResolvedGroup, fn_def: &mut Function) {
+    for (count_point, inner_group) in &group.repeating_children {
+        declare_repeat_counts_and_sizes(inner_group, fn_def);
+
+        let prefix = &inner_group.name_short;
+        fn_def.line(format!(
+            "let {prefix}_count = self.{};",
+            count_point.name_snake_case()
+        ));
+
+        let child_terms: Vec<String> = inner_group
+            .repeating_children
+            .iter()
+            .map(|(_, grandchild)| {
+                let child_prefix = &grandchild.name_short;
+                format!("{child_prefix}_count * {child_prefix}_size")
+            })
+            .collect();
+        let size_expr = if child_terms.is_empty() {
+            inner_group.static_size.to_string()
+        } else {
+            format!("{} + {}", inner_group.static_size, child_terms.join(" + "))
+        };
+        fn_def.line(format!("let {prefix}_size = {size_expr};"));
+        fn_def.line("");
+    }
 }
 
 enum TraverseDirection {
@@ -1169,46 +1286,15 @@ fn generate_traverse_points_fn(
     fn_def.line("let mut cursor = 0;");
     fn_def.line("");
 
-    let mut group = &model.group;
-    let mut group_stack = vec![];
-    while let Some((count_point, inner_group)) = &group.repeating_child {
-        group_stack.push((count_point, inner_group));
-        group = inner_group;
-    }
-
-    let mut child_group: Option<&ResolvedGroup> = None;
-    for (count_point, inner_group) in group_stack.iter().rev() {
-        let prefix = &inner_group.name_short;
-        fn_def.line(format!(
-            "let {prefix}_count = self.{};",
-            count_point.name_snake_case()
-        ));
-        if let Some(child) = child_group {
-            fn_def.line(format!(
-                "let {prefix}_size = {static_size} + {child_prefix}_count * {child_prefix}_size;",
-                static_size = inner_group.static_size,
-                child_prefix = child.name_short
-            ));
-        } else {
-            fn_def.line(format!(
-                "let {prefix}_size = {static_size};",
-                static_size = inner_group.static_size
-            ));
-        }
-        fn_def.line("");
-
-        child_group = Some(inner_group);
-    }
+    declare_repeat_counts_and_sizes(&model.group, fn_def);
 
     fn_def.line("let iter = POINTS.iter()");
     fn_def.line(".map(|p| (p.start_address, p.size, (p.point)(())))");
 
-    if let Some((_, inner_group)) = &model.group.repeating_child {
-        for s in
-            chain_repeating_group_iterator(inner_group, model.group.static_size.to_string(), vec![])
-        {
-            fn_def.line(s);
-        }
+    for s in
+        chain_repeating_group_iterator(&model.group, model.group.static_size.to_string(), vec![])
+    {
+        fn_def.line(s);
     }
 
     fn_def.line(".skip_while(|(start,size,_)| offset >= start + size)");
@@ -1349,6 +1435,10 @@ pub fn generate_model(model: &ResolvedModel) -> Scope {
     if model.group.writable {
         let mut reader_block = Block::new("match point");
         populate_model_reader(&model.group, &mut reader_block);
+
+        let mut unmatched_block = Block::new("_ =>");
+        unmatched_block.line("Err(ModbusException::IllegalDataAddress)");
+        reader_block.push_block(unmatched_block);
 
         reader_fn.push_block(reader_block);
     } else {

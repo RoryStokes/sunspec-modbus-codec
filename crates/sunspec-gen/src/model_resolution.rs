@@ -96,13 +96,21 @@ impl Named for ResolvedModel {
     }
 }
 
+#[derive(Clone)]
 pub struct ResolvedGroup {
     pub name: NameRef,
     pub name_short: String,
+    /// This group's own short name alone, ignoring any derived prefixes.
+    /// Used for identifiers that only ever need to be unique within their own function,
+    /// closure, or enum variant - a loop index, a getter argument, a `Point` field
+    pub local_name_short: String,
     pub static_size: u16,
     pub points: Vec<ResolvedPoint>,
     pub enums: Vec<ResolvedEnum>,
-    pub repeating_child: Option<(ResolvedPoint, Box<ResolvedGroup>)>,
+    /// A group can have more than one repeating child - e.g. model 708's `Crv`, whose
+    /// `MustTrip`/`MayTrip`/`MomCess` fixed subgroups each wrap their own independent
+    /// curve-point array - so this is a list rather than the single `Option` it once was.
+    pub repeating_children: Vec<(ResolvedPoint, Box<ResolvedGroup>)>,
     pub writable: bool,
 }
 
@@ -211,8 +219,9 @@ fn resolve_point_type(point: &Point, features: &mut HashSet<CodegenFeature>) -> 
 pub(crate) fn resolve_point(
     point: &Point,
     features: &mut HashSet<CodegenFeature>,
-    block_indices: Vec<BlockIndex>,
+    identifier_text: &str,
     name_prefix: Option<String>,
+    block_indices: Vec<BlockIndex>,
 ) -> Option<ResolvedPoint> {
     let point_type = resolve_point_type(point, features);
 
@@ -229,9 +238,8 @@ pub(crate) fn resolve_point(
         .unwrap_or(point.name.clone());
 
     let name = format!(
-        "{} {}",
+        "{identifier_text} {} {main_name}",
         name_prefix.clone().get_or_insert_default(),
-        main_name
     );
 
     let label = if let Some(label) = &point.label {
@@ -305,87 +313,128 @@ pub fn resolve_enum(point: &Point) -> Option<ResolvedEnum> {
     }
 }
 
+/// The (snake_case name, PascalCase name, local short name) a schema group will resolve to,
+/// given the naming context inherited from its ancestors - computed straight from the schema,
+/// before the group itself is resolved. `resolve_group` uses this for its own identity; a
+/// parent discovering a repeating child also uses it to build that child's [`BlockIndex`]
+/// (which needs the child's own final name) before recursing into it, since both reduce to
+/// exactly the same values.
+fn group_identity(schema_group: &Group, identifier_text: &str) -> (String, String, String) {
+    let label = schema_group.label.as_ref().unwrap_or(&schema_group.name);
+    let name = format!("{identifier_text} {label}");
+    (
+        name.to_snake_case(),
+        name.to_pascal_case(),
+        schema_group.name.to_snake_case(),
+    )
+}
+
 pub(crate) fn resolve_group(
     group: &Group,
     top_level_points_opt: Option<&[ResolvedPoint]>,
     features: &mut HashSet<CodegenFeature>,
-    block_indices: Vec<BlockIndex>,
+    identifier_text: &str,
+    short_text: &str,
     name_prefix: Option<String>,
+    block_indices: Vec<BlockIndex>,
 ) -> ResolvedGroup {
+    let (name_snake, name_pascal, local_name_short) = group_identity(group, identifier_text);
+
     let root_points: Vec<ResolvedPoint> = group
         .points
         .iter()
         .flat_map(|point| {
-            resolve_point(point, features, block_indices.clone(), name_prefix.clone())
+            resolve_point(
+                point,
+                features,
+                identifier_text,
+                name_prefix.clone(),
+                block_indices.clone(),
+            )
         })
         .collect();
 
     let top_level_points = top_level_points_opt.unwrap_or(&root_points);
 
-    let groups: Vec<ResolvedGroup> = group
+    // Fixed subgroups don't create a separate repeating structure on the wire - SunSpec uses
+    // them purely to group related points/subgroups under a label. They don't add a block
+    // index either - only a repeating group does - so `block_indices` passes through unchanged.
+    let fixed_children: Vec<ResolvedGroup> = group
         .groups
         .iter()
         .filter(|g| matches!(g.count, GroupCount::Integer(_)))
         .map(|child| {
+            let child_label = child.label.as_ref().unwrap_or(&child.name);
             resolve_group(
                 child,
                 Some(top_level_points),
                 features,
-                block_indices.clone(),
+                &format!("{child_label} {identifier_text}"),
+                &format!("{} {short_text}", child.name),
                 name_prefix.clone(),
+                block_indices.clone(),
             )
         })
         .collect();
+    
+    let repeating_children: Vec<(ResolvedPoint, Box<ResolvedGroup>)> = group
+        .groups
+        .iter()
+        .filter_map(|g| match &g.count {
+            GroupCount::String(count_name) => {
+                let count_point = top_level_points
+                    .iter()
+                    .find(|p| p.internal_name == *count_name);
 
-    let repeating_child = group.groups.iter().find_map(|g| match &g.count {
-        GroupCount::String(count_name) => {
-            let count_point = top_level_points
+                count_point.map(|p| {
+                    let (group_name, _, index_prefix) = group_identity(g, identifier_text);
+                    let mut child_block_indices = block_indices.clone();
+                    child_block_indices.push(BlockIndex {
+                        group_name,
+                        index_name: format!("{index_prefix}_index"),
+                    });
+
+                    (
+                        p.clone(),
+                        Box::new(resolve_group(
+                            g,
+                            Some(top_level_points),
+                            features,
+                            identifier_text,
+                            short_text,
+                            Some(g.name.clone()),
+                            child_block_indices,
+                        )),
+                    )
+                })
+            }
+            _ => None,
+        })
+        .chain(
+            // A repeating group can also be nested inside one of this group's fixed children to logically identify it
+            // within the model.
+            // e.g. model 708's curve types MustTrip, MayTrip and MomCess are themselves not repeating, but wrap their own
+            // `Pt` array.
+            // These are simply spliced in alongside any direct repeating children as naming concerns are resolved by the
+            // call to resolve_group when computing fixed_children.
+            fixed_children
                 .iter()
-                .find(|p| p.internal_name == *count_name);
-
-            let mut child_block_indices = block_indices.clone();
-            child_block_indices.push(BlockIndex {
-                group_name: g.label.as_ref().unwrap_or(&g.name).to_snake_case(),
-                index_name: format!("{}_index", g.name.to_snake_case()),
-            });
-
-            count_point.map(|p| {
-                (
-                    p.clone(),
-                    Box::new(resolve_group(
-                        g,
-                        Some(top_level_points),
-                        features,
-                        child_block_indices,
-                        Some(g.name.clone()),
-                    )),
-                )
-            })
-        }
-        _ => None,
-    });
+                .flat_map(|f| f.repeating_children.iter().cloned()),
+        )
+        .collect();
 
     let points: Vec<ResolvedPoint> = root_points
         .into_iter()
-        .chain(groups.iter().flat_map(|g| {
-            g.points.iter().cloned().map(|p| {
-                let snake_case = format!("{}_{}", g.name_snake_case(), p.name_snake_case());
-                let pascal_case = format!("{}{}", g.name_pascal_case(), p.name_pascal_case());
-                ResolvedPoint {
-                    name: Name::new(snake_case, pascal_case),
-                    ..p
-                }
-            })
-        }))
+        .chain(fixed_children.iter().flat_map(|f| f.points.iter().cloned()))
         .collect();
 
     let mut enums: Vec<ResolvedEnum> = group
         .points
         .iter()
         .flat_map(resolve_enum)
-        .chain(groups.iter().flat_map(|g| g.enums.iter().cloned()))
+        .chain(fixed_children.iter().flat_map(|f| f.enums.iter().cloned()))
         .chain(
-            repeating_child
+            repeating_children
                 .iter()
                 .flat_map(|(_, g)| g.enums.iter().cloned()),
         )
@@ -396,19 +445,56 @@ pub(crate) fn resolve_group(
 
     let size = points.iter().map(|point| point.size).sum();
 
-    let name = group.label.as_ref().unwrap_or(&group.name);
+    let name_short = format!("{short_text} {}", group.name);
 
-    let writable = repeating_child.iter().any(|(_, g)| g.writable)
+    let writable = repeating_children.iter().any(|(_, g)| g.writable)
         || points.iter().any(|p| p.access == PointAccess::Rw);
 
     ResolvedGroup {
-        name: Name::new(name.to_snake_case(), name.to_pascal_case()),
-        name_short: group.name.to_snake_case(),
+        name: Name::new(name_snake, name_pascal),
+        name_short: name_short.to_snake_case(),
+        local_name_short,
         static_size: size,
         points,
         enums,
-        repeating_child,
+        repeating_children,
         writable,
+    }
+}
+
+/// Registers every point and group in `group`'s subtree - both those found directly and any
+/// promoted up through a fixed subgroup - with the model-wide `point_names`/`group_names`
+/// tables ahead of a single [`NameTable::deduplicate`] pass over each.
+fn register_names(group: &ResolvedGroup, point_names: &mut NameTable, group_names: &mut NameTable) {
+    group_names.register_unique(group.name.clone());
+    for point in &group.points {
+        point_names.register(
+            point.name.clone(),
+            (
+                point.internal_name.to_snake_case(),
+                point.internal_name.to_pascal_case(),
+            ),
+        );
+    }
+    for (_, child) in &group.repeating_children {
+        register_names(child, point_names, group_names);
+    }
+}
+
+/// Collects one [`CountPoint`] per distinct repeat count in `group`'s subtree, in the order
+/// each is first encountered. A count point reused by more than one repeating child (see
+/// `resolve_model`) is collected only once.
+fn collect_count_points(group: &ResolvedGroup, count_points: &mut Vec<CountPoint>) {
+    for (count_point, child) in &group.repeating_children {
+        if !count_points
+            .iter()
+            .any(|cp| cp.point.internal_name == count_point.internal_name)
+        {
+            count_points.push(CountPoint {
+                point: count_point.clone(),
+            });
+        }
+        collect_count_points(child, count_points);
     }
 }
 
@@ -417,50 +503,28 @@ pub fn resolve_model(model: &SunspecModel, file_name: String) -> ResolvedModel {
         "Unable to extract model number from name (expected name in structure model_X.json)",
     );
     let mut features: HashSet<CodegenFeature> = HashSet::new();
-    let group = resolve_group(&model.group, None, &mut features, vec![], None);
+    let group = resolve_group(&model.group, None, &mut features, "", "", None, vec![]);
 
-    // Points and groups are each scoped to this one model: every point ends up in this
-    // model's single flat `Point` enum and adapter trait (root group plus each level of the
-    // `repeating_child` chain - see `add_group_variants` in code_generation.rs), and every
-    // group along that same chain gets its own generated stateful-adapter struct.
     let mut point_names = NameTable::default();
     let mut group_names = NameTable::default();
-    let mut current_group = Some(&group);
-    while let Some(g) = current_group {
-        group_names.register_unique(g.name.clone());
-        for point in &g.points {
-            point_names.register(
-                point.name.clone(),
-                (
-                    point.internal_name.to_snake_case(),
-                    point.internal_name.to_pascal_case(),
-                ),
-            );
-        }
-        current_group = g.repeating_child.as_ref().map(|(_, inner)| inner.as_ref());
-    }
+    register_names(&group, &mut point_names, &mut group_names);
     point_names.deduplicate();
     group_names.deduplicate();
 
     // `group.enums` already collects every enum in the model: resolve_group bubbles them up
-    // through fixed subgroups and the repeating chain into the top-level group's own list.
+    // through fixed subgroups and every repeating child into the top-level group's own list.
     let mut enum_names = NameTable::default();
     for resolved_enum in &group.enums {
         enum_names.register_unique(resolved_enum.name.clone());
     }
     enum_names.deduplicate();
 
+    // A count point can be shared by more than one repeating child - model 708's `NPt` governs
+    // all three of `Crv`'s curve-point arrays. Per the SunSpec spec that's one field on the
+    // model, read independently by each array, not one field per array, so it's collected once
+    // (by its underlying SunSpec name) no matter how many repeating children reuse it.
     let mut count_points = vec![];
-
-    let mut current_group = &group;
-
-    while let Some((count_point, inner_group)) = &current_group.repeating_child {
-        count_points.push(CountPoint {
-            point: count_point.clone(),
-        });
-
-        current_group = inner_group
-    }
+    collect_count_points(&group, &mut count_points);
 
     ResolvedModel {
         model_number,
