@@ -376,7 +376,7 @@ pub(crate) fn resolve_group(
             )
         })
         .collect();
-    
+
     let repeating_children: Vec<(ResolvedPoint, Box<ResolvedGroup>)> = group
         .groups
         .iter()
