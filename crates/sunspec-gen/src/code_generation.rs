@@ -727,13 +727,13 @@ pub fn populate_stateful_struct(
     struct_name: String,
     group: &ResolvedGroup,
     scope: &mut Scope,
-    generics: &[String],
+    generics: &StructGenerics,
 ) {
     let stateful_struct = scope
         .new_struct(format!("{model_name}{struct_name}"))
         .vis("pub")
         .repr("C");
-    for generic in generics {
+    for generic in &generics.own {
         stateful_struct.generic(format!("const {generic}: usize"));
     }
 
@@ -752,45 +752,29 @@ pub fn populate_stateful_struct(
             .doc(doc_text(&point.doc));
     }
 
-    // `generics` carries one const-generic param per *distinct* repeat count among this group's
-    // repeating children (see `collect_struct_generics`), in the order it was built in. Each
-    // sibling here consumes one (its own array length) - unless it shares a count point with an
-    // already-processed sibling, in which case it reuses that one's array length instead of
-    // consuming another - plus however many its own nested repeating children need, so the
-    // remaining slice is split per sibling rather than just taking the first every time.
+    // `generics.children` pairs up with `group.flattened_repeats()` one-for-one (see
+    // `collect_struct_generics`, which builds both from the same walk): each entry already
+    // carries its own array-length name (shared with an earlier sibling's, if they share a count
+    // point) and its own subtree's generics, so there's no re-deriving anything here.
     //
     // The per-sibling field data is resolved fully before touching `stateful_struct` or `scope`
     // again: adding fields (which needs `stateful_struct`, itself borrowed from `scope`) and
     // recursing into a child (which needs `scope` again) can't be interleaved under the borrow
     // checker while `stateful_struct`'s borrow is still open.
-    let mut remaining = generics;
-    let mut array_len_by_count: HashMap<String, String> = HashMap::new();
-    let mut children = Vec::new();
-    for (count_point, inner_group) in group.flattened_repeats() {
-        let array_len = match array_len_by_count.get(&count_point.internal_name) {
-            Some(array_len) => array_len.clone(),
-            None => {
-                let Some((array_len, rest)) = remaining.split_first() else {
-                    break;
-                };
-                remaining = rest;
-                array_len_by_count.insert(count_point.internal_name.clone(), array_len.clone());
-                array_len.clone()
-            }
-        };
-
-        let inner_generic_count = collect_struct_generics(inner_group).len();
-        let (inner_generics, after) = remaining.split_at(inner_generic_count);
-        remaining = after;
-
-        let struct_name = format!("{model_name}{}", inner_group.name_pascal_case());
-        let field_name = format!("pub {}", inner_group.name_snake_case());
-        let field_type = format!(
-            "[{struct_name}<{}>; {array_len}]",
-            inner_generics.join(", ")
-        );
-        children.push((field_name, field_type, inner_group, inner_generics));
-    }
+    let children: Vec<_> = group
+        .flattened_repeats()
+        .into_iter()
+        .zip(&generics.children)
+        .map(|((_, inner_group), (array_len, inner_generics))| {
+            let struct_name = format!("{model_name}{}", inner_group.name_pascal_case());
+            let field_name = format!("pub {}", inner_group.name_snake_case());
+            let field_type = format!(
+                "[{struct_name}<{}>; {array_len}]",
+                inner_generics.own.join(", ")
+            );
+            (field_name, field_type, inner_group, inner_generics)
+        })
+        .collect();
 
     for (field_name, field_type, ..) in &children {
         stateful_struct.field(field_name, field_type);
@@ -807,33 +791,53 @@ pub fn populate_stateful_struct(
     }
 }
 
-/// One const-generic array-length parameter per *distinct* repeat count among `group`'s
-/// repeating children, in the depth-first order `populate_stateful_struct` walks to consume
-/// them. Siblings that share a count point (model 708's three curve arrays, all bounded by the
-/// same `NPt`) share the one generic here too, rather than each getting their own - per the
-/// SunSpec spec that's one field's worth of bound, so the stateful struct's array lengths stay
-/// tied together the same way its runtime traversal already does (see `resolve_model`'s
-/// `collect_count_points`). Named after the repeat count's own point where that's already
-/// unique among this group's own children; a *different* count that happens to produce the same
-/// preferred name falls back to its group's own name instead, since the same param name can't
-/// be declared twice on one struct.
-fn collect_struct_generics(group: &ResolvedGroup) -> Vec<String> {
-    let mut seen_counts = HashSet::new();
-    let mut seen_names = HashSet::new();
-    let mut generics = vec![];
+/// The const-generic array-length names for one group's generated stateful struct - see
+/// [`collect_struct_generics`].
+pub(crate) struct StructGenerics {
+    /// This group's own struct's full `<const NAME: usize, ...>` list, in declaration order -
+    /// one name per *distinct* repeat count anywhere in this group's subtree (including nested
+    /// repeating children's own children, transitively), since each of those gets passed through
+    /// as a type argument to whichever nested array actually needs it.
+    own: Vec<String>,
+    /// One entry per [`ResolvedGroup::flattened_repeats`] entry, in that same order: the
+    /// array-length name bounding that child's array (already included in `own`, unless it was
+    /// already claimed by an earlier sibling sharing the same count point), paired with that
+    /// child's own `StructGenerics`.
+    children: Vec<(String, StructGenerics)>,
+}
+
+/// Builds `group`'s [`StructGenerics`], and (recursively) every nested repeating child's own,
+/// naming each *distinct* repeat count point exactly once model-wide - a count shared between two branches,
+///  however deeply nested, is only ever named once, matching `resolve_model`'s `collect_count_points`.
+///  Siblings that share a count point (model 708's three curve arrays, all bounded by the same `NPt`) share
+///  the one generic too, rather than each getting their own.
+fn collect_struct_generics(
+    group: &ResolvedGroup,
+    array_len_by_count: &mut HashMap<String, String>,
+    seen_names: &mut HashSet<String>,
+) -> StructGenerics {
+    let mut own = vec![];
+    let mut children = vec![];
     for (count_point, inner_group) in group.flattened_repeats() {
-        if seen_counts.insert(count_point.internal_name.clone()) {
-            let preferred = count_point.name_snake_case().to_uppercase();
-            let generic = if seen_names.insert(preferred.clone()) {
-                preferred
-            } else {
-                inner_group.name_short.to_uppercase()
-            };
-            generics.push(generic);
-        }
-        generics.extend(collect_struct_generics(inner_group));
+        let array_len = match array_len_by_count.get(&count_point.internal_name) {
+            Some(array_len) => array_len.clone(),
+            None => {
+                let preferred = count_point.name_snake_case().to_uppercase();
+                let array_len = if seen_names.insert(preferred.clone()) {
+                    preferred
+                } else {
+                    inner_group.name_short.to_uppercase()
+                };
+                array_len_by_count.insert(count_point.internal_name.clone(), array_len.clone());
+                own.push(array_len.clone());
+                array_len
+            }
+        };
+        let inner = collect_struct_generics(inner_group, array_len_by_count, seen_names);
+        own.extend(inner.own.iter().cloned());
+        children.push((array_len, inner));
     }
-    generics
+    StructGenerics { own, children }
 }
 
 fn generate_stateful_read_handlers(group: &ResolvedGroup, stateful_impl: &mut Impl) {
@@ -936,7 +940,7 @@ fn generate_stateful_write_handlers(group: &ResolvedGroup, stateful_impl: &mut I
 }
 
 pub fn generate_stateful_struct(model: &ResolvedModel, scope: &mut Scope) {
-    let generics = collect_struct_generics(&model.group);
+    let generics = collect_struct_generics(&model.group, &mut HashMap::new(), &mut HashSet::new());
     populate_stateful_struct(
         model.name_pascal_case(),
         "StatefulAdapter".to_string(),
@@ -949,11 +953,11 @@ pub fn generate_stateful_struct(model: &ResolvedModel, scope: &mut Scope) {
         .new_impl(format!(
             "{}StatefulAdapter<{}>",
             model.name_pascal_case(),
-            generics.join(", ")
+            generics.own.join(", ")
         ))
         .impl_trait("ReadAdapter");
 
-    for generic in &generics {
+    for generic in &generics.own {
         stateful_impl.generic(format!("const {generic}: usize"));
     }
 
@@ -964,11 +968,11 @@ pub fn generate_stateful_struct(model: &ResolvedModel, scope: &mut Scope) {
             .new_impl(format!(
                 "{}StatefulAdapter<{}>",
                 model.name_pascal_case(),
-                generics.join(", ")
+                generics.own.join(", ")
             ))
             .impl_trait("WriteAdapter");
 
-        for generic in &generics {
+        for generic in &generics.own {
             write_impl.generic(format!("const {generic}: usize"));
         }
 
@@ -1544,4 +1548,104 @@ pub fn generate_model(model: &ResolvedModel) -> Scope {
     generate_c_model_dispatch(model, &mut scope);
 
     scope
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::model_resolution::resolve_model;
+    use crate::sunspec_schema::SunspecModel;
+
+    /// A count point shared between two *separate* branches, not just siblings under one
+    /// parent: `RepB` (a direct child of the top group, bound by `Y`) and `RepC` (nested inside
+    /// `RepA`, a *different* direct child, also bound by `Y`). No real SunSpec model does this
+    /// today (the only known repeat-sharing case, model 708's `Crv`, shares a count between
+    /// siblings under one immediate parent, which the naive per-call state already handled) -
+    /// this is here to pin the general case a reviewer flagged as unhandled.
+    const SHARED_COUNT_ACROSS_BRANCHES_JSON: &str = r#"{
+        "id": 9999,
+        "group": {
+            "name": "TestModel",
+            "type": "group",
+            "points": [
+                {"name": "ID", "type": "uint16", "size": 1},
+                {"name": "L", "type": "uint16", "size": 1},
+                {"name": "X", "type": "count", "size": 1},
+                {"name": "Y", "type": "count", "size": 1}
+            ],
+            "groups": [
+                {
+                    "name": "RepA",
+                    "type": "group",
+                    "count": "X",
+                    "points": [{"name": "AVal", "type": "uint16", "size": 1}],
+                    "groups": [
+                        {
+                            "name": "RepC",
+                            "type": "group",
+                            "count": "Y",
+                            "points": [{"name": "CVal", "type": "uint16", "size": 1}]
+                        }
+                    ]
+                },
+                {
+                    "name": "RepB",
+                    "type": "group",
+                    "count": "Y",
+                    "points": [{"name": "BVal", "type": "uint16", "size": 1}]
+                }
+            ]
+        }
+    }"#;
+
+    #[test]
+    fn struct_generics_dedupe_a_count_shared_across_separate_branches() {
+        let model: SunspecModel = serde_json::from_str(SHARED_COUNT_ACROSS_BRANCHES_JSON)
+            .expect("test model JSON should parse");
+        let resolved = resolve_model(&model, "model_9999".to_string());
+
+        let generics =
+            collect_struct_generics(&resolved.group, &mut HashMap::new(), &mut HashSet::new());
+
+        // The top-level struct must declare each distinct count exactly once - one entry for X
+        // (RepA's own count) and one for Y (RepB's and RepC's shared count), never two Ys.
+        let unique: HashSet<&String> = generics.own.iter().collect();
+        assert_eq!(
+            generics.own.len(),
+            unique.len(),
+            "top-level generics list has a duplicate name: {:?}",
+            generics.own
+        );
+        assert_eq!(
+            generics.own.len(),
+            2,
+            "expected exactly X and Y: {:?}",
+            generics.own
+        );
+
+        // RepA (children[0]) and RepC nested inside it share the same array-length name as RepB
+        // (children[1]) for Y - the whole point of the count being shared model-wide.
+        assert_eq!(generics.children.len(), 2);
+        let (rep_a_array_len, rep_a_generics) = &generics.children[0];
+        let (rep_b_array_len, rep_b_generics) = &generics.children[1];
+
+        assert_eq!(
+            rep_a_generics.children.len(),
+            1,
+            "RepA should have one nested child, RepC"
+        );
+        let (rep_c_array_len, _) = &rep_a_generics.children[0];
+        assert_eq!(
+            rep_c_array_len, rep_b_array_len,
+            "RepC and RepB share count Y, so must share one generic name"
+        );
+        assert_ne!(
+            rep_a_array_len, rep_b_array_len,
+            "RepA (count X) and RepB (count Y) are different counts and must get different names"
+        );
+
+        // RepB's own struct needs no generics of its own - Y is already declared on the
+        // enclosing (top-level) struct, since that's where RepB's array field itself lives.
+        assert!(rep_b_generics.own.is_empty());
+    }
 }
