@@ -4,13 +4,13 @@
 
 use crate::buffer::{ReadableRegisterBuffer, WritableRegisterBuffer};
 use crate::cursor::Cursor;
-use crate::generated::models::*;
 use crate::model::StaticModelSpec;
+use crate::sunspec::models::*;
 use crate::{ModbusException, ModelSpec};
 use core::ffi::c_void;
 
 /// One model's read side: a statically known model paired with a shared borrow of
-/// its per-model [`ReadAdapter`](crate::generated::models) trait, or an
+/// its per-model [`ReadAdapter`](crate::sunspec::models) trait, or an
 /// [`Extern`](ReadBinding::Extern) block dispatched through a C [`StaticModelSpec`] vtable.
 #[non_exhaustive]
 pub enum ReadBinding<'a> {
@@ -182,7 +182,7 @@ pub enum ReadBinding<'a> {
 }
 
 /// One model's write side: a statically known model, carrying a uniquely borrowed
-/// reference to its per-model [`WriteAdapter`](crate::generated::models) trait when the
+/// reference to its per-model [`WriteAdapter`](crate::sunspec::models) trait when the
 /// model has writable points, or an [`Extern`](WriteBinding::Extern) block dispatched
 /// through a C [`StaticModelSpec`] vtable. A variant with no adapter rejects every
 /// write in its block.

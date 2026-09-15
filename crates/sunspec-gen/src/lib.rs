@@ -101,7 +101,7 @@ fn format_and_write(path: &Path, scope: &Scope) {
 pub fn generate() {
     let project_root = env!("CARGO_MANIFEST_DIR");
     let model_glob = format!("{project_root}/models/json/model_*.json");
-    let src_path = format!("{project_root}/../sunspec-modbus-lib-rs/src/generated");
+    let src_path = format!("{project_root}/../sunspec-modbus-lib-rs/src/sunspec");
     let generated_src_dir = Path::new(&src_path);
 
     fs::create_dir_all(generated_src_dir.join("models"))
@@ -167,7 +167,7 @@ fn generate_static_lib_adapter_ctors() -> Scope {
         let n = model.model_number;
         let sc = &model.name_snake_case();
         let pc = &model.name_pascal_case();
-        let module = format!("sunspec_modbus_lib_rs::generated::models::{sc}");
+        let module = format!("sunspec_modbus_lib_rs::sunspec::models::{sc}");
 
         scope.raw(format!(
             "/// Build a [`SunspecAdapter`] for model {n} backed by a callback adapter.\n\
