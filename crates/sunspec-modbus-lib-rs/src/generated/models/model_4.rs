@@ -9,7 +9,7 @@ use crate::model::{ModelSpec, StaticModelSpec};
 use core::cmp::min;
 use core::ffi::c_void;
 
-static POINTS: [PointDetails<()>; 62] = [
+static POINTS: [PointDetails<()>; 61] = [
     PointDetails {
         point: |()| Point::ModelId,
         size: 1,
@@ -315,12 +315,13 @@ static POINTS: [PointDetails<()>; 62] = [
         size: 1,
         start_address: 61,
     },
-    PointDetails {
-        point: |()| Point::RepeatingDs,
-        size: 1,
-        start_address: 62,
-    },
 ];
+
+static REPEATING_POINTS: [PointDetails<()>; 1] = [PointDetails {
+    point: |()| Point::RepeatingDs,
+    size: 1,
+    start_address: 0,
+}];
 
 #[derive(Debug)]
 pub enum Point {
@@ -418,6 +419,11 @@ impl<'ad> ModelSpec<'ad> for Model4 {
         let iter = POINTS
             .iter()
             .map(|p| (p.start_address, p.size, (p.point)(())))
+            .chain(
+                REPEATING_POINTS
+                    .iter()
+                    .map(move |p| (62 + p.start_address, p.size, (p.point)(()))),
+            )
             .skip_while(|(start, size, _)| offset >= start + size)
             .take_while(|(start, _, _)| until > *start);
 
@@ -449,6 +455,11 @@ impl<'ad> ModelSpec<'ad> for Model4 {
         let iter = POINTS
             .iter()
             .map(|p| (p.start_address, p.size, (p.point)(())))
+            .chain(
+                REPEATING_POINTS
+                    .iter()
+                    .map(move |p| (62 + p.start_address, p.size, (p.point)(()))),
+            )
             .skip_while(|(start, size, _)| offset >= start + size)
             .take_while(|(start, _, _)| until > *start);
 

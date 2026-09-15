@@ -9,7 +9,7 @@ use crate::model::{ModelSpec, StaticModelSpec};
 use core::cmp::min;
 use core::ffi::{CStr, c_char, c_void};
 
-static POINTS: [PointDetails<()>; 55] = [
+static POINTS: [PointDetails<()>; 12] = [
     PointDetails {
         point: |()| Point::ModelId,
         size: 1,
@@ -70,220 +70,223 @@ static POINTS: [PointDetails<()>; 55] = [
         size: 1,
         start_address: 11,
     },
+];
+
+static CURVE_POINTS: [PointDetails<()>; 43] = [
     PointDetails {
         point: |()| Point::CurveActPt,
         size: 1,
-        start_address: 12,
+        start_address: 0,
     },
     PointDetails {
         point: |()| Point::CurveTms1,
         size: 1,
-        start_address: 13,
+        start_address: 1,
     },
     PointDetails {
         point: |()| Point::CurveHz1,
         size: 1,
-        start_address: 14,
+        start_address: 2,
     },
     PointDetails {
         point: |()| Point::CurveTms2,
         size: 1,
-        start_address: 15,
+        start_address: 3,
     },
     PointDetails {
         point: |()| Point::CurveHz2,
         size: 1,
-        start_address: 16,
+        start_address: 4,
     },
     PointDetails {
         point: |()| Point::CurveTms3,
         size: 1,
-        start_address: 17,
+        start_address: 5,
     },
     PointDetails {
         point: |()| Point::CurveHz3,
         size: 1,
-        start_address: 18,
+        start_address: 6,
     },
     PointDetails {
         point: |()| Point::CurveTms4,
         size: 1,
-        start_address: 19,
+        start_address: 7,
     },
     PointDetails {
         point: |()| Point::CurveHz4,
         size: 1,
-        start_address: 20,
+        start_address: 8,
     },
     PointDetails {
         point: |()| Point::CurveTms5,
         size: 1,
-        start_address: 21,
+        start_address: 9,
     },
     PointDetails {
         point: |()| Point::CurveHz5,
         size: 1,
-        start_address: 22,
+        start_address: 10,
     },
     PointDetails {
         point: |()| Point::CurveTms6,
         size: 1,
-        start_address: 23,
+        start_address: 11,
     },
     PointDetails {
         point: |()| Point::CurveHz6,
         size: 1,
-        start_address: 24,
+        start_address: 12,
     },
     PointDetails {
         point: |()| Point::CurveTms7,
         size: 1,
-        start_address: 25,
+        start_address: 13,
     },
     PointDetails {
         point: |()| Point::CurveHz7,
         size: 1,
-        start_address: 26,
+        start_address: 14,
     },
     PointDetails {
         point: |()| Point::CurveTms8,
         size: 1,
-        start_address: 27,
+        start_address: 15,
     },
     PointDetails {
         point: |()| Point::CurveHz8,
         size: 1,
-        start_address: 28,
+        start_address: 16,
     },
     PointDetails {
         point: |()| Point::CurveTms9,
         size: 1,
-        start_address: 29,
+        start_address: 17,
     },
     PointDetails {
         point: |()| Point::CurveHz9,
         size: 1,
-        start_address: 30,
+        start_address: 18,
     },
     PointDetails {
         point: |()| Point::CurveTms10,
         size: 1,
-        start_address: 31,
+        start_address: 19,
     },
     PointDetails {
         point: |()| Point::CurveHz10,
         size: 1,
-        start_address: 32,
+        start_address: 20,
     },
     PointDetails {
         point: |()| Point::CurveTms11,
         size: 1,
-        start_address: 33,
+        start_address: 21,
     },
     PointDetails {
         point: |()| Point::CurveHz11,
         size: 1,
-        start_address: 34,
+        start_address: 22,
     },
     PointDetails {
         point: |()| Point::CurveTms12,
         size: 1,
-        start_address: 35,
+        start_address: 23,
     },
     PointDetails {
         point: |()| Point::CurveHz12,
         size: 1,
-        start_address: 36,
+        start_address: 24,
     },
     PointDetails {
         point: |()| Point::CurveTms13,
         size: 1,
-        start_address: 37,
+        start_address: 25,
     },
     PointDetails {
         point: |()| Point::CurveHz13,
         size: 1,
-        start_address: 38,
+        start_address: 26,
     },
     PointDetails {
         point: |()| Point::CurveTms14,
         size: 1,
-        start_address: 39,
+        start_address: 27,
     },
     PointDetails {
         point: |()| Point::CurveHz14,
         size: 1,
-        start_address: 40,
+        start_address: 28,
     },
     PointDetails {
         point: |()| Point::CurveTms15,
         size: 1,
-        start_address: 41,
+        start_address: 29,
     },
     PointDetails {
         point: |()| Point::CurveHz15,
         size: 1,
-        start_address: 42,
+        start_address: 30,
     },
     PointDetails {
         point: |()| Point::CurveTms16,
         size: 1,
-        start_address: 43,
+        start_address: 31,
     },
     PointDetails {
         point: |()| Point::CurveHz16,
         size: 1,
-        start_address: 44,
+        start_address: 32,
     },
     PointDetails {
         point: |()| Point::CurveTms17,
         size: 1,
-        start_address: 45,
+        start_address: 33,
     },
     PointDetails {
         point: |()| Point::CurveHz17,
         size: 1,
-        start_address: 46,
+        start_address: 34,
     },
     PointDetails {
         point: |()| Point::CurveTms18,
         size: 1,
-        start_address: 47,
+        start_address: 35,
     },
     PointDetails {
         point: |()| Point::CurveHz18,
         size: 1,
-        start_address: 48,
+        start_address: 36,
     },
     PointDetails {
         point: |()| Point::CurveTms19,
         size: 1,
-        start_address: 49,
+        start_address: 37,
     },
     PointDetails {
         point: |()| Point::CurveHz19,
         size: 1,
-        start_address: 50,
+        start_address: 38,
     },
     PointDetails {
         point: |()| Point::CurveTms20,
         size: 1,
-        start_address: 51,
+        start_address: 39,
     },
     PointDetails {
         point: |()| Point::CurveHz20,
         size: 1,
-        start_address: 52,
+        start_address: 40,
     },
     PointDetails {
         point: |()| Point::CurveCrvNam,
         size: 8,
-        start_address: 53,
+        start_address: 41,
     },
     PointDetails {
         point: |()| Point::CurveReadOnly,
         size: 1,
-        start_address: 61,
+        start_address: 49,
     },
 ];
 
@@ -376,6 +379,11 @@ impl<'ad> ModelSpec<'ad> for Model144 {
         let iter = POINTS
             .iter()
             .map(|p| (p.start_address, p.size, (p.point)(())))
+            .chain(
+                CURVE_POINTS
+                    .iter()
+                    .map(move |p| (12 + p.start_address, p.size, (p.point)(()))),
+            )
             .skip_while(|(start, size, _)| offset >= start + size)
             .take_while(|(start, _, _)| until > *start);
 
@@ -407,6 +415,11 @@ impl<'ad> ModelSpec<'ad> for Model144 {
         let iter = POINTS
             .iter()
             .map(|p| (p.start_address, p.size, (p.point)(())))
+            .chain(
+                CURVE_POINTS
+                    .iter()
+                    .map(move |p| (12 + p.start_address, p.size, (p.point)(()))),
+            )
             .skip_while(|(start, size, _)| offset >= start + size)
             .take_while(|(start, _, _)| until > *start);
 

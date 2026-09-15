@@ -9,7 +9,7 @@ use crate::model::{ModelSpec, StaticModelSpec};
 use core::cmp::min;
 use core::ffi::c_void;
 
-static POINTS: [PointDetails<()>; 53] = [
+static POINTS: [PointDetails<()>; 45] = [
     PointDetails {
         point: |()| Point::ModelId,
         size: 1,
@@ -235,45 +235,57 @@ static POINTS: [PointDetails<()>; 53] = [
         size: 1,
         start_address: 58,
     },
+];
+
+static PFW_INJ_POINTS: [PointDetails<()>; 2] = [
     PointDetails {
         point: |()| Point::PowerFactorWInjPowerFactorWInj,
         size: 1,
-        start_address: 59,
+        start_address: 0,
     },
     PointDetails {
         point: |()| Point::PowerFactorWInjPowerFactorExcitationWInj,
         size: 1,
-        start_address: 60,
+        start_address: 1,
     },
+];
+
+static PFW_INJ_RVRT_POINTS: [PointDetails<()>; 2] = [
     PointDetails {
         point: |()| Point::ReversionPowerFactorWInjReversionPowerFactorWInj,
         size: 1,
-        start_address: 61,
+        start_address: 0,
     },
     PointDetails {
         point: |()| Point::ReversionPowerFactorWInjReversionPfExcitationWInj,
         size: 1,
-        start_address: 62,
+        start_address: 1,
     },
+];
+
+static PFW_ABS_POINTS: [PointDetails<()>; 2] = [
     PointDetails {
         point: |()| Point::PowerFactorWAbsPowerFactorWAbs,
         size: 1,
-        start_address: 63,
+        start_address: 0,
     },
     PointDetails {
         point: |()| Point::PowerFactorWAbsPowerFactorExcitationWAbs,
         size: 1,
-        start_address: 64,
+        start_address: 1,
     },
+];
+
+static PFW_ABS_RVRT_POINTS: [PointDetails<()>; 2] = [
     PointDetails {
         point: |()| Point::ReversionPowerFactorWAbsReversionPowerFactorWAbs,
         size: 1,
-        start_address: 65,
+        start_address: 0,
     },
     PointDetails {
         point: |()| Point::ReversionPowerFactorWAbsReversionPfExcitationWAbs,
         size: 1,
-        start_address: 66,
+        start_address: 1,
     },
 ];
 
@@ -364,6 +376,26 @@ impl<'ad> ModelSpec<'ad> for Model704 {
         let iter = POINTS
             .iter()
             .map(|p| (p.start_address, p.size, (p.point)(())))
+            .chain(
+                PFW_INJ_POINTS
+                    .iter()
+                    .map(move |p| (59 + p.start_address, p.size, (p.point)(()))),
+            )
+            .chain(
+                PFW_INJ_RVRT_POINTS
+                    .iter()
+                    .map(move |p| (59 + 2 + p.start_address, p.size, (p.point)(()))),
+            )
+            .chain(
+                PFW_ABS_POINTS
+                    .iter()
+                    .map(move |p| (59 + 2 + 2 + p.start_address, p.size, (p.point)(()))),
+            )
+            .chain(
+                PFW_ABS_RVRT_POINTS
+                    .iter()
+                    .map(move |p| (59 + 2 + 2 + 2 + p.start_address, p.size, (p.point)(()))),
+            )
             .skip_while(|(start, size, _)| offset >= start + size)
             .take_while(|(start, _, _)| until > *start);
 
@@ -395,6 +427,26 @@ impl<'ad> ModelSpec<'ad> for Model704 {
         let iter = POINTS
             .iter()
             .map(|p| (p.start_address, p.size, (p.point)(())))
+            .chain(
+                PFW_INJ_POINTS
+                    .iter()
+                    .map(move |p| (59 + p.start_address, p.size, (p.point)(()))),
+            )
+            .chain(
+                PFW_INJ_RVRT_POINTS
+                    .iter()
+                    .map(move |p| (59 + 2 + p.start_address, p.size, (p.point)(()))),
+            )
+            .chain(
+                PFW_ABS_POINTS
+                    .iter()
+                    .map(move |p| (59 + 2 + 2 + p.start_address, p.size, (p.point)(()))),
+            )
+            .chain(
+                PFW_ABS_RVRT_POINTS
+                    .iter()
+                    .map(move |p| (59 + 2 + 2 + 2 + p.start_address, p.size, (p.point)(()))),
+            )
             .skip_while(|(start, size, _)| offset >= start + size)
             .take_while(|(start, _, _)| until > *start);
 

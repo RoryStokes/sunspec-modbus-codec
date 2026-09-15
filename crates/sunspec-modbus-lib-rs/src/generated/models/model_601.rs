@@ -9,7 +9,7 @@ use crate::model::{ModelSpec, StaticModelSpec};
 use core::cmp::min;
 use core::ffi::{CStr, c_char, c_void};
 
-static POINTS: [PointDetails<()>; 22] = [
+static POINTS: [PointDetails<()>; 13] = [
     PointDetails {
         point: |()| Point::ModelId,
         size: 1,
@@ -75,50 +75,53 @@ static POINTS: [PointDetails<()>; 22] = [
         size: 1,
         start_address: 27,
     },
+];
+
+static TRACKER_POINTS: [PointDetails<()>; 9] = [
     PointDetails {
         point: |()| Point::TrackerTracker,
         size: 8,
-        start_address: 28,
+        start_address: 0,
     },
     PointDetails {
         point: |()| Point::TrackerTargetElevation,
         size: 2,
-        start_address: 36,
+        start_address: 8,
     },
     PointDetails {
         point: |()| Point::TrackerTargetAzimuth,
         size: 2,
-        start_address: 38,
+        start_address: 10,
     },
     PointDetails {
         point: |()| Point::TrackerElevation,
         size: 2,
-        start_address: 40,
+        start_address: 12,
     },
     PointDetails {
         point: |()| Point::TrackerAzimuth,
         size: 2,
-        start_address: 42,
+        start_address: 14,
     },
     PointDetails {
         point: |()| Point::TrackerManualElevation,
         size: 2,
-        start_address: 44,
+        start_address: 16,
     },
     PointDetails {
         point: |()| Point::TrackerManualAzimuth,
         size: 2,
-        start_address: 46,
+        start_address: 18,
     },
     PointDetails {
         point: |()| Point::TrackerMode,
         size: 1,
-        start_address: 48,
+        start_address: 20,
     },
     PointDetails {
         point: |()| Point::TrackerAlarm,
         size: 1,
-        start_address: 49,
+        start_address: 21,
     },
 ];
 
@@ -178,6 +181,11 @@ impl<'ad> ModelSpec<'ad> for Model601 {
         let iter = POINTS
             .iter()
             .map(|p| (p.start_address, p.size, (p.point)(())))
+            .chain(
+                TRACKER_POINTS
+                    .iter()
+                    .map(move |p| (28 + p.start_address, p.size, (p.point)(()))),
+            )
             .skip_while(|(start, size, _)| offset >= start + size)
             .take_while(|(start, _, _)| until > *start);
 
@@ -209,6 +217,11 @@ impl<'ad> ModelSpec<'ad> for Model601 {
         let iter = POINTS
             .iter()
             .map(|p| (p.start_address, p.size, (p.point)(())))
+            .chain(
+                TRACKER_POINTS
+                    .iter()
+                    .map(move |p| (28 + p.start_address, p.size, (p.point)(()))),
+            )
             .skip_while(|(start, size, _)| offset >= start + size)
             .take_while(|(start, _, _)| until > *start);
 

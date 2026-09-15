@@ -9,7 +9,7 @@ use crate::model::{ModelSpec, StaticModelSpec};
 use core::cmp::min;
 use core::ffi::c_void;
 
-static POINTS: [PointDetails<()>; 33] = [
+static POINTS: [PointDetails<()>; 23] = [
     PointDetails {
         point: |()| Point::ModelId,
         size: 1,
@@ -125,55 +125,58 @@ static POINTS: [PointDetails<()>; 33] = [
         size: 1,
         start_address: 26,
     },
+];
+
+static STRING_POINTS: [PointDetails<()>; 10] = [
     PointDetails {
         point: |()| Point::StringId,
         size: 1,
-        start_address: 27,
+        start_address: 0,
     },
     PointDetails {
         point: |()| Point::StringInputEvent,
         size: 2,
-        start_address: 28,
+        start_address: 1,
     },
     PointDetails {
         point: |()| Point::StringInputEventVendor,
         size: 2,
-        start_address: 30,
+        start_address: 3,
     },
     PointDetails {
         point: |()| Point::StringAmps,
         size: 1,
-        start_address: 32,
+        start_address: 5,
     },
     PointDetails {
         point: |()| Point::StringAmpHours,
         size: 2,
-        start_address: 33,
+        start_address: 6,
     },
     PointDetails {
         point: |()| Point::StringVoltage,
         size: 1,
-        start_address: 35,
+        start_address: 8,
     },
     PointDetails {
         point: |()| Point::StringWatts,
         size: 1,
-        start_address: 36,
+        start_address: 9,
     },
     PointDetails {
         point: |()| Point::StringWattHours,
         size: 2,
-        start_address: 37,
+        start_address: 10,
     },
     PointDetails {
         point: |()| Point::StringPr,
         size: 1,
-        start_address: 39,
+        start_address: 12,
     },
     PointDetails {
         point: |()| Point::StringN,
         size: 1,
-        start_address: 40,
+        start_address: 13,
     },
 ];
 
@@ -244,6 +247,11 @@ impl<'ad> ModelSpec<'ad> for Model404 {
         let iter = POINTS
             .iter()
             .map(|p| (p.start_address, p.size, (p.point)(())))
+            .chain(
+                STRING_POINTS
+                    .iter()
+                    .map(move |p| (27 + p.start_address, p.size, (p.point)(()))),
+            )
             .skip_while(|(start, size, _)| offset >= start + size)
             .take_while(|(start, _, _)| until > *start);
 
@@ -275,6 +283,11 @@ impl<'ad> ModelSpec<'ad> for Model404 {
         let iter = POINTS
             .iter()
             .map(|p| (p.start_address, p.size, (p.point)(())))
+            .chain(
+                STRING_POINTS
+                    .iter()
+                    .map(move |p| (27 + p.start_address, p.size, (p.point)(()))),
+            )
             .skip_while(|(start, size, _)| offset >= start + size)
             .take_while(|(start, _, _)| until > *start);
 

@@ -9,7 +9,7 @@ use crate::model::{ModelSpec, StaticModelSpec};
 use core::cmp::min;
 use core::ffi::c_void;
 
-static POINTS: [PointDetails<()>; 18] = [
+static POINTS: [PointDetails<()>; 13] = [
     PointDetails {
         point: |()| Point::ModelId,
         size: 1,
@@ -75,30 +75,33 @@ static POINTS: [PointDetails<()>; 18] = [
         size: 1,
         start_address: 15,
     },
+];
+
+static STRING_POINTS: [PointDetails<()>; 5] = [
     PointDetails {
         point: |()| Point::StringId,
         size: 1,
-        start_address: 16,
+        start_address: 0,
     },
     PointDetails {
         point: |()| Point::StringInputEvent,
         size: 2,
-        start_address: 17,
+        start_address: 1,
     },
     PointDetails {
         point: |()| Point::StringInputEventVendor,
         size: 2,
-        start_address: 19,
+        start_address: 3,
     },
     PointDetails {
         point: |()| Point::StringAmps,
         size: 1,
-        start_address: 21,
+        start_address: 5,
     },
     PointDetails {
         point: |()| Point::StringAmpHours,
         size: 2,
-        start_address: 22,
+        start_address: 6,
     },
 ];
 
@@ -154,6 +157,11 @@ impl<'ad> ModelSpec<'ad> for Model401 {
         let iter = POINTS
             .iter()
             .map(|p| (p.start_address, p.size, (p.point)(())))
+            .chain(
+                STRING_POINTS
+                    .iter()
+                    .map(move |p| (16 + p.start_address, p.size, (p.point)(()))),
+            )
             .skip_while(|(start, size, _)| offset >= start + size)
             .take_while(|(start, _, _)| until > *start);
 
@@ -185,6 +193,11 @@ impl<'ad> ModelSpec<'ad> for Model401 {
         let iter = POINTS
             .iter()
             .map(|p| (p.start_address, p.size, (p.point)(())))
+            .chain(
+                STRING_POINTS
+                    .iter()
+                    .map(move |p| (16 + p.start_address, p.size, (p.point)(()))),
+            )
             .skip_while(|(start, size, _)| offset >= start + size)
             .take_while(|(start, _, _)| until > *start);
 

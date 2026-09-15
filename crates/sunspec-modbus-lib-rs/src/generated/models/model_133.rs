@@ -9,7 +9,7 @@ use crate::model::{ModelSpec, StaticModelSpec};
 use core::cmp::min;
 use core::ffi::{CStr, c_char, c_void};
 
-static POINTS: [PointDetails<()>; 39] = [
+static POINTS: [PointDetails<()>; 7] = [
     PointDetails {
         point: |()| Point::ModelId,
         size: 1,
@@ -45,165 +45,168 @@ static POINTS: [PointDetails<()>; 39] = [
         size: 1,
         start_address: 7,
     },
+];
+
+static REPEATING_POINTS: [PointDetails<()>; 32] = [
     PointDetails {
         point: |()| Point::RepeatingActPts,
         size: 1,
-        start_address: 8,
+        start_address: 0,
     },
     PointDetails {
         point: |()| Point::RepeatingStrTms,
         size: 2,
-        start_address: 9,
+        start_address: 1,
     },
     PointDetails {
         point: |()| Point::RepeatingRepPer,
         size: 1,
-        start_address: 11,
+        start_address: 3,
     },
     PointDetails {
         point: |()| Point::RepeatingSchdTyp,
         size: 1,
-        start_address: 12,
+        start_address: 4,
     },
     PointDetails {
         point: |()| Point::RepeatingXTyp,
         size: 1,
-        start_address: 13,
+        start_address: 5,
     },
     PointDetails {
         point: |()| Point::RepeatingXSf,
         size: 1,
-        start_address: 14,
+        start_address: 6,
     },
     PointDetails {
         point: |()| Point::RepeatingYTyp,
         size: 1,
-        start_address: 15,
+        start_address: 7,
     },
     PointDetails {
         point: |()| Point::RepeatingYSf,
         size: 1,
-        start_address: 16,
+        start_address: 8,
     },
     PointDetails {
         point: |()| Point::RepeatingX1,
         size: 2,
-        start_address: 17,
+        start_address: 9,
     },
     PointDetails {
         point: |()| Point::RepeatingY1,
         size: 2,
-        start_address: 19,
+        start_address: 11,
     },
     PointDetails {
         point: |()| Point::RepeatingX2,
         size: 2,
-        start_address: 21,
+        start_address: 13,
     },
     PointDetails {
         point: |()| Point::RepeatingY2,
         size: 2,
-        start_address: 23,
+        start_address: 15,
     },
     PointDetails {
         point: |()| Point::RepeatingX3,
         size: 2,
-        start_address: 25,
+        start_address: 17,
     },
     PointDetails {
         point: |()| Point::RepeatingY3,
         size: 2,
-        start_address: 27,
+        start_address: 19,
     },
     PointDetails {
         point: |()| Point::RepeatingX4,
         size: 2,
-        start_address: 29,
+        start_address: 21,
     },
     PointDetails {
         point: |()| Point::RepeatingY4,
         size: 2,
-        start_address: 31,
+        start_address: 23,
     },
     PointDetails {
         point: |()| Point::RepeatingX5,
         size: 2,
-        start_address: 33,
+        start_address: 25,
     },
     PointDetails {
         point: |()| Point::RepeatingY5,
         size: 2,
-        start_address: 35,
+        start_address: 27,
     },
     PointDetails {
         point: |()| Point::RepeatingX6,
         size: 2,
-        start_address: 37,
+        start_address: 29,
     },
     PointDetails {
         point: |()| Point::RepeatingY6,
         size: 2,
-        start_address: 39,
+        start_address: 31,
     },
     PointDetails {
         point: |()| Point::RepeatingX7,
         size: 2,
-        start_address: 41,
+        start_address: 33,
     },
     PointDetails {
         point: |()| Point::RepeatingY7,
         size: 2,
-        start_address: 43,
+        start_address: 35,
     },
     PointDetails {
         point: |()| Point::RepeatingX8,
         size: 2,
-        start_address: 45,
+        start_address: 37,
     },
     PointDetails {
         point: |()| Point::RepeatingY8,
         size: 2,
-        start_address: 47,
+        start_address: 39,
     },
     PointDetails {
         point: |()| Point::RepeatingX9,
         size: 2,
-        start_address: 49,
+        start_address: 41,
     },
     PointDetails {
         point: |()| Point::RepeatingY9,
         size: 2,
-        start_address: 51,
+        start_address: 43,
     },
     PointDetails {
         point: |()| Point::RepeatingX10,
         size: 2,
-        start_address: 53,
+        start_address: 45,
     },
     PointDetails {
         point: |()| Point::RepeatingY10,
         size: 2,
-        start_address: 55,
+        start_address: 47,
     },
     PointDetails {
         point: |()| Point::RepeatingNam,
         size: 8,
-        start_address: 57,
+        start_address: 49,
     },
     PointDetails {
         point: |()| Point::RepeatingWinTms,
         size: 1,
-        start_address: 65,
+        start_address: 57,
     },
     PointDetails {
         point: |()| Point::RepeatingRmpTms,
         size: 1,
-        start_address: 66,
+        start_address: 58,
     },
     PointDetails {
         point: |()| Point::RepeatingActIndx,
         size: 1,
-        start_address: 67,
+        start_address: 59,
     },
 ];
 
@@ -280,6 +283,11 @@ impl<'ad> ModelSpec<'ad> for Model133 {
         let iter = POINTS
             .iter()
             .map(|p| (p.start_address, p.size, (p.point)(())))
+            .chain(
+                REPEATING_POINTS
+                    .iter()
+                    .map(move |p| (8 + p.start_address, p.size, (p.point)(()))),
+            )
             .skip_while(|(start, size, _)| offset >= start + size)
             .take_while(|(start, _, _)| until > *start);
 
@@ -311,6 +319,11 @@ impl<'ad> ModelSpec<'ad> for Model133 {
         let iter = POINTS
             .iter()
             .map(|p| (p.start_address, p.size, (p.point)(())))
+            .chain(
+                REPEATING_POINTS
+                    .iter()
+                    .map(move |p| (8 + p.start_address, p.size, (p.point)(()))),
+            )
             .skip_while(|(start, size, _)| offset >= start + size)
             .take_while(|(start, _, _)| until > *start);
 

@@ -9,7 +9,7 @@ use crate::model::{ModelSpec, StaticModelSpec};
 use core::cmp::min;
 use core::ffi::{CStr, c_char, c_void};
 
-static POINTS: [PointDetails<()>; 31] = [
+static POINTS: [PointDetails<()>; 28] = [
     PointDetails {
         point: |()| Point::ModelId,
         size: 1,
@@ -150,20 +150,23 @@ static POINTS: [PointDetails<()>; 31] = [
         size: 1,
         start_address: 43,
     },
+];
+
+static LITHIUM_ION_MODULE_CELL_POINTS: [PointDetails<()>; 3] = [
     PointDetails {
         point: |()| Point::LithiumIonModuleCellCellVoltage,
         size: 1,
-        start_address: 44,
+        start_address: 0,
     },
     PointDetails {
         point: |()| Point::LithiumIonModuleCellCellTemperature,
         size: 1,
-        start_address: 45,
+        start_address: 1,
     },
     PointDetails {
         point: |()| Point::LithiumIonModuleCellCellStatus,
         size: 2,
-        start_address: 46,
+        start_address: 2,
     },
 ];
 
@@ -232,6 +235,11 @@ impl<'ad> ModelSpec<'ad> for Model805 {
         let iter = POINTS
             .iter()
             .map(|p| (p.start_address, p.size, (p.point)(())))
+            .chain(
+                LITHIUM_ION_MODULE_CELL_POINTS
+                    .iter()
+                    .map(move |p| (44 + p.start_address, p.size, (p.point)(()))),
+            )
             .skip_while(|(start, size, _)| offset >= start + size)
             .take_while(|(start, _, _)| until > *start);
 
@@ -263,6 +271,11 @@ impl<'ad> ModelSpec<'ad> for Model805 {
         let iter = POINTS
             .iter()
             .map(|p| (p.start_address, p.size, (p.point)(())))
+            .chain(
+                LITHIUM_ION_MODULE_CELL_POINTS
+                    .iter()
+                    .map(move |p| (44 + p.start_address, p.size, (p.point)(()))),
+            )
             .skip_while(|(start, size, _)| offset >= start + size)
             .take_while(|(start, _, _)| until > *start);
 

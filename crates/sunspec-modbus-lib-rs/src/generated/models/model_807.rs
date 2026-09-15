@@ -9,7 +9,7 @@ use crate::model::{ModelSpec, StaticModelSpec};
 use core::cmp::min;
 use core::ffi::c_void;
 
-static POINTS: [PointDetails<()>; 52] = [
+static POINTS: [PointDetails<()>; 32] = [
     PointDetails {
         point: |()| Point::ModelId,
         size: 1,
@@ -170,105 +170,108 @@ static POINTS: [PointDetails<()>; 52] = [
         size: 1,
         start_address: 35,
     },
+];
+
+static MODULE_POINTS: [PointDetails<()>; 20] = [
     PointDetails {
         point: |()| Point::ModuleModuleIndex,
         size: 1,
-        start_address: 36,
+        start_address: 0,
     },
     PointDetails {
         point: |()| Point::ModuleStackCount,
         size: 1,
-        start_address: 37,
+        start_address: 1,
     },
     PointDetails {
         point: |()| Point::ModuleModuleStatus,
         size: 2,
-        start_address: 38,
+        start_address: 2,
     },
     PointDetails {
         point: |()| Point::ModuleModuleStateOfCharge,
         size: 1,
-        start_address: 40,
+        start_address: 4,
     },
     PointDetails {
         point: |()| Point::ModuleOpenCircuitVoltage,
         size: 1,
-        start_address: 41,
+        start_address: 5,
     },
     PointDetails {
         point: |()| Point::ModuleExternalVoltage,
         size: 1,
-        start_address: 42,
+        start_address: 6,
     },
     PointDetails {
         point: |()| Point::ModuleMaximumCellVoltage,
         size: 1,
-        start_address: 43,
+        start_address: 7,
     },
     PointDetails {
         point: |()| Point::ModuleMaxCellVoltageCell,
         size: 1,
-        start_address: 44,
+        start_address: 8,
     },
     PointDetails {
         point: |()| Point::ModuleMinimumCellVoltage,
         size: 1,
-        start_address: 45,
+        start_address: 9,
     },
     PointDetails {
         point: |()| Point::ModuleMinCellVoltageCell,
         size: 1,
-        start_address: 46,
+        start_address: 10,
     },
     PointDetails {
         point: |()| Point::ModuleAverageCellVoltage,
         size: 1,
-        start_address: 47,
+        start_address: 11,
     },
     PointDetails {
         point: |()| Point::ModuleAnolyteTemperature,
         size: 1,
-        start_address: 48,
+        start_address: 12,
     },
     PointDetails {
         point: |()| Point::ModuleCatholyteTemperature,
         size: 1,
-        start_address: 49,
+        start_address: 13,
     },
     PointDetails {
         point: |()| Point::ModuleContactorStatus,
         size: 2,
-        start_address: 50,
+        start_address: 14,
     },
     PointDetails {
         point: |()| Point::ModuleModuleEvent1,
         size: 2,
-        start_address: 52,
+        start_address: 16,
     },
     PointDetails {
         point: |()| Point::ModuleModuleEvent2,
         size: 2,
-        start_address: 54,
+        start_address: 18,
     },
     PointDetails {
         point: |()| Point::ModuleConnectionFailureReason,
         size: 1,
-        start_address: 56,
+        start_address: 20,
     },
     PointDetails {
         point: |()| Point::ModuleEnableDisableModule,
         size: 1,
-        start_address: 57,
+        start_address: 21,
     },
     PointDetails {
         point: |()| Point::ModuleConnectDisconnectModule,
         size: 1,
-        start_address: 58,
+        start_address: 22,
     },
     PointDetails {
         point: |()| Point::ModuleDisabledReason,
         size: 1,
-        start_address: 59,
+        start_address: 23,
     },
 ];
 
@@ -358,6 +361,11 @@ impl<'ad> ModelSpec<'ad> for Model807 {
         let iter = POINTS
             .iter()
             .map(|p| (p.start_address, p.size, (p.point)(())))
+            .chain(
+                MODULE_POINTS
+                    .iter()
+                    .map(move |p| (36 + p.start_address, p.size, (p.point)(()))),
+            )
             .skip_while(|(start, size, _)| offset >= start + size)
             .take_while(|(start, _, _)| until > *start);
 
@@ -389,6 +397,11 @@ impl<'ad> ModelSpec<'ad> for Model807 {
         let iter = POINTS
             .iter()
             .map(|p| (p.start_address, p.size, (p.point)(())))
+            .chain(
+                MODULE_POINTS
+                    .iter()
+                    .map(move |p| (36 + p.start_address, p.size, (p.point)(()))),
+            )
             .skip_while(|(start, size, _)| offset >= start + size)
             .take_while(|(start, _, _)| until > *start);
 

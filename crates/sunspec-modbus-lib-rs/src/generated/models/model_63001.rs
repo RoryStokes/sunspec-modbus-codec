@@ -9,7 +9,7 @@ use crate::model::{ModelSpec, StaticModelSpec};
 use core::cmp::min;
 use core::ffi::{CStr, c_char, c_void};
 
-static POINTS: [PointDetails<()>; 72] = [
+static POINTS: [PointDetails<()>; 58] = [
     PointDetails {
         point: |()| Point::ModelId,
         size: 1,
@@ -300,75 +300,78 @@ static POINTS: [PointDetails<()>; 72] = [
         size: 1,
         start_address: 135,
     },
+];
+
+static REPEATING_POINTS: [PointDetails<()>; 14] = [
     PointDetails {
         point: |()| Point::RepeatingSunssf8,
         size: 1,
-        start_address: 136,
+        start_address: 0,
     },
     PointDetails {
         point: |()| Point::RepeatingInt1611,
         size: 1,
-        start_address: 137,
+        start_address: 1,
     },
     PointDetails {
         point: |()| Point::RepeatingInt1612,
         size: 1,
-        start_address: 138,
+        start_address: 2,
     },
     PointDetails {
         point: |()| Point::RepeatingInt16U,
         size: 1,
-        start_address: 139,
+        start_address: 3,
     },
     PointDetails {
         point: |()| Point::RepeatingUint1611,
         size: 1,
-        start_address: 140,
+        start_address: 4,
     },
     PointDetails {
         point: |()| Point::RepeatingUint1612,
         size: 1,
-        start_address: 141,
+        start_address: 5,
     },
     PointDetails {
         point: |()| Point::RepeatingUint1613,
         size: 1,
-        start_address: 142,
+        start_address: 6,
     },
     PointDetails {
         point: |()| Point::RepeatingUint16U,
         size: 1,
-        start_address: 143,
+        start_address: 7,
     },
     PointDetails {
         point: |()| Point::RepeatingInt32,
         size: 2,
-        start_address: 144,
+        start_address: 8,
     },
     PointDetails {
         point: |()| Point::RepeatingInt32U,
         size: 2,
-        start_address: 146,
+        start_address: 10,
     },
     PointDetails {
         point: |()| Point::RepeatingUint32,
         size: 2,
-        start_address: 148,
+        start_address: 12,
     },
     PointDetails {
         point: |()| Point::RepeatingUint32U,
         size: 2,
-        start_address: 150,
+        start_address: 14,
     },
     PointDetails {
         point: |()| Point::RepeatingSunssf9,
         size: 1,
-        start_address: 152,
+        start_address: 16,
     },
     PointDetails {
         point: |()| Point::RepeatingPad2,
         size: 1,
-        start_address: 153,
+        start_address: 17,
     },
 ];
 
@@ -478,6 +481,11 @@ impl<'ad> ModelSpec<'ad> for Model63001 {
         let iter = POINTS
             .iter()
             .map(|p| (p.start_address, p.size, (p.point)(())))
+            .chain(
+                REPEATING_POINTS
+                    .iter()
+                    .map(move |p| (136 + p.start_address, p.size, (p.point)(()))),
+            )
             .skip_while(|(start, size, _)| offset >= start + size)
             .take_while(|(start, _, _)| until > *start);
 
@@ -509,6 +517,11 @@ impl<'ad> ModelSpec<'ad> for Model63001 {
         let iter = POINTS
             .iter()
             .map(|p| (p.start_address, p.size, (p.point)(())))
+            .chain(
+                REPEATING_POINTS
+                    .iter()
+                    .map(move |p| (136 + p.start_address, p.size, (p.point)(()))),
+            )
             .skip_while(|(start, size, _)| offset >= start + size)
             .take_while(|(start, _, _)| until > *start);
 

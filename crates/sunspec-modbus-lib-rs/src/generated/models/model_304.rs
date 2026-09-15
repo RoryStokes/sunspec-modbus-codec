@@ -9,7 +9,7 @@ use crate::model::{ModelSpec, StaticModelSpec};
 use core::cmp::min;
 use core::ffi::c_void;
 
-static POINTS: [PointDetails<()>; 5] = [
+static POINTS: [PointDetails<()>; 2] = [
     PointDetails {
         point: |()| Point::ModelId,
         size: 1,
@@ -20,20 +20,23 @@ static POINTS: [PointDetails<()>; 5] = [
         size: 1,
         start_address: 1,
     },
+];
+
+static INCL_POINTS: [PointDetails<()>; 3] = [
     PointDetails {
         point: |()| Point::InclX,
         size: 2,
-        start_address: 2,
+        start_address: 0,
     },
     PointDetails {
         point: |()| Point::InclY,
         size: 2,
-        start_address: 4,
+        start_address: 2,
     },
     PointDetails {
         point: |()| Point::InclZ,
         size: 2,
-        start_address: 6,
+        start_address: 4,
     },
 ];
 
@@ -76,6 +79,11 @@ impl<'ad> ModelSpec<'ad> for Model304 {
         let iter = POINTS
             .iter()
             .map(|p| (p.start_address, p.size, (p.point)(())))
+            .chain(
+                INCL_POINTS
+                    .iter()
+                    .map(move |p| (2 + p.start_address, p.size, (p.point)(()))),
+            )
             .skip_while(|(start, size, _)| offset >= start + size)
             .take_while(|(start, _, _)| until > *start);
 
@@ -107,6 +115,11 @@ impl<'ad> ModelSpec<'ad> for Model304 {
         let iter = POINTS
             .iter()
             .map(|p| (p.start_address, p.size, (p.point)(())))
+            .chain(
+                INCL_POINTS
+                    .iter()
+                    .map(move |p| (2 + p.start_address, p.size, (p.point)(()))),
+            )
             .skip_while(|(start, size, _)| offset >= start + size)
             .take_while(|(start, _, _)| until > *start);
 

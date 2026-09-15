@@ -57,28 +57,17 @@ static POINTS: [PointDetails<()>; 9] = [
     },
 ];
 
-static CRV_POINTS: [PointDetails<u16>; 4] = [
-    PointDetails {
-        point: |crv_index| Point::CrvCurveAccess { crv_index },
-        size: 1,
-        start_address: 0,
-    },
-    PointDetails {
-        point: |crv_index| Point::MustTripCurveCrvNumberOfActivePoints { crv_index },
-        size: 1,
-        start_address: 1,
-    },
-    PointDetails {
-        point: |crv_index| Point::MayTripCurveCrvNumberOfActivePoints { crv_index },
-        size: 1,
-        start_address: 2,
-    },
-    PointDetails {
-        point: |crv_index| Point::MomentaryCessationCurveCrvNumberOfActivePoints { crv_index },
-        size: 1,
-        start_address: 3,
-    },
-];
+static CRV_POINTS: [PointDetails<u16>; 1] = [PointDetails {
+    point: |crv_index| Point::CrvCurveAccess { crv_index },
+    size: 1,
+    start_address: 0,
+}];
+
+static MUST_TRIP_POINTS: [PointDetails<u16>; 1] = [PointDetails {
+    point: |crv_index| Point::MustTripCurveCrvNumberOfActivePoints { crv_index },
+    size: 1,
+    start_address: 0,
+}];
 
 static MUST_TRIP_PT_POINTS: [PointDetails<(u16, u16)>; 2] = [
     PointDetails {
@@ -99,6 +88,12 @@ static MUST_TRIP_PT_POINTS: [PointDetails<(u16, u16)>; 2] = [
     },
 ];
 
+static MAY_TRIP_POINTS: [PointDetails<u16>; 1] = [PointDetails {
+    point: |crv_index| Point::MayTripCurveCrvNumberOfActivePoints { crv_index },
+    size: 1,
+    start_address: 0,
+}];
+
 static MAY_TRIP_PT_POINTS: [PointDetails<(u16, u16)>; 2] = [
     PointDetails {
         point: |(crv_index, pt_index)| Point::MayTripCurvePtFrequencyPoint {
@@ -117,6 +112,12 @@ static MAY_TRIP_PT_POINTS: [PointDetails<(u16, u16)>; 2] = [
         start_address: 2,
     },
 ];
+
+static MOM_CESS_POINTS: [PointDetails<u16>; 1] = [PointDetails {
+    point: |crv_index| Point::MomentaryCessationCurveCrvNumberOfActivePoints { crv_index },
+    size: 1,
+    start_address: 0,
+}];
 
 static MOM_CESS_PT_POINTS: [PointDetails<(u16, u16)>; 2] = [
     PointDetails {
@@ -218,8 +219,16 @@ impl<'ad> ModelSpec<'ad> for Model710 {
                 CRV_POINTS
                     .iter()
                     .map(move |p| (crv_address + p.start_address, p.size, (p.point)(crv_index)))
+                    .chain(MUST_TRIP_POINTS.iter().map(move |p| {
+                        (
+                            crv_address + 1 + p.start_address,
+                            p.size,
+                            (p.point)(crv_index),
+                        )
+                    }))
                     .chain((0..must_trip_pt_count).flat_map(move |pt_index| {
-                        let must_trip_pt_address = crv_address + 4 + pt_index * must_trip_pt_size;
+                        let must_trip_pt_address =
+                            crv_address + 1 + 1 + pt_index * must_trip_pt_size;
                         MUST_TRIP_PT_POINTS.iter().map(move |p| {
                             (
                                 must_trip_pt_address + p.start_address,
@@ -228,10 +237,23 @@ impl<'ad> ModelSpec<'ad> for Model710 {
                             )
                         })
                     }))
+                    .chain(MAY_TRIP_POINTS.iter().map(move |p| {
+                        (
+                            crv_address
+                                + 1
+                                + 1
+                                + must_trip_pt_count * must_trip_pt_size
+                                + p.start_address,
+                            p.size,
+                            (p.point)(crv_index),
+                        )
+                    }))
                     .chain((0..may_trip_pt_count).flat_map(move |pt_index| {
                         let may_trip_pt_address = crv_address
-                            + 4
+                            + 1
+                            + 1
                             + must_trip_pt_count * must_trip_pt_size
+                            + 1
                             + pt_index * may_trip_pt_size;
                         MAY_TRIP_PT_POINTS.iter().map(move |p| {
                             (
@@ -241,11 +263,27 @@ impl<'ad> ModelSpec<'ad> for Model710 {
                             )
                         })
                     }))
+                    .chain(MOM_CESS_POINTS.iter().map(move |p| {
+                        (
+                            crv_address
+                                + 1
+                                + 1
+                                + must_trip_pt_count * must_trip_pt_size
+                                + 1
+                                + may_trip_pt_count * may_trip_pt_size
+                                + p.start_address,
+                            p.size,
+                            (p.point)(crv_index),
+                        )
+                    }))
                     .chain((0..mom_cess_pt_count).flat_map(move |pt_index| {
                         let mom_cess_pt_address = crv_address
-                            + 4
+                            + 1
+                            + 1
                             + must_trip_pt_count * must_trip_pt_size
+                            + 1
                             + may_trip_pt_count * may_trip_pt_size
+                            + 1
                             + pt_index * mom_cess_pt_size;
                         MOM_CESS_PT_POINTS.iter().map(move |p| {
                             (
@@ -307,8 +345,16 @@ impl<'ad> ModelSpec<'ad> for Model710 {
                 CRV_POINTS
                     .iter()
                     .map(move |p| (crv_address + p.start_address, p.size, (p.point)(crv_index)))
+                    .chain(MUST_TRIP_POINTS.iter().map(move |p| {
+                        (
+                            crv_address + 1 + p.start_address,
+                            p.size,
+                            (p.point)(crv_index),
+                        )
+                    }))
                     .chain((0..must_trip_pt_count).flat_map(move |pt_index| {
-                        let must_trip_pt_address = crv_address + 4 + pt_index * must_trip_pt_size;
+                        let must_trip_pt_address =
+                            crv_address + 1 + 1 + pt_index * must_trip_pt_size;
                         MUST_TRIP_PT_POINTS.iter().map(move |p| {
                             (
                                 must_trip_pt_address + p.start_address,
@@ -317,10 +363,23 @@ impl<'ad> ModelSpec<'ad> for Model710 {
                             )
                         })
                     }))
+                    .chain(MAY_TRIP_POINTS.iter().map(move |p| {
+                        (
+                            crv_address
+                                + 1
+                                + 1
+                                + must_trip_pt_count * must_trip_pt_size
+                                + p.start_address,
+                            p.size,
+                            (p.point)(crv_index),
+                        )
+                    }))
                     .chain((0..may_trip_pt_count).flat_map(move |pt_index| {
                         let may_trip_pt_address = crv_address
-                            + 4
+                            + 1
+                            + 1
                             + must_trip_pt_count * must_trip_pt_size
+                            + 1
                             + pt_index * may_trip_pt_size;
                         MAY_TRIP_PT_POINTS.iter().map(move |p| {
                             (
@@ -330,11 +389,27 @@ impl<'ad> ModelSpec<'ad> for Model710 {
                             )
                         })
                     }))
+                    .chain(MOM_CESS_POINTS.iter().map(move |p| {
+                        (
+                            crv_address
+                                + 1
+                                + 1
+                                + must_trip_pt_count * must_trip_pt_size
+                                + 1
+                                + may_trip_pt_count * may_trip_pt_size
+                                + p.start_address,
+                            p.size,
+                            (p.point)(crv_index),
+                        )
+                    }))
                     .chain((0..mom_cess_pt_count).flat_map(move |pt_index| {
                         let mom_cess_pt_address = crv_address
-                            + 4
+                            + 1
+                            + 1
                             + must_trip_pt_count * must_trip_pt_size
+                            + 1
                             + may_trip_pt_count * may_trip_pt_size
+                            + 1
                             + pt_index * mom_cess_pt_size;
                         MOM_CESS_PT_POINTS.iter().map(move |p| {
                             (
