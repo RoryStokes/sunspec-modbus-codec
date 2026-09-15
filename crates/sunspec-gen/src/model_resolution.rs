@@ -504,17 +504,20 @@ pub(crate) fn resolve_group(
     let writable = subgroups.iter().any(|subgroup| subgroup.group.writable)
         || static_points.iter().any(|p| p.access == PointAccess::Rw);
 
-    let count_points = subgroups
+    let count_points: Vec<NameRef> = subgroups
         .iter()
-        .map(|Subgroup { group, count }| {
+        .flat_map(|Subgroup { group, count }| {
             count
                 .iter()
                 .map(|point| point.name.clone())
                 .chain(group.count_points.iter().cloned())
-                .collect()
         })
-        .max_by_key(|v: &Vec<NameRef>| v.len())
-        .unwrap_or_default();
+        .fold(Vec::new(), |mut points, point| {
+            if !points.iter().any(|existing| std::rc::Rc::ptr_eq(existing, &point)) {
+                points.push(point);
+            }
+            points
+        });
 
     ResolvedGroup {
         name: Name::new(name_snake, name_pascal),
