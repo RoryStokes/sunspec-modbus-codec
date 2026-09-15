@@ -513,7 +513,10 @@ pub(crate) fn resolve_group(
                 .chain(group.count_points.iter().cloned())
         })
         .fold(Vec::new(), |mut points, point| {
-            if !points.iter().any(|existing| std::rc::Rc::ptr_eq(existing, &point)) {
+            if !points
+                .iter()
+                .any(|existing| std::rc::Rc::ptr_eq(existing, &point))
+            {
                 points.push(point);
             }
             points
