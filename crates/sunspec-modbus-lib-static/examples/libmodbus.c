@@ -191,6 +191,179 @@ uint32_t event_bitfield_2_callback(const void *context)
     return 1;
 }
 
+/// Model 708 (DER high-voltage trip curves) read/write callbacks. Two stored curve sets
+/// (`NCrvSet`) of three points (`NPt`) each, matching the tokio-modbus example's `CURVE_COUNT` /
+/// `POINT_COUNT`. `Ena` and `AdptCrvReq` are the only writable points and round-trip through
+/// `MODULE_ENABLED` / `ADOPT_CURVE_REQUEST`; every curve/point setter is left unset (NULL, i.e.
+/// `None` on the Rust side), since this example doesn't support reconfiguring curves.
+#define CURVE_COUNT 2
+#define POINT_COUNT 3
+
+static atomic_uint_least16_t MODULE_ENABLED = Ena_Enabled;
+static atomic_uint_least16_t ADOPT_CURVE_REQUEST = 0;
+
+/// A (voltage, time) point on a synthetic curve, decreasing in voltage and increasing in trip
+/// time as `pt_index`/`crv_index` grow - mirrors the tokio-modbus example's `curve_point`.
+static void curve_point(uint16_t base_voltage_pct,
+                         uint32_t base_time_tenths,
+                         uint16_t crv_index,
+                         uint16_t pt_index,
+                         uint16_t *voltage,
+                         uint32_t *time)
+{
+    *voltage = base_voltage_pct - crv_index * 5 - pt_index * 5;
+    *time = base_time_tenths + (uint32_t)crv_index * 5 + (uint32_t)pt_index * 20;
+}
+
+Ena der_trip_hv_module_enable_callback(const void *context)
+{
+    (void)context;
+    return (Ena)atomic_load(&MODULE_ENABLED);
+}
+
+void set_der_trip_hv_module_enable_callback(Ena value, void *context)
+{
+    (void)context;
+    atomic_store(&MODULE_ENABLED, (uint_least16_t)value);
+}
+
+uint16_t adopt_curve_request_callback(const void *context)
+{
+    (void)context;
+    return atomic_load(&ADOPT_CURVE_REQUEST);
+}
+
+void set_adopt_curve_request_callback(uint16_t value, void *context)
+{
+    (void)context;
+    atomic_store(&ADOPT_CURVE_REQUEST, value);
+}
+
+AdptCrvRslt adopt_curve_result_callback(const void *context)
+{
+    (void)context;
+    return AdptCrvRslt_Completed;
+}
+
+uint16_t number_of_points_callback(const void *context)
+{
+    (void)context;
+    return POINT_COUNT;
+}
+
+uint16_t stored_curve_count_callback(const void *context)
+{
+    (void)context;
+    return CURVE_COUNT;
+}
+
+int16_t voltage_scale_factor_callback(const void *context)
+{
+    (void)context;
+    return 0;
+}
+
+int16_t time_point_scale_factor_callback(const void *context)
+{
+    (void)context;
+    return -1;
+}
+
+ReadOnly crv_curve_access_callback(const void *context, uint16_t crv_index)
+{
+    (void)context;
+    (void)crv_index;
+    return ReadOnly_Readwrite;
+}
+
+uint16_t must_trip_curve_crv_number_of_active_points_callback(const void *context, uint16_t crv_index)
+{
+    (void)context;
+    (void)crv_index;
+    return POINT_COUNT;
+}
+
+uint16_t may_trip_curve_crv_number_of_active_points_callback(const void *context, uint16_t crv_index)
+{
+    (void)context;
+    (void)crv_index;
+    return POINT_COUNT;
+}
+
+uint16_t momentary_cessation_curve_crv_number_of_active_points_callback(const void *context,
+                                                                         uint16_t crv_index)
+{
+    (void)context;
+    (void)crv_index;
+    return POINT_COUNT;
+}
+
+uint16_t must_trip_curve_pt_voltage_point_callback(const void *context,
+                                                     uint16_t crv_index,
+                                                     uint16_t pt_index)
+{
+    (void)context;
+    uint16_t voltage;
+    uint32_t time;
+    curve_point(120, 2, crv_index, pt_index, &voltage, &time);
+    return voltage;
+}
+
+uint32_t must_trip_curve_pt_time_point_callback(const void *context,
+                                                  uint16_t crv_index,
+                                                  uint16_t pt_index)
+{
+    (void)context;
+    uint16_t voltage;
+    uint32_t time;
+    curve_point(120, 2, crv_index, pt_index, &voltage, &time);
+    return time;
+}
+
+uint16_t may_trip_curve_pt_voltage_point_callback(const void *context,
+                                                    uint16_t crv_index,
+                                                    uint16_t pt_index)
+{
+    (void)context;
+    uint16_t voltage;
+    uint32_t time;
+    curve_point(115, 5, crv_index, pt_index, &voltage, &time);
+    return voltage;
+}
+
+uint32_t may_trip_curve_pt_time_point_callback(const void *context,
+                                                 uint16_t crv_index,
+                                                 uint16_t pt_index)
+{
+    (void)context;
+    uint16_t voltage;
+    uint32_t time;
+    curve_point(115, 5, crv_index, pt_index, &voltage, &time);
+    return time;
+}
+
+uint16_t momentary_cessation_curve_pt_voltage_point_callback(const void *context,
+                                                               uint16_t crv_index,
+                                                               uint16_t pt_index)
+{
+    (void)context;
+    uint16_t voltage;
+    uint32_t time;
+    curve_point(125, 1, crv_index, pt_index, &voltage, &time);
+    return voltage;
+}
+
+uint32_t momentary_cessation_curve_pt_time_point_callback(const void *context,
+                                                            uint16_t crv_index,
+                                                            uint16_t pt_index)
+{
+    (void)context;
+    uint16_t voltage;
+    uint32_t time;
+    curve_point(125, 1, crv_index, pt_index, &voltage, &time);
+    return time;
+}
+
 void handle_panic(const char *message)
 {
     fprintf(stderr, "Panic from rust lib: %s", message);
@@ -255,24 +428,55 @@ int main(void)
         .event_bitfield_2_callback = event_bitfield_2_callback,
     };
 
+    struct Model708CallbackAdapter curve_adapter = {
+        .context = NULL,
+        .der_trip_hv_module_enable_callback = der_trip_hv_module_enable_callback,
+        .set_der_trip_hv_module_enable_callback = set_der_trip_hv_module_enable_callback,
+        .adopt_curve_request_callback = adopt_curve_request_callback,
+        .set_adopt_curve_request_callback = set_adopt_curve_request_callback,
+        .adopt_curve_result_callback = adopt_curve_result_callback,
+        .number_of_points_callback = number_of_points_callback,
+        .stored_curve_count_callback = stored_curve_count_callback,
+        .voltage_scale_factor_callback = voltage_scale_factor_callback,
+        .time_point_scale_factor_callback = time_point_scale_factor_callback,
+        .crv_curve_access_callback = crv_curve_access_callback,
+        .must_trip_curve_crv_number_of_active_points_callback =
+            must_trip_curve_crv_number_of_active_points_callback,
+        .may_trip_curve_crv_number_of_active_points_callback =
+            may_trip_curve_crv_number_of_active_points_callback,
+        .momentary_cessation_curve_crv_number_of_active_points_callback =
+            momentary_cessation_curve_crv_number_of_active_points_callback,
+        .must_trip_curve_pt_voltage_point_callback = must_trip_curve_pt_voltage_point_callback,
+        .must_trip_curve_pt_time_point_callback = must_trip_curve_pt_time_point_callback,
+        .may_trip_curve_pt_voltage_point_callback = may_trip_curve_pt_voltage_point_callback,
+        .may_trip_curve_pt_time_point_callback = may_trip_curve_pt_time_point_callback,
+        .momentary_cessation_curve_pt_voltage_point_callback =
+            momentary_cessation_curve_pt_voltage_point_callback,
+        .momentary_cessation_curve_pt_time_point_callback =
+            momentary_cessation_curve_pt_time_point_callback,
+    };
+
     static const CModelSpec model_list[] = {
         {.model_spec = &SUNSPEC_MODEL_1},
         {.model_spec = &SUNSPEC_MODEL_103},
+        {.model_spec = &SUNSPEC_MODEL_708, .repeat_count_0 = CURVE_COUNT, .repeat_count_1 = POINT_COUNT},
     };
-    size_t model_count = 2;
+    size_t model_count = 3;
 
     // Read adapters cover every model, in map order.
     SunspecAdapter read_adapters[] = {
         sunspec_model_1_callback(&common_adapter),
         sunspec_model_103_callback(&inverter_adapter),
+        sunspec_model_708_callback(&curve_adapter),
     };
 
     // Write adapters cover only the writable models, in map order. Model 103 has no writable
     // points, so it takes no entry here (its block still rejects writes).
     SunspecAdapter write_adapters[] = {
         sunspec_model_1_callback(&common_adapter),
+        sunspec_model_708_callback(&curve_adapter),
     };
-    size_t write_adapter_count = 1;
+    size_t write_adapter_count = 2;
 
     pthread_t voltage_thread;
     if (pthread_create(&voltage_thread, NULL, randomise_voltages, NULL) != 0)
