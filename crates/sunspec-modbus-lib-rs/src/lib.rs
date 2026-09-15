@@ -3,8 +3,8 @@ pub mod buffer;
 pub mod cursor;
 #[macro_use]
 pub mod macros;
-pub mod model;
 pub mod generated;
+pub mod model;
 
 pub use crate::model::{ModelList, ModelSpec, STARTING_REGISTER_OFFSET, StaticModelSpec, Sunspec};
 

@@ -133,15 +133,14 @@ pub fn generate() {
 /// (`src/generated.rs`).
 pub fn generate_static_lib() {
     let project_root = env!("CARGO_MANIFEST_DIR");
-    let output_path =
-        Path::new(project_root).join("../sunspec-modbus-lib-static/src/generated.rs");
+    let output_path = Path::new(project_root).join("../sunspec-modbus-lib-static/src/generated.rs");
     format_and_write(&output_path, &generate_static_lib_adapter_ctors());
 }
 
 /// Typed `SunspecAdapter` constructors, one set per C-expressible model.
 ///
 /// `sunspec_model_<id>_callback(*mut Model<id>CallbackAdapter)` /
-/// `sunspec_model_<id>_stateful(*mut Model<id>StatefulAdapter)` 
+/// `sunspec_model_<id>_stateful(*mut Model<id>StatefulAdapter)`
 /// build a `SunspecAdapter` with the matching `model_spec`, `kind` and adapter pointer, so a C
 /// caller cannot pair the wrong adapter type with a model (the C compiler rejects a mismatched
 /// pointer) or leave the `model_spec`/`kind`/`adapter` triple inconsistent. `_stateful` is
