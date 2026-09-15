@@ -122,6 +122,7 @@ pub struct ResolvedGroup {
     /// fixed and repeating subgroups in one ordered list (distinguished by `Subgroup::count`) is
     /// what lets address generation get that right.
     pub subgroups: Vec<Subgroup>,
+    pub count_points: Vec<NameRef>,
     pub writable: bool,
 }
 
@@ -503,6 +504,18 @@ pub(crate) fn resolve_group(
     let writable = subgroups.iter().any(|subgroup| subgroup.group.writable)
         || static_points.iter().any(|p| p.access == PointAccess::Rw);
 
+    let count_points = subgroups
+        .iter()
+        .map(|Subgroup { group, count }| {
+            count
+                .iter()
+                .map(|point| point.name.clone())
+                .chain(group.count_points.iter().cloned())
+                .collect()
+        })
+        .max_by_key(|v: &Vec<NameRef>| v.len())
+        .unwrap_or_default();
+
     ResolvedGroup {
         name: Name::new(name_snake, name_pascal),
         name_short,
@@ -512,6 +525,7 @@ pub(crate) fn resolve_group(
         enums,
         subgroups,
         writable,
+        count_points,
     }
 }
 
