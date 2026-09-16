@@ -663,12 +663,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "sunspec-modbus-derive"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.119",
+]
+
+[[package]]
 name = "sunspec-modbus-lib-rs"
 version = "0.1.0"
 dependencies = [
  "bytemuck",
  "hex",
  "rand",
+ "sunspec-modbus-derive",
  "tokio",
  "tokio-modbus",
 ]

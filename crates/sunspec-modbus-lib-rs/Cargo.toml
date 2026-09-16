@@ -244,6 +244,7 @@ model_64415 = []
 
 [dependencies]
 bytemuck = { workspace = true }
+sunspec-modbus-derive = { workspace = true }
 
 [dev-dependencies]
 hex.workspace = true

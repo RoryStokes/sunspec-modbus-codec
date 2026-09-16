@@ -8,10 +8,7 @@ use std::{
 };
 use sunspec_modbus_lib_rs::{
     ModelList, Sunspec,
-    sunspec::{
-        adapters::{ReadBinding, WriteBinding},
-        models::{model_1, model_103, model_708},
-    },
+    sunspec::models::{model_1, model_103, model_708},
 };
 use tokio::net::TcpListener;
 
@@ -277,108 +274,11 @@ impl model_708::WriteAdapter for CurveModel {
     }
 }
 
-struct SunspecReadAdapters<'a> {
-    model_1: &'a dyn model_1::ReadAdapter,
-    model_103: &'a dyn model_103::ReadAdapter,
-    model_708: &'a dyn model_708::ReadAdapter,
-}
-
-struct ReadAdapterIter<'a> {
-    models: &'a SunspecModels,
-    adapters: &'a SunspecReadAdapters<'a>,
-    index: usize,
-}
-
-impl<'a> Iterator for ReadAdapterIter<'a> {
-    type Item = ReadBinding<'a>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let result = match self.index {
-            0 => Some(ReadBinding::Model1(
-                &self.models.model_1,
-                self.adapters.model_1,
-            )),
-            1 => Some(ReadBinding::Model103(
-                &self.models.model_103,
-                self.adapters.model_103,
-            )),
-            2 => Some(ReadBinding::Model708(
-                &self.models.model_708,
-                self.adapters.model_708,
-            )),
-            _ => None,
-        };
-        self.index += 1;
-        result
-    }
-}
-
-struct SunspecWriteAdapters<'a> {
-    model_1: &'a mut dyn model_1::WriteAdapter,
-    model_708: &'a mut dyn model_708::WriteAdapter,
-}
-
-struct WriteAdapterIter<'a> {
-    models: &'a SunspecModels,
-    model_1: Option<&'a mut dyn model_1::WriteAdapter>,
-    model_708: Option<&'a mut dyn model_708::WriteAdapter>,
-    index: usize,
-}
-
-impl<'a> Iterator for WriteAdapterIter<'a> {
-    type Item = WriteBinding<'a>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let result = match self.index {
-            0 => self
-                .model_1
-                .take()
-                .map(|adapter| WriteBinding::Model1(&self.models.model_1, adapter)),
-            1 => Some(WriteBinding::Model103(&self.models.model_103)),
-            2 => self
-                .model_708
-                .take()
-                .map(|adapter| WriteBinding::Model708(&self.models.model_708, adapter)),
-            _ => None,
-        };
-        self.index += 1;
-        result
-    }
-}
-
+#[derive(ModelList)]
 struct SunspecModels {
     model_1: model_1::Model1,
     model_103: model_103::Model103,
     model_708: model_708::Model708,
-}
-
-impl ModelList for SunspecModels {
-    type ReadAdapters<'a> = &'a SunspecReadAdapters<'a>;
-
-    type WriteAdapters<'a> = &'a mut SunspecWriteAdapters<'a>;
-
-    fn read_iter<'a>(
-        &'a self,
-        adapters: Self::ReadAdapters<'a>,
-    ) -> impl Iterator<Item = ReadBinding<'a>> {
-        ReadAdapterIter {
-            models: self,
-            adapters,
-            index: 0,
-        }
-    }
-
-    fn write_iter<'a>(
-        &'a self,
-        adapters: Self::WriteAdapters<'a>,
-    ) -> impl Iterator<Item = WriteBinding<'a>> {
-        WriteAdapterIter {
-            models: self,
-            model_1: Some(adapters.model_1),
-            model_708: Some(adapters.model_708),
-            index: 0,
-        }
-    }
 }
 
 /// The device's register map: the common model, an inverter model, and a DER high-voltage-trip

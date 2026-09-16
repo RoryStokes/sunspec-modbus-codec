@@ -411,6 +411,11 @@ pub(crate) fn model_is_repeating(model: &ResolvedModel) -> bool {
     !model.count_points.is_empty()
 }
 
+/// Whether this model has any writable points - see [`ResolvedGroup::writable`].
+pub(crate) fn model_is_writable(model: &ResolvedModel) -> bool {
+    model.group.writable
+}
+
 /// The Cargo feature that gates a model's generated code - named after its SunSpec model
 /// number rather than its (label-derived, possibly-deduplicated) name, so it stays stable and
 /// predictable regardless of naming changes elsewhere.

@@ -1,4 +1,11 @@
 #![no_std]
+
+// `#[derive(ModelList)]`'s expansion refers to this crate by name (it has to: it's an external
+// proc-macro crate with no other way to name the crate it's invoked from), which only resolves
+// when the derive is used from a *different* crate. This self-alias makes it resolve here too,
+// for the derive's own use in this crate's tests.
+extern crate self as sunspec_modbus_lib_rs;
+
 pub mod buffer;
 pub mod cursor;
 #[macro_use]
@@ -7,6 +14,7 @@ pub mod model;
 pub mod sunspec;
 
 pub use crate::model::{ModelList, ModelSpec, STARTING_REGISTER_OFFSET, StaticModelSpec, Sunspec};
+pub use sunspec_modbus_derive::ModelList;
 
 #[derive(Debug, Copy, Clone)]
 pub enum ModbusException {
@@ -138,106 +146,11 @@ mod tests {
 
     #[test]
     fn write_model_704_sets_active_power_enable() -> Result<(), ModbusException> {
+        #[derive(ModelList)]
         struct SunspecModel {
             model_1: model_1::Model1,
             model_701: model_701::Model701,
             model_704: model_704::Model704,
-        }
-
-        struct SunspecReadAdapters<'a> {
-            model_1: &'a dyn model_1::ReadAdapter,
-            model_701: &'a dyn model_701::ReadAdapter,
-            model_704: &'a dyn model_704::ReadAdapter,
-        }
-
-        struct ReadAdapterIter<'a> {
-            model: &'a SunspecModel,
-            adapters: &'a SunspecReadAdapters<'a>,
-            state: usize,
-        }
-
-        impl<'a> Iterator for ReadAdapterIter<'a> {
-            type Item = ReadBinding<'a>;
-
-            fn next(&mut self) -> Option<Self::Item> {
-                let result = match self.state {
-                    0 => Some(ReadBinding::Model1(
-                        &self.model.model_1,
-                        self.adapters.model_1,
-                    )),
-                    1 => Some(ReadBinding::Model701(
-                        &self.model.model_701,
-                        self.adapters.model_701,
-                    )),
-                    2 => Some(ReadBinding::Model704(
-                        &self.model.model_704,
-                        self.adapters.model_704,
-                    )),
-                    _ => None,
-                };
-                self.state += 1;
-                result
-            }
-        }
-
-        struct SunspecWriteAdapters<'a> {
-            model_1: &'a mut dyn model_1::WriteAdapter,
-            model_704: &'a mut dyn model_704::WriteAdapter,
-        }
-        struct WriteAdapterIter<'a> {
-            model: &'a SunspecModel,
-            model_1: Option<&'a mut dyn model_1::WriteAdapter>,
-            model_704: Option<&'a mut dyn model_704::WriteAdapter>,
-            state: usize,
-        }
-        impl<'a> Iterator for WriteAdapterIter<'a> {
-            type Item = WriteBinding<'a>;
-
-            fn next(&mut self) -> Option<Self::Item> {
-                let result: Option<WriteBinding<'a>> = match self.state {
-                    0 => self
-                        .model_1
-                        .take()
-                        .map(|adapter| WriteBinding::Model1(&self.model.model_1, adapter)),
-                    1 => Some(WriteBinding::Model701(&self.model.model_701)),
-                    2 => self
-                        .model_704
-                        .take()
-                        .map(|adapter| WriteBinding::Model704(&self.model.model_704, adapter)),
-                    _ => None,
-                };
-                self.state += 1;
-                result
-            }
-        }
-
-        impl ModelList for SunspecModel {
-            type ReadAdapters<'a> = &'a SunspecReadAdapters<'a>;
-
-            type WriteAdapters<'a> = &'a mut SunspecWriteAdapters<'a>;
-
-            fn read_iter<'a>(
-                &'a self,
-                adapters: Self::ReadAdapters<'a>,
-            ) -> impl Iterator<Item = ReadBinding<'a>> {
-                ReadAdapterIter {
-                    model: self,
-                    adapters,
-                    state: 0,
-                }
-            }
-
-            fn write_iter<'a>(
-                &'a self,
-                adapters: Self::WriteAdapters<'a>,
-            ) -> impl Iterator<Item = WriteBinding<'a>> {
-                WriteAdapterIter {
-                    model: self,
-                    model_1: Some(adapters.model_1),
-                    model_704: Some(adapters.model_704),
-                    state: 0,
-                }
-            }
         }
 
         let mut common_model = Model1StatefulAdapter {
@@ -269,7 +182,7 @@ mod tests {
             active_power_enable: false,
         };
 
-        let mut adapters = SunspecWriteAdapters {
+        let mut adapters = SunspecModelWriteAdapters {
             model_1: &mut common_model,
             model_704: &mut der_ac_controls,
         };
@@ -278,6 +191,103 @@ mod tests {
             40247,
             hex::decode("0001").unwrap().as_slice(),
             &mut adapters,
+        )?;
+
+        assert!(der_ac_controls.active_power_enable);
+
+        Ok(())
+    }
+
+    /// `#[derive(ModelList)]` on a tuple struct: `model_701` (no writable points) sits between
+    /// the two writable models, so a correct `WriteAdapters` must renumber its fields around the
+    /// writable subset (positions 0, 1) rather than reusing the original struct's positions
+    /// (0, 2) - otherwise this would either fail to compile or write through the wrong adapter.
+    #[test]
+    fn derived_tuple_struct_model_list_write_indexes_the_writable_subset() {
+        #[derive(ModelList)]
+        struct Trio(model_1::Model1, model_701::Model701, model_704::Model704);
+
+        let model_list = Trio(model_1::Model1, model_701::Model701, model_704::Model704);
+
+        let mut common_model = Model1StatefulAdapter {
+            manufacturer: c_char_array!("Cuprous"),
+            model: c_char_array!("Inverter 1"),
+            options: c_char_array!("opt_a_b_c"),
+            version: c_char_array!("v0.1"),
+            serial_number: c_char_array!("I-1"),
+            device_address: 0,
+        };
+
+        struct DerAcControlsModel {
+            active_power_enable: bool,
+        }
+
+        impl model_704::WriteAdapter for DerAcControlsModel {
+            fn set_active_power_enable(&mut self, value: model_704::WSetEna) {
+                self.active_power_enable = value == model_704::WSetEna::Enabled;
+            }
+        }
+
+        let mut der_ac_controls = DerAcControlsModel {
+            active_power_enable: false,
+        };
+
+        let mut adapters = TrioWriteAdapters(&mut common_model, &mut der_ac_controls);
+        let mut iter = model_list.write_iter(&mut adapters);
+        match iter.next() {
+            Some(WriteBinding::Model1(_, _)) => (),
+            _ => panic!("Expected first binding to be model 1"),
+        };
+        match iter.next() {
+            Some(WriteBinding::Model701(_)) => (),
+            _ => panic!("Expected second binding to be model 701"),
+        };
+        match iter.next() {
+            Some(WriteBinding::Model704(_, _)) => (),
+            _ => panic!("Expected third binding to be model 704"),
+        };
+        assert!(iter.next().is_none());
+    }
+
+    /// Companion to the indexing test above: exercises the actual register write through a
+    /// derived `ModelList`'s `Sunspec` wrapper, rather than just the binding order `write_iter`
+    /// produces.
+    #[test]
+    fn derived_tuple_struct_model_list_write_reaches_the_right_adapter()
+    -> Result<(), ModbusException> {
+        #[derive(ModelList)]
+        struct Trio(model_1::Model1, model_701::Model701, model_704::Model704);
+
+        let model_list = Trio(model_1::Model1, model_701::Model701, model_704::Model704);
+
+        let mut common_model = Model1StatefulAdapter {
+            manufacturer: c_char_array!("Cuprous"),
+            model: c_char_array!("Inverter 1"),
+            options: c_char_array!("opt_a_b_c"),
+            version: c_char_array!("v0.1"),
+            serial_number: c_char_array!("I-1"),
+            device_address: 0,
+        };
+
+        struct DerAcControlsModel {
+            active_power_enable: bool,
+        }
+
+        impl model_704::WriteAdapter for DerAcControlsModel {
+            fn set_active_power_enable(&mut self, value: model_704::WSetEna) {
+                self.active_power_enable = value == model_704::WSetEna::Enabled;
+            }
+        }
+
+        let mut der_ac_controls = DerAcControlsModel {
+            active_power_enable: false,
+        };
+
+        let sunspec = Sunspec::new(model_list);
+        sunspec.write_multiple_registers(
+            40247,
+            hex::decode("0001").unwrap().as_slice(),
+            &mut TrioWriteAdapters(&mut common_model, &mut der_ac_controls),
         )?;
 
         assert!(der_ac_controls.active_power_enable);

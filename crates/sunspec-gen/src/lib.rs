@@ -6,7 +6,7 @@ use std::{ffi::OsStr, fs, path::Path};
 
 use crate::code_generation::{
     generate_adapters_mod, generate_model, generate_models_mod, model_c_expressible,
-    model_cfg_attribute, model_feature_name, model_is_repeating,
+    model_cfg_attribute, model_feature_name, model_is_repeating, model_is_writable,
 };
 use crate::model_resolution::{ResolvedModel, resolve_model};
 use crate::naming::{NameTable, Named};
@@ -169,6 +169,49 @@ pub fn generate() {
         &generate_adapters_mod(&models),
         &submodule_tag,
     );
+}
+
+/// Regenerates `sunspec-modbus-derive`'s model writability registry (`src/model_registry.rs`):
+/// the one piece of per-model knowledge the `#[derive(ModelList)]` macro can't get from the
+/// annotated struct's own tokens - which models have any writable points at all, and so need a
+/// slot in the generated `WriteAdapters` struct. Keyed by each model's generated module name
+/// (`model_<id>`, already unique) rather than its model number, since that's exactly what the
+/// macro can read straight off a field's type path.
+pub fn generate_model_registry() {
+    let project_root = env!("CARGO_MANIFEST_DIR");
+    let model_dir = format!("{project_root}/models");
+    let model_glob = format!("{model_dir}/json/model_*.json");
+    let submodule_tag = get_submodule_tag(&model_dir);
+
+    let output_path =
+        Path::new(project_root).join("../sunspec-modbus-derive/src/model_registry.rs");
+
+    let models = collect_models(&model_glob);
+    format_and_write(
+        &output_path,
+        &generate_model_registry_source(&models),
+        &submodule_tag,
+    );
+}
+
+/// The `WRITABLE_MODELS` table itself - see [`generate_model_registry`].
+fn generate_model_registry_source(models: &[ResolvedModel]) -> Scope {
+    let mut scope = Scope::new();
+    let entries: Vec<String> = models
+        .iter()
+        .filter(|model| model_is_writable(model))
+        .map(|model| format!("\"{}\"", model_feature_name(model)))
+        .collect();
+
+    scope.raw(format!(
+        "/// SunSpec model modules - named after their generated module, e.g. `model_1` - that\n\
+         /// have at least one writable point. `#[derive(ModelList)]` uses this to decide whether\n\
+         /// a field's model needs a slot in the generated `WriteAdapters` struct.\n\
+         pub static WRITABLE_MODELS: &[&str] = &[{}];\n",
+        entries.join(", ")
+    ));
+
+    scope
 }
 
 /// Regenerates `sunspec-modbus-lib-static`'s typed `SunspecAdapter` constructors
