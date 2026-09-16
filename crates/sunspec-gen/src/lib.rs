@@ -35,13 +35,31 @@ fn generated_file_comment(submodule_tag: &str) -> String {
 }
 
 fn get_submodule_tag(model_dir: &str) -> String {
+    // Cleared because a git hook (this is invoked from lefthook's pre-commit) runs with
+    // `GIT_INDEX_FILE`/`GIT_DIR` pointing at the main repository, currently mid-commit.
+    // Left in place, that leaks into this `git describe` for the submodule: it still resolves
+    // the right tag (repo discovery via `current_dir` isn't affected), but the `--dirty` check
+    // diffs the submodule's working tree against the main repo's unrelated index instead of
+    // its own, so it comes back dirty even when the submodule genuinely isn't.
     let output = Command::new("git")
         .current_dir(model_dir)
+        .env_remove("GIT_DIR")
+        .env_remove("GIT_WORK_TREE")
+        .env_remove("GIT_INDEX_FILE")
+        .env_remove("GIT_COMMON_DIR")
+        .env_remove("GIT_OBJECT_DIRECTORY")
+        .env_remove("GIT_ALTERNATE_OBJECT_DIRECTORIES")
+        .env_remove("GIT_PREFIX")
         .args(["describe", "--tags", "--always", "--dirty"])
         .output()
         .expect("Failed to execute `git describe` to get current submodule tag");
 
-    String::from_utf8(output.stdout).expect("Invalid UTF-8 sequence for git submodule tag")
+    String::from_utf8(output.stdout)
+        .expect("Invalid UTF-8 sequence for git submodule tag")
+        .lines()
+        .next()
+        .unwrap_or_default()
+        .to_string()
 }
 
 fn model_name_from_path(path: &Path) -> &str {
