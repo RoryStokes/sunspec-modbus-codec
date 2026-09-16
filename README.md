@@ -67,13 +67,14 @@ SunSpec MODBUS model definitions from https://github.com/sunspec/models, and gen
 
 It also defines a Cargo feature per generated model (e.g. `model_1`, `model_103`), gating that model's generated code in
 both `sunspec-modbus-lib-rs` and `sunspec-modbus-lib-static`, plus an `all-models` feature aggregating all of them - see the
-`[features]` section of either crate's `Cargo.toml`. `all-models` is enabled by default; build with `--no-default-features
---features model_1,model_103,...` (optionally adding `std` for `sunspec-modbus-lib-static`) to compile in only a subset. In
+`[features]` section of either crate's `Cargo.toml`. Required `model_1` is enabled by default; build with
+`--features model_103,...` to compile additional models, or `--features all-models` to compile every model. In
 the generated C header, each model's declarations are wrapped in `#if defined(SUNSPEC_MODEL_<id>_ENABLED)` guards - see
 `[defines]` in `sunspec-modbus-lib-static/cbindgen.toml` - so a C caller must define the matching macro for exactly the
-models the linked static library was built with. Every model's macro is defined by default (matching `all-models`) via
-`after_includes` in that same file; define `SUNSPEC_NO_DEFAULT_MODELS` before `#include`ing the header to opt out and name
-an explicit subset instead.
+models the linked static library was built with. Model 1's macro is defined by default (matching the default feature) via
+`after_includes` in that same file; define macros for each additional enabled model before including the header. For a
+`--no-default-features` static-library build, define `SUNSPEC_NO_DEFAULT_MODELS` before including the header, then define
+macros for every enabled model explicitly.
 
 Generated files are committed to the repository rather than produced by `cargo build` - every file it writes starts with an
 `@generated` comment pointing back here. Regenerate them after changing this crate or updating the `models` submodule with:
@@ -92,7 +93,7 @@ adapters.
 
 An example can be compiled and executed using the following steps (you will need a Sunspec MODBUS client to drive it):
 ```sh
-cargo run --example tokio-modbus
+cargo run --example tokio-modbus --features "model_103","model_708"
 ```
 
 ### sunspec-modbus-lib-static
@@ -105,8 +106,10 @@ LIBMODBUS_PREFIX=/opt/homebrew/opt/libmodbus
 
 An example can be compiled and executed using the following steps (you will need a Sunspec MODBUS client to drive it):
 ```sh
-cargo build --release -p sunspec-modbus-lib-static --no-default-features --features all-models
+cargo build --release -p sunspec-modbus-lib-static --features model_103,model_708
 cc crates/sunspec-modbus-lib-static/examples/libmodbus.c \
+  -DSUNSPEC_MODEL_103_ENABLED \
+  -DSUNSPEC_MODEL_708_ENABLED \
   -I"$LIBMODBUS_PREFIX/include" \
   -L"$LIBMODBUS_PREFIX/lib" \
   -o ./target/example-libmodbus.o \

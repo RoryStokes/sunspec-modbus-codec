@@ -33,12 +33,11 @@ pub enum ModbusException {
 mod tests {
     use core::ffi::CStr;
 
+    #[cfg(feature = "test-models")]
+    use crate::sunspec::models::{model_701, model_704};
     use crate::sunspec::{
         adapters::{ReadBinding, WriteBinding},
-        models::{
-            model_1::{self, Model1StatefulAdapter},
-            model_701, model_704,
-        },
+        models::model_1::{self, Model1StatefulAdapter},
     };
 
     use super::*;
@@ -145,6 +144,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "test-models")]
     fn write_model_704_sets_active_power_enable() -> Result<(), ModbusException> {
         #[derive(ModelList)]
         struct SunspecModel {

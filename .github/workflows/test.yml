@@ -29,5 +29,5 @@ jobs:
         run: |
           cargo build
           cargo fmt -- --check
-          cargo clippy --tests --verbose -- -D warnings
-          cargo test --workspace --exclude system-tests --verbose
+          cargo clippy --tests --features sunspec-modbus-lib-rs/test-models --verbose -- -D warnings
+          cargo test --workspace --exclude system-tests --features sunspec-modbus-lib-rs/test-models --verbose

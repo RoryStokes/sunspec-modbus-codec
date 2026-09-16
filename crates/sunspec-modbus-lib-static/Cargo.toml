@@ -7,11 +7,12 @@ edition = "2024"
 crate-type = ["staticlib"]
 
 [features]
-default = ["std", "all-models"]
+default = ["std", "model_1"]
 std = []
 
 # One feature per generated model, forwarding to the matching feature on sunspec-modbus-lib-rs,
-# plus an `all-models` feature aggregating all of them - see crates/sunspec-gen.
+# plus an `all-models` feature aggregating all of them - see crates/sunspec-gen. `model_1` is
+# enabled by default; enable other models explicitly, or use `all-models`.
 # @generated:start
 all-models = [
     "model_1",
