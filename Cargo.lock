@@ -669,7 +669,6 @@ dependencies = [
  "bytemuck",
  "hex",
  "rand",
- "sunspec-gen",
  "tokio",
  "tokio-modbus",
 ]
@@ -679,7 +678,6 @@ name = "sunspec-modbus-lib-static"
 version = "0.1.0"
 dependencies = [
  "cbindgen",
- "sunspec-gen",
  "sunspec-modbus-lib-rs",
 ]
 

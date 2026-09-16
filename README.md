@@ -62,13 +62,19 @@ traversal methods.
 ## Crates
 ### sunspec-gen
 This crate is responsible for generating the content of the `src/sunspec` directory of the `sunspec-modbus-lib-rs` crate
-described below. It sources the latest SunSpec MODBUS model definitions from https://github.com/sunspec/models, and generates
-adapter definitions for each model.
+described below, and C-safe wrappers for this (`src/generated.rs`) of `sunspec-modbus-lib-static`. It sources the latest 
+SunSpec MODBUS model definitions from https://github.com/sunspec/models, and generates adapter definitions for each model.
 
-> For development purposes of this crate, the codegen step can be triggered in isolation by running:
-> ```sh
-> cargo run -p sunspec-gen
-> ```
+Generated files are committed to the repository rather than produced by `cargo build` - every file it writes starts with an
+`@generated` comment pointing back here. Regenerate them after changing this crate or updating the `models` submodule with:
+```sh
+cargo run -p sunspec-gen
+```
+This repo uses [lefthook](https://github.com/evilmartians/lefthook) to do this automatically before every commit and stage
+the result, so install it once per clone:
+```sh
+lefthook install
+```
 
 ### sunspec-modbus-lib-rs
 This is the core Rust crate that provides serialisation and deserialisation of SunSpec MODBUS models from a collection of

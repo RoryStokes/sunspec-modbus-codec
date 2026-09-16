@@ -14,6 +14,3 @@ hex.workspace = true
 tokio = { workspace = true, features = ["time"] }
 tokio-modbus = { workspace = true, default-features = false, features = ["tcp-server"] }
 rand = { workspace = true }
-
-[build-dependencies]
-sunspec-gen = { path = "../sunspec-gen" }
