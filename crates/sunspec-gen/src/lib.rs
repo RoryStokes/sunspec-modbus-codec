@@ -257,28 +257,29 @@ fn render_cbindgen_defines(models: &[ResolvedModel]) -> String {
 }
 
 /// Renders the body of the `after_includes` block managed in `sunspec-modbus-lib-static`'s
-/// `cbindgen.toml`: one `#ifndef`/`#define`/`#endif` per model, default-defining its
-/// `SUNSPEC_MODEL_<id>_ENABLED` macro so the generated header's declarations are all visible
-/// out of the box - matching the Rust side's `all-models` default feature - unless the includer
-/// defines `SUNSPEC_NO_DEFAULT_MODELS` before `#include`ing the header, opting into naming an
-/// explicit subset instead.
+/// `cbindgen.toml`: a `#ifndef`/`#define`/`#endif` block for required model 1, matching the Rust
+/// side's default feature. `SUNSPEC_NO_DEFAULT_MODELS` suppresses that declaration for static
+/// library builds that intentionally disable the default feature. C callers define
+/// `SUNSPEC_MODEL_<id>_ENABLED` themselves for every additional linked model.
 fn render_cbindgen_default_models(models: &[ResolvedModel]) -> String {
-    let mut out = String::from("#if !defined(SUNSPEC_NO_DEFAULT_MODELS)\n");
-    for model in models {
-        let define = format!("SUNSPEC_MODEL_{}_ENABLED", model.model_number);
-        out.push_str(&format!("#ifndef {define}\n#define {define}\n#endif\n"));
-    }
-    out.push_str("#endif // !defined(SUNSPEC_NO_DEFAULT_MODELS)\n");
-    out
+    let model_1 = models
+        .iter()
+        .find(|model| model.model_number == 1)
+        .expect("SunSpec model 1 must exist");
+    let define = format!("SUNSPEC_MODEL_{}_ENABLED", model_1.model_number);
+    format!(
+        "#if !defined(SUNSPEC_NO_DEFAULT_MODELS)\n#ifndef {define}\n#define {define}\n#endif\n\
+         #endif // !defined(SUNSPEC_NO_DEFAULT_MODELS)\n"
+    )
 }
 
 /// Regenerates the per-model `[features]` block in `sunspec-modbus-lib-rs`'s and
 /// `sunspec-modbus-lib-static`'s `Cargo.toml`, and the matching `[defines]`/`after_includes`
 /// blocks in `sunspec-modbus-lib-static`'s `cbindgen.toml` (see `replace_generated_region`), so
 /// each model's generated code - and, in the C header, its declarations - can be compiled in or
-/// out independently. All 112-odd models are on by default: each crate's `default` feature
-/// includes `all-models`, and the header default-defines every `SUNSPEC_MODEL_<id>_ENABLED`
-/// macro to match.
+/// out independently. Required model 1 is the sole default in each crate and in the C header;
+/// `SUNSPEC_NO_DEFAULT_MODELS` lets C callers suppress its declaration for no-default-feature
+/// static-library builds. Consumers enable every other model explicitly.
 pub fn generate_model_features() {
     let project_root = env!("CARGO_MANIFEST_DIR");
     let model_glob = format!("{project_root}/models/json/model_*.json");
