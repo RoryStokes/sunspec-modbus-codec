@@ -7,7 +7,10 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "../sunspec_modbus_codec.h"
+#define SUNSPEC_MODEL_103_ENABLED
+#define SUNSPEC_MODEL_708_ENABLED
+#include "../libsunspecmodbus.h"
+
 
 /// How often `randomise_voltages` refreshes the inverter's per-phase voltages, matching the
 /// tokio-modbus example's VOLTAGE_REFRESH_INTERVAL.

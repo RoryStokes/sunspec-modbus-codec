@@ -9,7 +9,7 @@ fn main() {
 
     let crate_dir = env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR is not set");
     let config_path = PathBuf::from(&crate_dir).join("cbindgen.toml");
-    let output_path = PathBuf::from(&crate_dir).join("sunspec_modbus_codec.h");
+    let output_path = PathBuf::from(&crate_dir).join("libsunspecmodbus.h");
 
     let config = cbindgen::Config::from_file(&config_path).unwrap_or_else(|error| {
         panic!(
