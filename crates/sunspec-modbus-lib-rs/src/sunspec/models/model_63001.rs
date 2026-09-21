@@ -2532,7 +2532,7 @@ impl WriteAdapter for Model63001StatefulAdapter {
 
     /// string
     fn set_string(&mut self, value: &CStr) {
-        for (dest, src) in self.string.iter_mut().zip(value.to_bytes_with_nul().iter()) {
+        for (dest, src) in &mut self.string.iter_mut().zip(value.to_bytes_with_nul().iter()) {
             *dest = *src as c_char;
         }
     }

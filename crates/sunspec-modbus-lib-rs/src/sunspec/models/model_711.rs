@@ -1096,6 +1096,239 @@ impl<const STORED_CONTROL_COUNT: usize> WriteAdapter
     }
 }
 
+/// Each repeating-group field points to the first element of a caller-allocated array with at least as many elements as that group's repeat count (the `repeat_count_*` passed for this model); a shorter array is undefined behaviour.
+#[repr(C)]
+pub struct Model711StatefulPtrAdapter {
+    /// DER Frequency Droop Module Enable (Ena)
+    ///
+    /// DER Frequency-Watt (Frequency-Droop) control enable.
+    pub der_frequency_droop_module_enable: Model711Ena,
+    /// Set Active Control Request (AdptCtlReq)
+    ///
+    /// Set active control. 0 = No active control.
+    pub active_control_request: u16,
+    /// Set Active Control Result (AdptCtlRslt)
+    ///
+    /// Result of last set active control operation.
+    pub set_active_control_result: Model711AdptCtlRslt,
+    /// Stored Control Count (NCtl)
+    ///
+    /// Number of stored controls supported.
+    pub stored_control_count: u16,
+    /// Reversion Timeout (RvrtTms)
+    ///
+    /// Reversion time in seconds. 0 = No reversion time.
+    pub reversion_timeout: u32,
+    /// Reversion Time Left (RvrtRem)
+    ///
+    /// Reversion time remaining in seconds.
+    pub reversion_time_left: u32,
+    /// Reversion Control (RvrtCtl)
+    ///
+    /// Default control after reversion timeout.
+    pub reversion_control: u16,
+    /// Deadband Scale Factor (Db_SF)
+    ///
+    /// Deadband scale factor.
+    pub deadband_scale_factor: i16,
+    /// Frequency Change Scale Factor (K_SF)
+    ///
+    /// Frequency change scale factor.
+    pub frequency_change_scale_factor: i16,
+    /// Open-Loop Scale Factor (RspTms_SF)
+    ///
+    /// Open loop response time scale factor.
+    pub open_loop_scale_factor: i16,
+    pub stored_controls: *mut Model711StoredControlsPtr,
+}
+
+#[repr(C)]
+pub struct Model711StoredControlsPtr {
+    /// Over-Frequency Deadband (DbOf)
+    ///
+    /// The deadband value for over-frequency conditions in Hz.
+    pub ctl_over_frequency_deadband: u32,
+    /// Under-Frequency Deadband (DbUf)
+    ///
+    /// The deadband value for under-frequency conditions in Hz.
+    pub ctl_under_frequency_deadband: u32,
+    /// Over-Frequency Change Ratio (KOf)
+    ///
+    /// Frequency droop per-unit frequency change for over-frequency conditions corresponding to 1 per-unit power output change.
+    pub ctl_over_frequency_change_ratio: u16,
+    /// Under-Frequency Change Ratio (KUf)
+    ///
+    /// Frequency droop per-unit frequency change for under-frequency conditions corresponding to 1 per-unit power output change.
+    pub ctl_under_frequency_change_ratio: u16,
+    /// Open-Loop Response Time (RspTms)
+    ///
+    /// The open-loop response time in seconds.
+    pub ctl_open_loop_response_time: u32,
+    /// Minimum Active Power (PMin)
+    ///
+    /// The minimum active power output due to DER prime mover constraints, in percent of the DER active power rating. The valid range is -100 to 100. This setting applies only to the frequency droop control.
+    pub ctl_minimum_active_power: i16,
+    /// Control Access (ReadOnly)
+    ///
+    /// Control read-write access.
+    pub ctl_control_access: Model711ReadOnly,
+}
+
+impl ReadAdapter for Model711StatefulPtrAdapter {
+    fn der_frequency_droop_module_enable(&self) -> Ena {
+        self.der_frequency_droop_module_enable
+    }
+
+    fn active_control_request(&self) -> u16 {
+        self.active_control_request
+    }
+
+    fn set_active_control_result(&self) -> AdptCtlRslt {
+        self.set_active_control_result
+    }
+
+    fn stored_control_count(&self) -> u16 {
+        self.stored_control_count
+    }
+
+    fn reversion_timeout(&self) -> Option<u32> {
+        Some(self.reversion_timeout)
+    }
+
+    fn reversion_time_left(&self) -> Option<u32> {
+        Some(self.reversion_time_left)
+    }
+
+    fn reversion_control(&self) -> Option<u16> {
+        Some(self.reversion_control)
+    }
+
+    fn deadband_scale_factor(&self) -> i16 {
+        self.deadband_scale_factor
+    }
+
+    fn frequency_change_scale_factor(&self) -> i16 {
+        self.frequency_change_scale_factor
+    }
+
+    fn open_loop_scale_factor(&self) -> i16 {
+        self.open_loop_scale_factor
+    }
+
+    fn ctl_over_frequency_deadband(&self, ctl_index: u16) -> u32 {
+        unsafe { (*self.stored_controls.add(ctl_index as usize)).ctl_over_frequency_deadband }
+    }
+
+    fn ctl_under_frequency_deadband(&self, ctl_index: u16) -> u32 {
+        unsafe { (*self.stored_controls.add(ctl_index as usize)).ctl_under_frequency_deadband }
+    }
+
+    fn ctl_over_frequency_change_ratio(&self, ctl_index: u16) -> u16 {
+        unsafe { (*self.stored_controls.add(ctl_index as usize)).ctl_over_frequency_change_ratio }
+    }
+
+    fn ctl_under_frequency_change_ratio(&self, ctl_index: u16) -> u16 {
+        unsafe { (*self.stored_controls.add(ctl_index as usize)).ctl_under_frequency_change_ratio }
+    }
+
+    fn ctl_open_loop_response_time(&self, ctl_index: u16) -> u32 {
+        unsafe { (*self.stored_controls.add(ctl_index as usize)).ctl_open_loop_response_time }
+    }
+
+    fn ctl_minimum_active_power(&self, ctl_index: u16) -> Option<i16> {
+        Some(unsafe { (*self.stored_controls.add(ctl_index as usize)).ctl_minimum_active_power })
+    }
+
+    fn ctl_control_access(&self, ctl_index: u16) -> ReadOnly {
+        unsafe { (*self.stored_controls.add(ctl_index as usize)).ctl_control_access }
+    }
+}
+
+impl WriteAdapter for Model711StatefulPtrAdapter {
+    /// DER Frequency Droop Module Enable (Ena)
+    ///
+    /// DER Frequency-Watt (Frequency-Droop) control enable.
+    fn set_der_frequency_droop_module_enable(&mut self, value: Ena) {
+        self.der_frequency_droop_module_enable = value;
+    }
+
+    /// Set Active Control Request (AdptCtlReq)
+    ///
+    /// Set active control. 0 = No active control.
+    fn set_active_control_request(&mut self, value: u16) {
+        self.active_control_request = value;
+    }
+
+    /// Reversion Timeout (RvrtTms)
+    ///
+    /// Reversion time in seconds. 0 = No reversion time.
+    fn set_reversion_timeout(&mut self, value: u32) {
+        self.reversion_timeout = value;
+    }
+
+    /// Reversion Control (RvrtCtl)
+    ///
+    /// Default control after reversion timeout.
+    fn set_reversion_control(&mut self, value: u16) {
+        self.reversion_control = value;
+    }
+
+    /// Over-Frequency Deadband (DbOf)
+    ///
+    /// The deadband value for over-frequency conditions in Hz.
+    fn set_ctl_over_frequency_deadband(&mut self, value: u32, ctl_index: u16) {
+        unsafe {
+            (*self.stored_controls.add(ctl_index as usize)).ctl_over_frequency_deadband = value;
+        }
+    }
+
+    /// Under-Frequency Deadband (DbUf)
+    ///
+    /// The deadband value for under-frequency conditions in Hz.
+    fn set_ctl_under_frequency_deadband(&mut self, value: u32, ctl_index: u16) {
+        unsafe {
+            (*self.stored_controls.add(ctl_index as usize)).ctl_under_frequency_deadband = value;
+        }
+    }
+
+    /// Over-Frequency Change Ratio (KOf)
+    ///
+    /// Frequency droop per-unit frequency change for over-frequency conditions corresponding to 1 per-unit power output change.
+    fn set_ctl_over_frequency_change_ratio(&mut self, value: u16, ctl_index: u16) {
+        unsafe {
+            (*self.stored_controls.add(ctl_index as usize)).ctl_over_frequency_change_ratio = value;
+        }
+    }
+
+    /// Under-Frequency Change Ratio (KUf)
+    ///
+    /// Frequency droop per-unit frequency change for under-frequency conditions corresponding to 1 per-unit power output change.
+    fn set_ctl_under_frequency_change_ratio(&mut self, value: u16, ctl_index: u16) {
+        unsafe {
+            (*self.stored_controls.add(ctl_index as usize)).ctl_under_frequency_change_ratio =
+                value;
+        }
+    }
+
+    /// Open-Loop Response Time (RspTms)
+    ///
+    /// The open-loop response time in seconds.
+    fn set_ctl_open_loop_response_time(&mut self, value: u32, ctl_index: u16) {
+        unsafe {
+            (*self.stored_controls.add(ctl_index as usize)).ctl_open_loop_response_time = value;
+        }
+    }
+
+    /// Minimum Active Power (PMin)
+    ///
+    /// The minimum active power output due to DER prime mover constraints, in percent of the DER active power rating. The valid range is -100 to 100. This setting applies only to the frequency droop control.
+    fn set_ctl_minimum_active_power(&mut self, value: i16, ctl_index: u16) {
+        unsafe {
+            (*self.stored_controls.add(ctl_index as usize)).ctl_minimum_active_power = value;
+        }
+    }
+}
+
 /// C-FFI dispatch descriptor for SunSpec model 711. A C `SunspecModelBinding` points
 /// at this static, so the service functions dispatch with no model-id lookup.
 #[unsafe(no_mangle)]
@@ -1129,6 +1362,7 @@ unsafe fn model_711_c_visit_read(
         stored_control_count: repeat_count_0,
     };
     let adapter: Option<&dyn ReadAdapter> = match kind {
+        1 => Some(unsafe { &*(adapter as *const Model711StatefulPtrAdapter) } as &dyn ReadAdapter),
         2 => Some(unsafe { &*(adapter as *const Model711CallbackAdapter) } as &dyn ReadAdapter),
         _ => None,
     };
@@ -1158,6 +1392,9 @@ unsafe fn model_711_c_visit_write(
         stored_control_count: repeat_count_0,
     };
     let adapter: Option<&mut dyn WriteAdapter> = match kind {
+        1 => Some(
+            unsafe { &mut *(adapter as *mut Model711StatefulPtrAdapter) } as &mut dyn WriteAdapter,
+        ),
         2 => {
             Some(unsafe { &mut *(adapter as *mut Model711CallbackAdapter) } as &mut dyn WriteAdapter)
         }

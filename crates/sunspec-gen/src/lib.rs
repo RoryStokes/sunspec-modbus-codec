@@ -350,12 +350,11 @@ pub fn generate_model_features() {
 /// Typed `SunspecAdapter` constructors, one set per C-expressible model.
 ///
 /// `sunspec_model_<id>_callback(*mut Model<id>CallbackAdapter)` /
-/// `sunspec_model_<id>_stateful(*mut Model<id>StatefulAdapter)`
+/// `sunspec_model_<id>_stateful(*mut Model<id>StatefulAdapter)` (`...StatefulPtrAdapter` for
+/// repeating models)
 /// build a `SunspecAdapter` with the matching `model_spec`, `kind` and adapter pointer, so a C
 /// caller cannot pair the wrong adapter type with a model (the C compiler rejects a mismatched
-/// pointer) or leave the `model_spec`/`kind`/`adapter` triple inconsistent. `_stateful` is
-/// generated only for non-repeating models, matching the dispatch code (repeating models have
-/// no C-usable stateful adapter).
+/// pointer) or leave the `model_spec`/`kind`/`adapter` triple inconsistent.
 ///
 /// These are real `#[unsafe(no_mangle)] pub extern "C" fn`s, generated directly into
 /// `sunspec-modbus-lib-static` rather than spliced into the header as C text: cbindgen exports
@@ -391,22 +390,27 @@ fn generate_static_lib_adapter_ctors(models: &[ResolvedModel]) -> Scope {
              }}\n"
         ));
 
-        if !model_is_repeating(model) {
-            scope.raw(format!(
-                "/// Build a [`SunspecAdapter`] for model {n} backed by a stateful adapter.\n\
-                 {cfg}\n\
-                 #[unsafe(no_mangle)]\n\
-                 pub extern \"C\" fn sunspec_model_{n}_stateful(\n\
-                 \x20   adapter: *mut {module}::{pc}StatefulAdapter,\n\
-                 ) -> SunspecAdapter {{\n\
-                 \x20   SunspecAdapter {{\n\
-                 \x20       model_spec: &{module}::SUNSPEC_MODEL_{n},\n\
-                 \x20       kind: SUNSPEC_ADAPTER_STATEFUL,\n\
-                 \x20       adapter: adapter as *mut c_void,\n\
-                 \x20   }}\n\
-                 }}\n"
-            ));
-        }
+        // Repeating models' const-generic `StatefulAdapter` can't be instantiated from C, so
+        // they take the pointer-based `StatefulPtrAdapter` instead.
+        let stateful = if model_is_repeating(model) {
+            format!("{pc}StatefulPtrAdapter")
+        } else {
+            format!("{pc}StatefulAdapter")
+        };
+        scope.raw(format!(
+            "/// Build a [`SunspecAdapter`] for model {n} backed by a stateful adapter.\n\
+             {cfg}\n\
+             #[unsafe(no_mangle)]\n\
+             pub extern \"C\" fn sunspec_model_{n}_stateful(\n\
+             \x20   adapter: *mut {module}::{stateful},\n\
+             ) -> SunspecAdapter {{\n\
+             \x20   SunspecAdapter {{\n\
+             \x20       model_spec: &{module}::SUNSPEC_MODEL_{n},\n\
+             \x20       kind: SUNSPEC_ADAPTER_STATEFUL,\n\
+             \x20       adapter: adapter as *mut c_void,\n\
+             \x20   }}\n\
+             }}\n"
+        ));
     }
 
     scope

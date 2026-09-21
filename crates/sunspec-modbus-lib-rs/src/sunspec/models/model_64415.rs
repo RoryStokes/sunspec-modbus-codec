@@ -622,7 +622,7 @@ impl WriteAdapter for Model64415StatefulAdapter {
     ///
     /// The URL of the resource to subscribe to
     fn set_subscribed_resource_url(&mut self, value: &CStr) {
-        for (dest, src) in self
+        for (dest, src) in &mut self
             .subscribed_resource_url
             .iter_mut()
             .zip(value.to_bytes_with_nul().iter())

@@ -1587,6 +1587,357 @@ impl<const STORED_CURVE_COUNT: usize, const NUMBER_OF_POINTS: usize> WriteAdapte
     }
 }
 
+/// Each repeating-group field points to the first element of a caller-allocated array with at least as many elements as that group's repeat count (the `repeat_count_*` passed for this model); a shorter array is undefined behaviour.
+#[repr(C)]
+pub struct Model708StatefulPtrAdapter {
+    /// DER Trip HV Module Enable (Ena)
+    ///
+    /// DER high voltage trip control enable.
+    pub der_trip_hv_module_enable: Model708Ena,
+    /// Adopt Curve Request (AdptCrvReq)
+    ///
+    /// Index of curve points to adopt. First curve index is 1.
+    pub adopt_curve_request: u16,
+    /// Adopt Curve Result (AdptCrvRslt)
+    ///
+    /// Result of last adopt curve operation.
+    pub adopt_curve_result: Model708AdptCrvRslt,
+    /// Number Of Points (NPt)
+    ///
+    /// Number of curve points supported.
+    pub number_of_points: u16,
+    /// Stored Curve Count (NCrvSet)
+    ///
+    /// Number of stored curves supported.
+    pub stored_curve_count: u16,
+    /// Voltage Scale Factor (V_SF)
+    ///
+    /// Scale factor for curve voltage points.
+    pub voltage_scale_factor: i16,
+    /// Time Point Scale Factor (Tms_SF)
+    ///
+    /// Scale factor for curve time points.
+    pub time_point_scale_factor: i16,
+    pub stored_curves: *mut Model708StoredCurvesPtr,
+}
+
+/// Each repeating-group field points to the first element of a caller-allocated array with at least as many elements as that group's repeat count (the `repeat_count_*` passed for this model); a shorter array is undefined behaviour.
+#[repr(C)]
+pub struct Model708StoredCurvesPtr {
+    /// Curve Access (ReadOnly)
+    ///
+    /// Curve read-write access.
+    pub crv_curve_access: Model708ReadOnly,
+    /// Number Of Active Points (ActPt)
+    ///
+    /// Number of active points in must trip curve.
+    pub must_trip_curve_crv_number_of_active_points: u16,
+    /// Number Of Active Points (ActPt)
+    ///
+    /// Number of active points in may trip curve.
+    pub may_trip_curve_crv_number_of_active_points: u16,
+    /// Number Of Active Points (ActPt)
+    ///
+    /// Number of active points in the momentary cessation curve.
+    pub momentary_cessation_curve_crv_number_of_active_points: u16,
+    pub must_trip_curve_must_trip_curve_points: *mut Model708MustTripCurveMustTripCurvePointsPtr,
+    pub may_trip_curve_may_trip_curve_points: *mut Model708MayTripCurveMayTripCurvePointsPtr,
+    pub momentary_cessation_curve_mom_cessation_curve_points:
+        *mut Model708MomentaryCessationCurveMomCessationCurvePointsPtr,
+}
+
+#[repr(C)]
+pub struct Model708MustTripCurveMustTripCurvePointsPtr {
+    /// Voltage Point (V)
+    ///
+    /// Curve voltage point as percentage.
+    ///
+    /// Internal curve conformance checks should be conducted when AdptCrvReq is set to 1, not on point writes.
+    pub must_trip_curve_pt_voltage_point: u16,
+    /// Time Point (Tms)
+    ///
+    /// Curve time point in seconds.
+    ///
+    /// Internal curve conformance checks should be conducted when AdptCrvReq is set to 1, not on point writes.
+    pub must_trip_curve_pt_time_point: u32,
+}
+
+#[repr(C)]
+pub struct Model708MayTripCurveMayTripCurvePointsPtr {
+    /// Voltage Point (V)
+    ///
+    /// Curve voltage point as percentage.
+    pub may_trip_curve_pt_voltage_point: u16,
+    /// Time Point (Tms)
+    ///
+    /// Curve time point in seconds.
+    pub may_trip_curve_pt_time_point: u32,
+}
+
+#[repr(C)]
+pub struct Model708MomentaryCessationCurveMomCessationCurvePointsPtr {
+    /// Voltage Point (V)
+    ///
+    /// Curve voltage point as percentage.
+    pub momentary_cessation_curve_pt_voltage_point: u16,
+    /// Time Point (Tms)
+    ///
+    /// Curve time point in seconds.
+    pub momentary_cessation_curve_pt_time_point: u32,
+}
+
+impl ReadAdapter for Model708StatefulPtrAdapter {
+    fn der_trip_hv_module_enable(&self) -> Ena {
+        self.der_trip_hv_module_enable
+    }
+
+    fn adopt_curve_request(&self) -> u16 {
+        self.adopt_curve_request
+    }
+
+    fn adopt_curve_result(&self) -> AdptCrvRslt {
+        self.adopt_curve_result
+    }
+
+    fn number_of_points(&self) -> u16 {
+        self.number_of_points
+    }
+
+    fn stored_curve_count(&self) -> u16 {
+        self.stored_curve_count
+    }
+
+    fn voltage_scale_factor(&self) -> i16 {
+        self.voltage_scale_factor
+    }
+
+    fn time_point_scale_factor(&self) -> i16 {
+        self.time_point_scale_factor
+    }
+
+    fn crv_curve_access(&self, crv_index: u16) -> ReadOnly {
+        unsafe { (*self.stored_curves.add(crv_index as usize)).crv_curve_access }
+    }
+
+    fn must_trip_curve_crv_number_of_active_points(&self, crv_index: u16) -> Option<u16> {
+        Some(unsafe {
+            (*self.stored_curves.add(crv_index as usize))
+                .must_trip_curve_crv_number_of_active_points
+        })
+    }
+
+    fn may_trip_curve_crv_number_of_active_points(&self, crv_index: u16) -> Option<u16> {
+        Some(unsafe {
+            (*self.stored_curves.add(crv_index as usize)).may_trip_curve_crv_number_of_active_points
+        })
+    }
+
+    fn momentary_cessation_curve_crv_number_of_active_points(&self, crv_index: u16) -> Option<u16> {
+        Some(unsafe {
+            (*self.stored_curves.add(crv_index as usize))
+                .momentary_cessation_curve_crv_number_of_active_points
+        })
+    }
+
+    fn must_trip_curve_pt_voltage_point(&self, crv_index: u16, pt_index: u16) -> Option<u16> {
+        Some(unsafe {
+            (*(*self.stored_curves.add(crv_index as usize))
+                .must_trip_curve_must_trip_curve_points
+                .add(pt_index as usize))
+            .must_trip_curve_pt_voltage_point
+        })
+    }
+
+    fn must_trip_curve_pt_time_point(&self, crv_index: u16, pt_index: u16) -> Option<u32> {
+        Some(unsafe {
+            (*(*self.stored_curves.add(crv_index as usize))
+                .must_trip_curve_must_trip_curve_points
+                .add(pt_index as usize))
+            .must_trip_curve_pt_time_point
+        })
+    }
+
+    fn may_trip_curve_pt_voltage_point(&self, crv_index: u16, pt_index: u16) -> Option<u16> {
+        Some(unsafe {
+            (*(*self.stored_curves.add(crv_index as usize))
+                .may_trip_curve_may_trip_curve_points
+                .add(pt_index as usize))
+            .may_trip_curve_pt_voltage_point
+        })
+    }
+
+    fn may_trip_curve_pt_time_point(&self, crv_index: u16, pt_index: u16) -> Option<u32> {
+        Some(unsafe {
+            (*(*self.stored_curves.add(crv_index as usize))
+                .may_trip_curve_may_trip_curve_points
+                .add(pt_index as usize))
+            .may_trip_curve_pt_time_point
+        })
+    }
+
+    fn momentary_cessation_curve_pt_voltage_point(
+        &self,
+        crv_index: u16,
+        pt_index: u16,
+    ) -> Option<u16> {
+        Some(unsafe {
+            (*(*self.stored_curves.add(crv_index as usize))
+                .momentary_cessation_curve_mom_cessation_curve_points
+                .add(pt_index as usize))
+            .momentary_cessation_curve_pt_voltage_point
+        })
+    }
+
+    fn momentary_cessation_curve_pt_time_point(
+        &self,
+        crv_index: u16,
+        pt_index: u16,
+    ) -> Option<u32> {
+        Some(unsafe {
+            (*(*self.stored_curves.add(crv_index as usize))
+                .momentary_cessation_curve_mom_cessation_curve_points
+                .add(pt_index as usize))
+            .momentary_cessation_curve_pt_time_point
+        })
+    }
+}
+
+impl WriteAdapter for Model708StatefulPtrAdapter {
+    /// DER Trip HV Module Enable (Ena)
+    ///
+    /// DER high voltage trip control enable.
+    fn set_der_trip_hv_module_enable(&mut self, value: Ena) {
+        self.der_trip_hv_module_enable = value;
+    }
+
+    /// Adopt Curve Request (AdptCrvReq)
+    ///
+    /// Index of curve points to adopt. First curve index is 1.
+    fn set_adopt_curve_request(&mut self, value: u16) {
+        self.adopt_curve_request = value;
+    }
+
+    /// Number Of Active Points (ActPt)
+    ///
+    /// Number of active points in must trip curve.
+    fn set_must_trip_curve_crv_number_of_active_points(&mut self, value: u16, crv_index: u16) {
+        unsafe {
+            (*self.stored_curves.add(crv_index as usize))
+                .must_trip_curve_crv_number_of_active_points = value;
+        }
+    }
+
+    /// Number Of Active Points (ActPt)
+    ///
+    /// Number of active points in may trip curve.
+    fn set_may_trip_curve_crv_number_of_active_points(&mut self, value: u16, crv_index: u16) {
+        unsafe {
+            (*self.stored_curves.add(crv_index as usize))
+                .may_trip_curve_crv_number_of_active_points = value;
+        }
+    }
+
+    /// Number Of Active Points (ActPt)
+    ///
+    /// Number of active points in the momentary cessation curve.
+    fn set_momentary_cessation_curve_crv_number_of_active_points(
+        &mut self,
+        value: u16,
+        crv_index: u16,
+    ) {
+        unsafe {
+            (*self.stored_curves.add(crv_index as usize))
+                .momentary_cessation_curve_crv_number_of_active_points = value;
+        }
+    }
+
+    /// Voltage Point (V)
+    ///
+    /// Curve voltage point as percentage.
+    ///
+    /// Internal curve conformance checks should be conducted when AdptCrvReq is set to 1, not on point writes.
+    fn set_must_trip_curve_pt_voltage_point(&mut self, value: u16, crv_index: u16, pt_index: u16) {
+        unsafe {
+            (*(*self.stored_curves.add(crv_index as usize))
+                .must_trip_curve_must_trip_curve_points
+                .add(pt_index as usize))
+            .must_trip_curve_pt_voltage_point = value;
+        }
+    }
+
+    /// Time Point (Tms)
+    ///
+    /// Curve time point in seconds.
+    ///
+    /// Internal curve conformance checks should be conducted when AdptCrvReq is set to 1, not on point writes.
+    fn set_must_trip_curve_pt_time_point(&mut self, value: u32, crv_index: u16, pt_index: u16) {
+        unsafe {
+            (*(*self.stored_curves.add(crv_index as usize))
+                .must_trip_curve_must_trip_curve_points
+                .add(pt_index as usize))
+            .must_trip_curve_pt_time_point = value;
+        }
+    }
+
+    /// Voltage Point (V)
+    ///
+    /// Curve voltage point as percentage.
+    fn set_may_trip_curve_pt_voltage_point(&mut self, value: u16, crv_index: u16, pt_index: u16) {
+        unsafe {
+            (*(*self.stored_curves.add(crv_index as usize))
+                .may_trip_curve_may_trip_curve_points
+                .add(pt_index as usize))
+            .may_trip_curve_pt_voltage_point = value;
+        }
+    }
+
+    /// Time Point (Tms)
+    ///
+    /// Curve time point in seconds.
+    fn set_may_trip_curve_pt_time_point(&mut self, value: u32, crv_index: u16, pt_index: u16) {
+        unsafe {
+            (*(*self.stored_curves.add(crv_index as usize))
+                .may_trip_curve_may_trip_curve_points
+                .add(pt_index as usize))
+            .may_trip_curve_pt_time_point = value;
+        }
+    }
+
+    /// Voltage Point (V)
+    ///
+    /// Curve voltage point as percentage.
+    fn set_momentary_cessation_curve_pt_voltage_point(
+        &mut self,
+        value: u16,
+        crv_index: u16,
+        pt_index: u16,
+    ) {
+        unsafe {
+            (*(*self.stored_curves.add(crv_index as usize))
+                .momentary_cessation_curve_mom_cessation_curve_points
+                .add(pt_index as usize))
+            .momentary_cessation_curve_pt_voltage_point = value;
+        }
+    }
+
+    /// Time Point (Tms)
+    ///
+    /// Curve time point in seconds.
+    fn set_momentary_cessation_curve_pt_time_point(
+        &mut self,
+        value: u32,
+        crv_index: u16,
+        pt_index: u16,
+    ) {
+        unsafe {
+            (*(*self.stored_curves.add(crv_index as usize))
+                .momentary_cessation_curve_mom_cessation_curve_points
+                .add(pt_index as usize))
+            .momentary_cessation_curve_pt_time_point = value;
+        }
+    }
+}
+
 /// C-FFI dispatch descriptor for SunSpec model 708. A C `SunspecModelBinding` points
 /// at this static, so the service functions dispatch with no model-id lookup.
 #[unsafe(no_mangle)]
@@ -1622,6 +1973,7 @@ unsafe fn model_708_c_visit_read(
         number_of_points: repeat_count_1,
     };
     let adapter: Option<&dyn ReadAdapter> = match kind {
+        1 => Some(unsafe { &*(adapter as *const Model708StatefulPtrAdapter) } as &dyn ReadAdapter),
         2 => Some(unsafe { &*(adapter as *const Model708CallbackAdapter) } as &dyn ReadAdapter),
         _ => None,
     };
@@ -1652,6 +2004,9 @@ unsafe fn model_708_c_visit_write(
         number_of_points: repeat_count_1,
     };
     let adapter: Option<&mut dyn WriteAdapter> = match kind {
+        1 => Some(
+            unsafe { &mut *(adapter as *mut Model708StatefulPtrAdapter) } as &mut dyn WriteAdapter,
+        ),
         2 => {
             Some(unsafe { &mut *(adapter as *mut Model708CallbackAdapter) } as &mut dyn WriteAdapter)
         }

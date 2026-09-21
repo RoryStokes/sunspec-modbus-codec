@@ -44,7 +44,8 @@ fn panic(panic_info: &PanicInfo) -> ! {
 /// [`SunspecAdapter::kind`]: no adapter for this direction; the block reads as `0xffff` and
 /// rejects writes.
 pub const SUNSPEC_ADAPTER_NONE: u8 = 0;
-/// [`SunspecAdapter::kind`]: `adapter` points to a `Model<id>StatefulAdapter`.
+/// [`SunspecAdapter::kind`]: `adapter` points to a `Model<id>StatefulAdapter`
+/// (`Model<id>StatefulPtrAdapter` for a repeating-group model).
 pub const SUNSPEC_ADAPTER_STATEFUL: u8 = 1;
 /// [`SunspecAdapter::kind`]: `adapter` points to a `Model<id>CallbackAdapter`.
 pub const SUNSPEC_ADAPTER_CALLBACK: u8 = 2;
@@ -86,11 +87,11 @@ pub struct SunspecAdapter {
     /// guard: a mismatch (misordered or short adapter array) fails the request with
     /// [`SUNSPEC_RC_ADAPTER_MODEL_MISMATCH`] before any registers are touched.
     pub model_spec: *const StaticModelSpec,
-    /// `SUNSPEC_ADAPTER_NONE` / `_STATEFUL` / `_CALLBACK`. Repeating-group models support only
-    /// `_CALLBACK`.
+    /// `SUNSPEC_ADAPTER_NONE` / `_STATEFUL` / `_CALLBACK`.
     pub kind: u8,
-    /// Pointer to the `Model<id>{Stateful,Callback}Adapter` selected by `kind`, or null when
-    /// `kind` is `SUNSPEC_ADAPTER_NONE`.
+    /// Pointer to the `Model<id>{Stateful,Callback}Adapter` selected by `kind` (for a
+    /// repeating-group model, `Model<id>StatefulPtrAdapter`), or null when `kind` is
+    /// `SUNSPEC_ADAPTER_NONE`.
     pub adapter: *mut c_void,
 }
 

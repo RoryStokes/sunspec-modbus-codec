@@ -465,7 +465,7 @@ impl WriteAdapter for Model18StatefulAdapter {
     ///
     /// Interface name
     fn set_name(&mut self, value: &CStr) {
-        for (dest, src) in self.name.iter_mut().zip(value.to_bytes_with_nul().iter()) {
+        for (dest, src) in &mut self.name.iter_mut().zip(value.to_bytes_with_nul().iter()) {
             *dest = *src as c_char;
         }
     }
@@ -481,7 +481,7 @@ impl WriteAdapter for Model18StatefulAdapter {
     ///
     /// Access Point Name for the interface
     fn set_apn(&mut self, value: &CStr) {
-        for (dest, src) in self.apn.iter_mut().zip(value.to_bytes_with_nul().iter()) {
+        for (dest, src) in &mut self.apn.iter_mut().zip(value.to_bytes_with_nul().iter()) {
             *dest = *src as c_char;
         }
     }
@@ -490,7 +490,7 @@ impl WriteAdapter for Model18StatefulAdapter {
     ///
     /// Phone number for the interface
     fn set_number(&mut self, value: &CStr) {
-        for (dest, src) in self.number.iter_mut().zip(value.to_bytes_with_nul().iter()) {
+        for (dest, src) in &mut self.number.iter_mut().zip(value.to_bytes_with_nul().iter()) {
             *dest = *src as c_char;
         }
     }
@@ -499,7 +499,7 @@ impl WriteAdapter for Model18StatefulAdapter {
     ///
     /// Personal Identification Number for the interface
     fn set_pin(&mut self, value: &CStr) {
-        for (dest, src) in self.pin.iter_mut().zip(value.to_bytes_with_nul().iter()) {
+        for (dest, src) in &mut self.pin.iter_mut().zip(value.to_bytes_with_nul().iter()) {
             *dest = *src as c_char;
         }
     }

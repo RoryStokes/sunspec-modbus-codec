@@ -601,7 +601,7 @@ impl WriteAdapter for Model14StatefulAdapter {
     ///
     /// Interface name (8 chars)
     fn set_name(&mut self, value: &CStr) {
-        for (dest, src) in self.name.iter_mut().zip(value.to_bytes_with_nul().iter()) {
+        for (dest, src) in &mut self.name.iter_mut().zip(value.to_bytes_with_nul().iter()) {
             *dest = *src as c_char;
         }
     }
@@ -631,7 +631,7 @@ impl WriteAdapter for Model14StatefulAdapter {
     ///
     /// IPv4 or IPv6 proxy hostname or dotted address (40 chars)
     fn set_address(&mut self, value: &CStr) {
-        for (dest, src) in self
+        for (dest, src) in &mut self
             .address
             .iter_mut()
             .zip(value.to_bytes_with_nul().iter())
@@ -651,7 +651,7 @@ impl WriteAdapter for Model14StatefulAdapter {
     ///
     /// Proxy user name
     fn set_username(&mut self, value: &CStr) {
-        for (dest, src) in self
+        for (dest, src) in &mut self
             .username
             .iter_mut()
             .zip(value.to_bytes_with_nul().iter())
@@ -664,7 +664,7 @@ impl WriteAdapter for Model14StatefulAdapter {
     ///
     /// Proxy password
     fn set_password(&mut self, value: &CStr) {
-        for (dest, src) in self
+        for (dest, src) in &mut self
             .password
             .iter_mut()
             .zip(value.to_bytes_with_nul().iter())

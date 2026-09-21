@@ -488,13 +488,14 @@ fn generate_c_model_dispatch(model: &ResolvedModel, scope: &mut Scope) {
     // `kind` selects the adapter (1 = stateful, 2 = callback, anything else = none), then a
     // single `visit_source_block` consumes the model's words: a present adapter encodes the
     // block, an absent one fills it with the SunSpec "not implemented" value.
-    let read_stateful_arm = if repeating {
-        String::new()
+    let stateful = if repeating {
+        format!("{pc}StatefulPtrAdapter")
     } else {
-        format!(
-            "        1 => Some(unsafe {{ &*(adapter as *const {pc}StatefulAdapter) }} as &dyn ReadAdapter),\n"
-        )
+        format!("{pc}StatefulAdapter")
     };
+    let read_stateful_arm = format!(
+        "        1 => Some(unsafe {{ &*(adapter as *const {stateful}) }} as &dyn ReadAdapter),\n"
+    );
     scope.raw(format!(
         "/// # Safety\n\
          /// For `kind` 1 or 2, `adapter` must point to a live `Model{n}{{Stateful,Callback}}Adapter`,\n\
@@ -527,13 +528,9 @@ fn generate_c_model_dispatch(model: &ResolvedModel, scope: &mut Scope) {
     ));
 
     let write_body = if model.group.writable {
-        let write_stateful_arm = if repeating {
-            String::new()
-        } else {
-            format!(
-                "        1 => Some(unsafe {{ &mut *(adapter as *mut {pc}StatefulAdapter) }} as &mut dyn WriteAdapter),\n"
-            )
-        };
+        let write_stateful_arm = format!(
+            "        1 => Some(unsafe {{ &mut *(adapter as *mut {stateful}) }} as &mut dyn WriteAdapter),\n"
+        );
         format!(
             "    let model = {ctor};\n\
              \x20   let adapter: Option<&mut dyn WriteAdapter> = match kind {{\n\
@@ -757,12 +754,66 @@ fn generate_model_length_calculator(group: &ResolvedGroup) -> String {
     }
 }
 
+/// How a stateful adapter stores its repeating groups.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum StatefulLayout {
+    /// Inline `[Group<..>; COUNT]` arrays sized by const generics: a plain Rust value with no
+    /// `unsafe`, but the counts are fixed at compile time, so a C caller can't instantiate it.
+    Inline,
+    /// Non-generic: each repeating group is a `*mut Group` to a caller-allocated array of
+    /// that group's repeat count elements, so any counts work from C.
+    Pointer,
+}
+
+impl StatefulLayout {
+    /// Expression reaching the (possibly nested) repeating-group instance a point lives in,
+    /// starting from `self`, indexed by the point's block indices.
+    fn group_access(self, point: &ResolvedPoint) -> String {
+        match self {
+            StatefulLayout::Inline => {
+                let indexing: String = point
+                    .block_indices
+                    .iter()
+                    .map(|block_index| {
+                        format!(
+                            ".{}[{} as usize]",
+                            block_index.group_name, block_index.index_name
+                        )
+                    })
+                    .collect();
+                format!("self{indexing}")
+            }
+            StatefulLayout::Pointer => {
+                point
+                    .block_indices
+                    .iter()
+                    .fold("self".to_string(), |parent, block_index| {
+                        format!(
+                            "(*{parent}.{}.add({} as usize))",
+                            block_index.group_name, block_index.index_name
+                        )
+                    })
+            }
+        }
+    }
+
+    /// Wraps `expression` in an `unsafe` block when it dereferences a group pointer.
+    fn wrap_access(self, point: &ResolvedPoint, expression: String) -> String {
+        if self == StatefulLayout::Pointer && !point.block_indices.is_empty() {
+            format!("unsafe {{ {expression} }}")
+        } else {
+            expression
+        }
+    }
+}
+
 pub fn populate_stateful_struct(
     model_name: String,
     struct_name: String,
     group: &ResolvedGroup,
     scope: &mut Scope,
     generics: &Vec<String>,
+    layout: StatefulLayout,
 ) {
     let stateful_struct = scope
         .new_struct(format!("{model_name}{struct_name}"))
@@ -770,6 +821,13 @@ pub fn populate_stateful_struct(
         .repr("C");
     for generic in generics {
         stateful_struct.generic(format!("const {generic}: usize"));
+    }
+    if layout == StatefulLayout::Pointer && !group.flattened_repeats().is_empty() {
+        stateful_struct.doc(
+            "Each repeating-group field points to the first element of a caller-allocated array \
+             with at least as many elements as that group's repeat count (the `repeat_count_*` \
+             passed for this model); a shorter array is undefined behaviour.",
+        );
     }
 
     for point in group
@@ -796,22 +854,37 @@ pub fn populate_stateful_struct(
     // again: adding fields (which needs `stateful_struct`, itself borrowed from `scope`) and
     // recursing into a child (which needs `scope` again) can't be interleaved under the borrow
     // checker while `stateful_struct`'s borrow is still open.
+    let pointer_suffix = if layout == StatefulLayout::Pointer {
+        "Ptr"
+    } else {
+        ""
+    };
     let children: Vec<_> = group
         .flattened_repeats()
         .into_iter()
         .map(|(count_point, inner_group)| {
-            let inner_generics: Vec<String> = inner_group
-                .count_points
-                .iter()
-                .map(|name| name.borrow().snake_case.to_uppercase())
-                .collect();
-            let struct_name = format!("{model_name}{}", inner_group.name_pascal_case());
-            let field_name = format!("pub {}", inner_group.name_snake_case());
-            let field_type = format!(
-                "[{struct_name}<{}>; {}]",
-                inner_generics.join(", "),
-                count_point.name_snake_case().to_uppercase()
+            let inner_generics: Vec<String> = if layout == StatefulLayout::Pointer {
+                Vec::new()
+            } else {
+                inner_group
+                    .count_points
+                    .iter()
+                    .map(|name| name.borrow().snake_case.to_uppercase())
+                    .collect()
+            };
+            let struct_name = format!(
+                "{model_name}{}{pointer_suffix}",
+                inner_group.name_pascal_case()
             );
+            let field_name = format!("pub {}", inner_group.name_snake_case());
+            let field_type = match layout {
+                StatefulLayout::Inline => format!(
+                    "[{struct_name}<{}>; {}]",
+                    inner_generics.join(", "),
+                    count_point.name_snake_case().to_uppercase()
+                ),
+                StatefulLayout::Pointer => format!("*mut {struct_name}"),
+            };
             (field_name, field_type, inner_group, inner_generics)
         })
         .collect();
@@ -823,31 +896,26 @@ pub fn populate_stateful_struct(
     for (_, _, inner_group, inner_generics) in children {
         populate_stateful_struct(
             model_name.clone(),
-            inner_group.name_pascal_case(),
+            format!("{}{pointer_suffix}", inner_group.name_pascal_case()),
             inner_group,
             scope,
             &inner_generics,
+            layout,
         );
     }
 }
 
-fn generate_stateful_read_handlers(group: &ResolvedGroup, stateful_impl: &mut Impl) {
+fn generate_stateful_read_handlers(
+    group: &ResolvedGroup,
+    stateful_impl: &mut Impl,
+    layout: StatefulLayout,
+) {
     for point in group
         .flattened_points()
         .into_iter()
         .filter(|point| point.value_type == PointValueType::Adapter)
     {
-        let group_index_access = point
-            .block_indices
-            .iter()
-            .map(|block_index| {
-                format!(
-                    ".{}[{} as usize]",
-                    block_index.group_name, block_index.index_name
-                )
-            })
-            .collect::<Vec<_>>()
-            .join("");
+        let group_access = layout.group_access(point);
 
         let mut getter = generate_getter(point);
         for block_index in &point.block_indices {
@@ -858,21 +926,19 @@ fn generate_stateful_read_handlers(group: &ResolvedGroup, stateful_impl: &mut Im
         getter.doc("");
 
         let field = if point.point_type.array_length.is_some() {
-            format!(
-                "self{group_index_access}.{}.as_ptr()",
-                point.name_snake_case()
-            )
+            format!("{group_access}.{}.as_ptr()", point.name_snake_case())
         } else {
-            format!("self{group_index_access}.{}", point.name_snake_case())
+            format!("{group_access}.{}", point.name_snake_case())
         };
         if point.mandatory == PointMandatory::O {
             getter.line("Some(");
         }
 
+        // `cast_from_c` conversions already sit in their own `unsafe` block.
         getter.line(if let Some(cast) = point.point_type.cast_from_c {
             cast(&field)
         } else {
-            field
+            layout.wrap_access(point, field)
         });
 
         if point.mandatory == PointMandatory::O {
@@ -882,41 +948,37 @@ fn generate_stateful_read_handlers(group: &ResolvedGroup, stateful_impl: &mut Im
     }
 
     for (_, inner_group) in group.flattened_repeats() {
-        generate_stateful_read_handlers(inner_group, stateful_impl);
+        generate_stateful_read_handlers(inner_group, stateful_impl, layout);
     }
 }
 
-fn generate_stateful_write_handlers(group: &ResolvedGroup, stateful_impl: &mut Impl) {
+fn generate_stateful_write_handlers(
+    group: &ResolvedGroup,
+    stateful_impl: &mut Impl,
+    layout: StatefulLayout,
+) {
     for point in group.flattened_points().into_iter().filter(|point| {
         point.value_type == PointValueType::Adapter && point.access == PointAccess::Rw
     }) {
-        let group_index_access = point
-            .block_indices
-            .iter()
-            .map(|block_index| {
-                format!(
-                    ".{}[{} as usize]",
-                    block_index.group_name, block_index.index_name
-                )
-            })
-            .collect::<Vec<_>>()
-            .join("");
+        let group_access = layout.group_access(point);
 
         let mut setter = generate_setter(point);
         for block_index in &point.block_indices {
             setter.arg(&block_index.index_name, "u16");
         }
         if point.point_type.array_length.is_none() {
-            setter.line(format!(
-                "self{group_index_access}.{} = value;",
-                point.name_snake_case()
+            setter.line(layout.wrap_access(
+                point,
+                format!("{group_access}.{} = value;", point.name_snake_case()),
             ));
         } else {
             const ITER: &str = "value.to_bytes_with_nul().iter()";
+            let destination = layout.wrap_access(
+                point,
+                format!("&mut {group_access}.{}", point.name_snake_case()),
+            );
             let mut block = Block::new(format!(
-                "for (dest, src) in self{group_index_access}.{}.iter_mut().zip({})",
-                point.name_snake_case(),
-                ITER
+                "for (dest, src) in {destination}.iter_mut().zip({ITER})"
             ));
             block.line("*dest = *src as c_char;");
             setter.push_block(block);
@@ -926,54 +988,65 @@ fn generate_stateful_write_handlers(group: &ResolvedGroup, stateful_impl: &mut I
     }
 
     for (_, inner_group) in group.flattened_repeats() {
-        generate_stateful_write_handlers(inner_group, stateful_impl);
+        generate_stateful_write_handlers(inner_group, stateful_impl, layout);
     }
 }
 
-pub fn generate_stateful_struct(model: &ResolvedModel, scope: &mut Scope) {
-    let generics: Vec<String> = model
-        .group
-        .count_points
-        .iter()
-        .map(|name| name.borrow().snake_case.to_uppercase())
-        .collect();
+/// Generates the stateful adapter struct(s) and their `ReadAdapter`/`WriteAdapter` impls.
+///
+/// [`StatefulLayout::Inline`] yields `Model<id>StatefulAdapter<const ..>`, and
+/// [`StatefulLayout::Pointer`] (repeating models only) the non-generic, C-usable
+/// `Model<id>StatefulPtrAdapter`.
+pub fn generate_stateful_struct(model: &ResolvedModel, scope: &mut Scope, layout: StatefulLayout) {
+    let generics: Vec<String> = if layout == StatefulLayout::Pointer {
+        Vec::new()
+    } else {
+        model
+            .group
+            .count_points
+            .iter()
+            .map(|name| name.borrow().snake_case.to_uppercase())
+            .collect()
+    };
+    let struct_name = match layout {
+        StatefulLayout::Inline => "StatefulAdapter",
+        StatefulLayout::Pointer => "StatefulPtrAdapter",
+    };
+    let impl_target = if generics.is_empty() {
+        format!("{}{struct_name}", model.name_pascal_case())
+    } else {
+        format!(
+            "{}{struct_name}<{}>",
+            model.name_pascal_case(),
+            generics.join(", ")
+        )
+    };
 
     populate_stateful_struct(
         model.name_pascal_case(),
-        "StatefulAdapter".to_string(),
+        struct_name.to_string(),
         &model.group,
         scope,
         &generics,
+        layout,
     );
 
-    let stateful_impl = scope
-        .new_impl(format!(
-            "{}StatefulAdapter<{}>",
-            model.name_pascal_case(),
-            generics.join(", ")
-        ))
-        .impl_trait("ReadAdapter");
+    let stateful_impl = scope.new_impl(&impl_target).impl_trait("ReadAdapter");
 
     for generic in &generics {
         stateful_impl.generic(format!("const {generic}: usize"));
     }
 
-    generate_stateful_read_handlers(&model.group, stateful_impl);
+    generate_stateful_read_handlers(&model.group, stateful_impl, layout);
 
     if model.group.writable {
-        let write_impl = scope
-            .new_impl(format!(
-                "{}StatefulAdapter<{}>",
-                model.name_pascal_case(),
-                generics.join(", ")
-            ))
-            .impl_trait("WriteAdapter");
+        let write_impl = scope.new_impl(&impl_target).impl_trait("WriteAdapter");
 
         for generic in &generics {
             write_impl.generic(format!("const {generic}: usize"));
         }
 
-        generate_stateful_write_handlers(&model.group, write_impl);
+        generate_stateful_write_handlers(&model.group, write_impl, layout);
     }
 }
 
@@ -1540,7 +1613,10 @@ pub fn generate_model(model: &ResolvedModel) -> Scope {
     }
 
     generate_callback_struct(model, &mut scope);
-    generate_stateful_struct(model, &mut scope);
+    generate_stateful_struct(model, &mut scope, StatefulLayout::Inline);
+    if model_is_repeating(model) && model_c_expressible(model) {
+        generate_stateful_struct(model, &mut scope, StatefulLayout::Pointer);
+    }
 
     generate_c_model_dispatch(model, &mut scope);
 

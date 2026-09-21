@@ -100,7 +100,6 @@ pub struct StaticModelSpec {
 
     /// Decode one model block on a read. `kind`: `1` = stateful adapter pointer, `2` =
     /// callback adapter pointer, anything else = no adapter (the block reads as `0xffff`).
-    /// Repeating-group models accept only `kind` `2`.
     ///
     /// # Safety
     /// For `kind` `1` or `2`, `adapter` must point to a live `Model<id>{Stateful,Callback}Adapter`

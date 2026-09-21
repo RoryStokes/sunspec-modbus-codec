@@ -46,6 +46,8 @@ These are provided as traits, and a Rust consumer of the library can implement t
 with the interface for C or other programming languages, two standard implementations of the adapters are provided:
  - The Stateful adapter holds a representation of each point in a struct, and directly gets and sets these values according
    to requests
+   (For models with repeating groups, `Model<id>StatefulAdapter` sizes its arrays with const generics, so it's for Rust
+   callers; the C-facing `Model<id>StatefulPtrAdapter` instead points at caller-allocated arrays, one element per repeat count.)
  - The Callback adapter holds function pointers for each method that are directly invoked, allowing more complex custom
    behaviour in non-Rust languages
 

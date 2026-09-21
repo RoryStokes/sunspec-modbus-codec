@@ -2887,6 +2887,646 @@ impl<const STORED_PROFILE_COUNT: usize, const NUMBER_OF_POINTS: usize> WriteAdap
     }
 }
 
+/// Each repeating-group field points to the first element of a caller-allocated array with at least as many elements as that group's repeat count (the `repeat_count_*` passed for this model); a shorter array is undefined behaviour.
+#[repr(C)]
+pub struct Model64410StatefulPtrAdapter {
+    /// Maximum Voltage (VMaxLim)
+    ///
+    /// Upper Voltage Protection Limit
+    pub maximum_voltage: u16,
+    /// Maximum Power (PMaxLim)
+    ///
+    /// Upper Power Protection Limit
+    pub maximum_power: u16,
+    /// Maximum Current (IMaxLim)
+    ///
+    /// Upper Current Protection Limit
+    pub maximum_current: u16,
+    /// CV or CC Mode (Mode)
+    ///
+    /// Constant Voltage (CV) or Constant Current (CC) Mode
+    pub cv_or_cc_mode: Model64410Mode,
+    /// Power On/Off (Ena)
+    ///
+    /// Power On/Off
+    pub power_on_off: Model64410Ena,
+    /// Reset Device (Reset)
+    ///
+    /// Reset Device
+    pub reset_device: Model64410Reset,
+    /// Voltage Setpoint (VSet)
+    ///
+    /// Voltage Setpoint
+    pub voltage_setpoint: u16,
+    /// Power Setpoint (PSet)
+    ///
+    /// Power Setpoint
+    pub power_setpoint: u16,
+    /// Current Setpoint (ISet)
+    ///
+    /// Current Setpoint
+    pub current_setpoint: u16,
+    /// EN50530 Mode (EN50530)
+    ///
+    /// EN50530 Mode - Enable or disable EN50530 profile mode
+    pub en50530_mode: Model64410En50530,
+    /// EN50530 MPP Voltage (Vmpp)
+    ///
+    /// EN50530 MPP Voltage
+    pub en50530_mpp_voltage: u16,
+    /// EN50530 MPP Power (Pmpp)
+    ///
+    /// EN50530 MPP Power
+    pub en50530_mpp_power: u16,
+    /// Irradiance Setpoint (GSet)
+    ///
+    /// Irradiance Setpoint
+    pub irradiance_setpoint: u16,
+    /// Voltage Slew Rate (VSlewRate)
+    ///
+    /// Voltage Slew Rate
+    pub voltage_slew_rate: u16,
+    /// Power Slew Rate (PSlewRate)
+    ///
+    /// Power Slew Rate
+    pub power_slew_rate: u16,
+    /// Current Slew Rate (ISlewRate)
+    ///
+    /// Current Slew Rate
+    pub current_slew_rate: u16,
+    /// Enable Profile (EnaProf)
+    ///
+    /// Start/Stop the Profile
+    pub enable_profile: Model64410EnaProf,
+    /// Profile Adoption Request (AdptProfReq)
+    ///
+    /// Index of profile points to adopt. First curve index is 1.
+    pub profile_adoption_request: u16,
+    /// Adopt Profile Result (AdptProfRslt)
+    ///
+    /// Result of last adopt profile operation.
+    pub adopt_profile_result: Model64410AdptProfRslt,
+    /// Measured Voltage (V)
+    ///
+    /// Measured Voltage
+    pub measured_voltage: i32,
+    /// Measured Power (P)
+    ///
+    /// Measured Power
+    pub measured_power: i32,
+    /// Measured Current (I)
+    ///
+    /// Measured Current
+    pub measured_current: i32,
+    /// Errors (Errors)
+    ///
+    /// Error States
+    pub errors: [c_char; 64],
+    /// Number Of Points (NPt)
+    ///
+    /// Number of profile points supported.
+    pub number_of_points: u16,
+    /// Stored Profile Count (NProf)
+    ///
+    /// Number of stored profiles supported.
+    pub stored_profile_count: u16,
+    /// Power Scale Factor (W_SF)
+    ///
+    /// Scale factor for power points.
+    pub power_scale_factor: i16,
+    /// Voltage Scale Factor (V_SF)
+    ///
+    /// Scale factor for voltage points.
+    pub voltage_scale_factor: i16,
+    /// Current Scale Factor (A_SF)
+    ///
+    /// Scale factor for current points.
+    pub current_scale_factor: i16,
+    /// Irradiance Scale Factor (G_SF)
+    ///
+    /// Scale factor for irradiance.
+    pub irradiance_scale_factor: i16,
+    /// Time Scale Factor (Tms_SF)
+    ///
+    /// Scale factor for time points.
+    pub time_scale_factor: i16,
+    /// Voltage Slew Rate Scale Factor (VSlew_SF)
+    ///
+    /// Scale factor for voltage slew rate.
+    pub voltage_slew_rate_scale_factor: i16,
+    /// Power Slew Rate Scale Factor (PSlew_SF)
+    ///
+    /// Scale factor for power slew rate.
+    pub power_slew_rate_scale_factor: i16,
+    /// Current Slew Rate Scale Factor (ISlew_SF)
+    ///
+    /// Scale factor for current slew rate.
+    pub current_slew_rate_scale_factor: i16,
+    /// Percent Scale Factor (Pct_SF)
+    ///
+    /// Scale factor for percentages.
+    pub percent_scale_factor: i16,
+    pub stored_profiles: *mut Model64410StoredProfilesPtr,
+}
+
+/// Each repeating-group field points to the first element of a caller-allocated array with at least as many elements as that group's repeat count (the `repeat_count_*` passed for this model); a shorter array is undefined behaviour.
+#[repr(C)]
+pub struct Model64410StoredProfilesPtr {
+    /// Active Points (ActPt)
+    ///
+    /// Number of active points.
+    pub prof_active_points: u16,
+    /// Dependent References (DeptRef)
+    ///
+    /// Profile references.
+    pub prof_dependent_references: u32,
+    pub stored_profile_points: *mut Model64410StoredProfilePointsPtr,
+}
+
+#[repr(C)]
+pub struct Model64410StoredProfilePointsPtr {
+    /// Profile Time (Tms)
+    ///
+    /// Profile time.
+    pub pt_profile_time: u16,
+    /// Voltage Point (V)
+    ///
+    /// Profile voltage point in Volts.
+    pub pt_voltage_point: u16,
+    /// Power Point (P)
+    ///
+    /// Profile power point in Watts.
+    pub pt_power_point: u16,
+    /// Current Point (I)
+    ///
+    /// Profile current point in Amps.
+    pub pt_current_point: u16,
+    /// Irradiance Point (G)
+    ///
+    /// Profile irradiance point as percentage.
+    pub pt_irradiance_point: u16,
+}
+
+impl ReadAdapter for Model64410StatefulPtrAdapter {
+    fn maximum_voltage(&self) -> Option<u16> {
+        Some(self.maximum_voltage)
+    }
+
+    fn maximum_power(&self) -> Option<u16> {
+        Some(self.maximum_power)
+    }
+
+    fn maximum_current(&self) -> Option<u16> {
+        Some(self.maximum_current)
+    }
+
+    fn cv_or_cc_mode(&self) -> Option<Mode> {
+        Some(self.cv_or_cc_mode)
+    }
+
+    fn power_on_off(&self) -> Option<Ena> {
+        Some(self.power_on_off)
+    }
+
+    fn reset_device(&self) -> Option<Reset> {
+        Some(self.reset_device)
+    }
+
+    fn voltage_setpoint(&self) -> Option<u16> {
+        Some(self.voltage_setpoint)
+    }
+
+    fn power_setpoint(&self) -> Option<u16> {
+        Some(self.power_setpoint)
+    }
+
+    fn current_setpoint(&self) -> Option<u16> {
+        Some(self.current_setpoint)
+    }
+
+    fn en50530_mode(&self) -> Option<En50530> {
+        Some(self.en50530_mode)
+    }
+
+    fn en50530_mpp_voltage(&self) -> Option<u16> {
+        Some(self.en50530_mpp_voltage)
+    }
+
+    fn en50530_mpp_power(&self) -> Option<u16> {
+        Some(self.en50530_mpp_power)
+    }
+
+    fn irradiance_setpoint(&self) -> Option<u16> {
+        Some(self.irradiance_setpoint)
+    }
+
+    fn voltage_slew_rate(&self) -> Option<u16> {
+        Some(self.voltage_slew_rate)
+    }
+
+    fn power_slew_rate(&self) -> Option<u16> {
+        Some(self.power_slew_rate)
+    }
+
+    fn current_slew_rate(&self) -> Option<u16> {
+        Some(self.current_slew_rate)
+    }
+
+    fn enable_profile(&self) -> Option<EnaProf> {
+        Some(self.enable_profile)
+    }
+
+    fn profile_adoption_request(&self) -> Option<u16> {
+        Some(self.profile_adoption_request)
+    }
+
+    fn adopt_profile_result(&self) -> AdptProfRslt {
+        self.adopt_profile_result
+    }
+
+    fn measured_voltage(&self) -> Option<i32> {
+        Some(self.measured_voltage)
+    }
+
+    fn measured_power(&self) -> Option<i32> {
+        Some(self.measured_power)
+    }
+
+    fn measured_current(&self) -> Option<i32> {
+        Some(self.measured_current)
+    }
+
+    fn errors(&self) -> Option<&CStr> {
+        Some(unsafe { CStr::from_ptr(self.errors.as_ptr()) })
+    }
+
+    fn number_of_points(&self) -> u16 {
+        self.number_of_points
+    }
+
+    fn stored_profile_count(&self) -> u16 {
+        self.stored_profile_count
+    }
+
+    fn power_scale_factor(&self) -> i16 {
+        self.power_scale_factor
+    }
+
+    fn voltage_scale_factor(&self) -> i16 {
+        self.voltage_scale_factor
+    }
+
+    fn current_scale_factor(&self) -> i16 {
+        self.current_scale_factor
+    }
+
+    fn irradiance_scale_factor(&self) -> i16 {
+        self.irradiance_scale_factor
+    }
+
+    fn time_scale_factor(&self) -> i16 {
+        self.time_scale_factor
+    }
+
+    fn voltage_slew_rate_scale_factor(&self) -> i16 {
+        self.voltage_slew_rate_scale_factor
+    }
+
+    fn power_slew_rate_scale_factor(&self) -> i16 {
+        self.power_slew_rate_scale_factor
+    }
+
+    fn current_slew_rate_scale_factor(&self) -> i16 {
+        self.current_slew_rate_scale_factor
+    }
+
+    fn percent_scale_factor(&self) -> i16 {
+        self.percent_scale_factor
+    }
+
+    fn prof_active_points(&self, prof_index: u16) -> u16 {
+        unsafe { (*self.stored_profiles.add(prof_index as usize)).prof_active_points }
+    }
+
+    fn prof_dependent_references(&self, prof_index: u16) -> u32 {
+        unsafe { (*self.stored_profiles.add(prof_index as usize)).prof_dependent_references }
+    }
+
+    fn pt_profile_time(&self, prof_index: u16, pt_index: u16) -> Option<u16> {
+        Some(unsafe {
+            (*(*self.stored_profiles.add(prof_index as usize))
+                .stored_profile_points
+                .add(pt_index as usize))
+            .pt_profile_time
+        })
+    }
+
+    fn pt_voltage_point(&self, prof_index: u16, pt_index: u16) -> Option<u16> {
+        Some(unsafe {
+            (*(*self.stored_profiles.add(prof_index as usize))
+                .stored_profile_points
+                .add(pt_index as usize))
+            .pt_voltage_point
+        })
+    }
+
+    fn pt_power_point(&self, prof_index: u16, pt_index: u16) -> Option<u16> {
+        Some(unsafe {
+            (*(*self.stored_profiles.add(prof_index as usize))
+                .stored_profile_points
+                .add(pt_index as usize))
+            .pt_power_point
+        })
+    }
+
+    fn pt_current_point(&self, prof_index: u16, pt_index: u16) -> Option<u16> {
+        Some(unsafe {
+            (*(*self.stored_profiles.add(prof_index as usize))
+                .stored_profile_points
+                .add(pt_index as usize))
+            .pt_current_point
+        })
+    }
+
+    fn pt_irradiance_point(&self, prof_index: u16, pt_index: u16) -> Option<u16> {
+        Some(unsafe {
+            (*(*self.stored_profiles.add(prof_index as usize))
+                .stored_profile_points
+                .add(pt_index as usize))
+            .pt_irradiance_point
+        })
+    }
+}
+
+impl WriteAdapter for Model64410StatefulPtrAdapter {
+    /// Maximum Voltage (VMaxLim)
+    ///
+    /// Upper Voltage Protection Limit
+    fn set_maximum_voltage(&mut self, value: u16) {
+        self.maximum_voltage = value;
+    }
+
+    /// Maximum Power (PMaxLim)
+    ///
+    /// Upper Power Protection Limit
+    fn set_maximum_power(&mut self, value: u16) {
+        self.maximum_power = value;
+    }
+
+    /// Maximum Current (IMaxLim)
+    ///
+    /// Upper Current Protection Limit
+    fn set_maximum_current(&mut self, value: u16) {
+        self.maximum_current = value;
+    }
+
+    /// CV or CC Mode (Mode)
+    ///
+    /// Constant Voltage (CV) or Constant Current (CC) Mode
+    fn set_cv_or_cc_mode(&mut self, value: Mode) {
+        self.cv_or_cc_mode = value;
+    }
+
+    /// Power On/Off (Ena)
+    ///
+    /// Power On/Off
+    fn set_power_on_off(&mut self, value: Ena) {
+        self.power_on_off = value;
+    }
+
+    /// Reset Device (Reset)
+    ///
+    /// Reset Device
+    fn set_reset_device(&mut self, value: Reset) {
+        self.reset_device = value;
+    }
+
+    /// Voltage Setpoint (VSet)
+    ///
+    /// Voltage Setpoint
+    fn set_voltage_setpoint(&mut self, value: u16) {
+        self.voltage_setpoint = value;
+    }
+
+    /// Power Setpoint (PSet)
+    ///
+    /// Power Setpoint
+    fn set_power_setpoint(&mut self, value: u16) {
+        self.power_setpoint = value;
+    }
+
+    /// Current Setpoint (ISet)
+    ///
+    /// Current Setpoint
+    fn set_current_setpoint(&mut self, value: u16) {
+        self.current_setpoint = value;
+    }
+
+    /// EN50530 Mode (EN50530)
+    ///
+    /// EN50530 Mode - Enable or disable EN50530 profile mode
+    fn set_en50530_mode(&mut self, value: En50530) {
+        self.en50530_mode = value;
+    }
+
+    /// EN50530 MPP Voltage (Vmpp)
+    ///
+    /// EN50530 MPP Voltage
+    fn set_en50530_mpp_voltage(&mut self, value: u16) {
+        self.en50530_mpp_voltage = value;
+    }
+
+    /// EN50530 MPP Power (Pmpp)
+    ///
+    /// EN50530 MPP Power
+    fn set_en50530_mpp_power(&mut self, value: u16) {
+        self.en50530_mpp_power = value;
+    }
+
+    /// Irradiance Setpoint (GSet)
+    ///
+    /// Irradiance Setpoint
+    fn set_irradiance_setpoint(&mut self, value: u16) {
+        self.irradiance_setpoint = value;
+    }
+
+    /// Voltage Slew Rate (VSlewRate)
+    ///
+    /// Voltage Slew Rate
+    fn set_voltage_slew_rate(&mut self, value: u16) {
+        self.voltage_slew_rate = value;
+    }
+
+    /// Power Slew Rate (PSlewRate)
+    ///
+    /// Power Slew Rate
+    fn set_power_slew_rate(&mut self, value: u16) {
+        self.power_slew_rate = value;
+    }
+
+    /// Current Slew Rate (ISlewRate)
+    ///
+    /// Current Slew Rate
+    fn set_current_slew_rate(&mut self, value: u16) {
+        self.current_slew_rate = value;
+    }
+
+    /// Enable Profile (EnaProf)
+    ///
+    /// Start/Stop the Profile
+    fn set_enable_profile(&mut self, value: EnaProf) {
+        self.enable_profile = value;
+    }
+
+    /// Profile Adoption Request (AdptProfReq)
+    ///
+    /// Index of profile points to adopt. First curve index is 1.
+    fn set_profile_adoption_request(&mut self, value: u16) {
+        self.profile_adoption_request = value;
+    }
+
+    /// Power Scale Factor (W_SF)
+    ///
+    /// Scale factor for power points.
+    fn set_power_scale_factor(&mut self, value: i16) {
+        self.power_scale_factor = value;
+    }
+
+    /// Voltage Scale Factor (V_SF)
+    ///
+    /// Scale factor for voltage points.
+    fn set_voltage_scale_factor(&mut self, value: i16) {
+        self.voltage_scale_factor = value;
+    }
+
+    /// Current Scale Factor (A_SF)
+    ///
+    /// Scale factor for current points.
+    fn set_current_scale_factor(&mut self, value: i16) {
+        self.current_scale_factor = value;
+    }
+
+    /// Irradiance Scale Factor (G_SF)
+    ///
+    /// Scale factor for irradiance.
+    fn set_irradiance_scale_factor(&mut self, value: i16) {
+        self.irradiance_scale_factor = value;
+    }
+
+    /// Time Scale Factor (Tms_SF)
+    ///
+    /// Scale factor for time points.
+    fn set_time_scale_factor(&mut self, value: i16) {
+        self.time_scale_factor = value;
+    }
+
+    /// Voltage Slew Rate Scale Factor (VSlew_SF)
+    ///
+    /// Scale factor for voltage slew rate.
+    fn set_voltage_slew_rate_scale_factor(&mut self, value: i16) {
+        self.voltage_slew_rate_scale_factor = value;
+    }
+
+    /// Power Slew Rate Scale Factor (PSlew_SF)
+    ///
+    /// Scale factor for power slew rate.
+    fn set_power_slew_rate_scale_factor(&mut self, value: i16) {
+        self.power_slew_rate_scale_factor = value;
+    }
+
+    /// Current Slew Rate Scale Factor (ISlew_SF)
+    ///
+    /// Scale factor for current slew rate.
+    fn set_current_slew_rate_scale_factor(&mut self, value: i16) {
+        self.current_slew_rate_scale_factor = value;
+    }
+
+    /// Percent Scale Factor (Pct_SF)
+    ///
+    /// Scale factor for percentages.
+    fn set_percent_scale_factor(&mut self, value: i16) {
+        self.percent_scale_factor = value;
+    }
+
+    /// Active Points (ActPt)
+    ///
+    /// Number of active points.
+    fn set_prof_active_points(&mut self, value: u16, prof_index: u16) {
+        unsafe {
+            (*self.stored_profiles.add(prof_index as usize)).prof_active_points = value;
+        }
+    }
+
+    /// Dependent References (DeptRef)
+    ///
+    /// Profile references.
+    fn set_prof_dependent_references(&mut self, value: u32, prof_index: u16) {
+        unsafe {
+            (*self.stored_profiles.add(prof_index as usize)).prof_dependent_references = value;
+        }
+    }
+
+    /// Profile Time (Tms)
+    ///
+    /// Profile time.
+    fn set_pt_profile_time(&mut self, value: u16, prof_index: u16, pt_index: u16) {
+        unsafe {
+            (*(*self.stored_profiles.add(prof_index as usize))
+                .stored_profile_points
+                .add(pt_index as usize))
+            .pt_profile_time = value;
+        }
+    }
+
+    /// Voltage Point (V)
+    ///
+    /// Profile voltage point in Volts.
+    fn set_pt_voltage_point(&mut self, value: u16, prof_index: u16, pt_index: u16) {
+        unsafe {
+            (*(*self.stored_profiles.add(prof_index as usize))
+                .stored_profile_points
+                .add(pt_index as usize))
+            .pt_voltage_point = value;
+        }
+    }
+
+    /// Power Point (P)
+    ///
+    /// Profile power point in Watts.
+    fn set_pt_power_point(&mut self, value: u16, prof_index: u16, pt_index: u16) {
+        unsafe {
+            (*(*self.stored_profiles.add(prof_index as usize))
+                .stored_profile_points
+                .add(pt_index as usize))
+            .pt_power_point = value;
+        }
+    }
+
+    /// Current Point (I)
+    ///
+    /// Profile current point in Amps.
+    fn set_pt_current_point(&mut self, value: u16, prof_index: u16, pt_index: u16) {
+        unsafe {
+            (*(*self.stored_profiles.add(prof_index as usize))
+                .stored_profile_points
+                .add(pt_index as usize))
+            .pt_current_point = value;
+        }
+    }
+
+    /// Irradiance Point (G)
+    ///
+    /// Profile irradiance point as percentage.
+    fn set_pt_irradiance_point(&mut self, value: u16, prof_index: u16, pt_index: u16) {
+        unsafe {
+            (*(*self.stored_profiles.add(prof_index as usize))
+                .stored_profile_points
+                .add(pt_index as usize))
+            .pt_irradiance_point = value;
+        }
+    }
+}
+
 /// C-FFI dispatch descriptor for SunSpec model 64410. A C `SunspecModelBinding` points
 /// at this static, so the service functions dispatch with no model-id lookup.
 #[unsafe(no_mangle)]
@@ -2922,6 +3562,9 @@ unsafe fn model_64410_c_visit_read(
         number_of_points: repeat_count_1,
     };
     let adapter: Option<&dyn ReadAdapter> = match kind {
+        1 => {
+            Some(unsafe { &*(adapter as *const Model64410StatefulPtrAdapter) } as &dyn ReadAdapter)
+        }
         2 => Some(unsafe { &*(adapter as *const Model64410CallbackAdapter) } as &dyn ReadAdapter),
         _ => None,
     };
@@ -2953,6 +3596,10 @@ unsafe fn model_64410_c_visit_write(
     };
     let adapter: Option<&mut dyn WriteAdapter> =
         match kind {
+            1 => Some(
+                unsafe { &mut *(adapter as *mut Model64410StatefulPtrAdapter) }
+                    as &mut dyn WriteAdapter,
+            ),
             2 => Some(unsafe { &mut *(adapter as *mut Model64410CallbackAdapter) }
                 as &mut dyn WriteAdapter),
             _ => None,

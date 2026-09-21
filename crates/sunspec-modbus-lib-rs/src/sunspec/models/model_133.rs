@@ -2459,7 +2459,7 @@ impl WriteAdapter for Model133StatefulAdapter {
     ///
     /// Optional description for schedule.
     fn set_repeating_nam(&mut self, value: &CStr) {
-        for (dest, src) in self
+        for (dest, src) in &mut self
             .repeating_nam
             .iter_mut()
             .zip(value.to_bytes_with_nul().iter())

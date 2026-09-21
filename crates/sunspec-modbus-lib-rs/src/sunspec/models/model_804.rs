@@ -2373,6 +2373,550 @@ impl<const MODULE_COUNT: usize> WriteAdapter for Model804StatefulAdapter<MODULE_
     }
 }
 
+/// Each repeating-group field points to the first element of a caller-allocated array with at least as many elements as that group's repeat count (the `repeat_count_*` passed for this model); a shorter array is undefined behaviour.
+#[repr(C)]
+pub struct Model804StatefulPtrAdapter {
+    /// String Index (Idx)
+    ///
+    /// Index of the string within the bank.
+    ///
+    /// Indices are one-based.
+    pub string_index: u16,
+    /// Module Count (NMod)
+    ///
+    /// Count of modules in the string.
+    pub module_count: u16,
+    /// String Status (St)
+    ///
+    /// Current status of the string.
+    pub string_status: u32,
+    /// Connection Failure Reason (ConFail)
+    pub connection_failure_reason: Model804ConFail,
+    /// String Cell Balancing Count (NCellBal)
+    ///
+    /// Number of cells currently being balanced in the string.
+    pub string_cell_balancing_count: u16,
+    /// String State of Charge (SoC)
+    ///
+    /// Battery string state of charge, expressed as a percentage.
+    ///
+    /// Measurement.
+    pub string_state_of_charge: u16,
+    /// String Depth of Discharge (DoD)
+    ///
+    /// Depth of discharge for the string, expressed as a percentage.
+    ///
+    /// Measurement.
+    pub string_depth_of_discharge: u16,
+    /// String Cycle Count (NCyc)
+    ///
+    /// Number of discharge cycles executed upon the string.
+    pub string_cycle_count: u32,
+    /// String State of Health (SoH)
+    ///
+    /// Battery string state of health, expressed as a percentage.
+    ///
+    /// Measurement.
+    pub string_state_of_health: u16,
+    /// String Current (A)
+    ///
+    /// String current measurement.
+    ///
+    /// Measurement.
+    pub string_current: i16,
+    /// String Voltage (V)
+    ///
+    /// String voltage measurement.
+    ///
+    /// Measurement.
+    pub string_voltage: u16,
+    /// Max Cell Voltage (CellVMax)
+    ///
+    /// Maximum voltage for all cells in the string.
+    ///
+    /// Measurement.
+    pub max_cell_voltage: u16,
+    /// Max Cell Voltage Module (CellVMaxMod)
+    ///
+    /// Module containing the cell with maximum cell voltage.
+    pub max_cell_voltage_module: u16,
+    /// Min Cell Voltage (CellVMin)
+    ///
+    /// Minimum voltage for all cells in the string.
+    ///
+    /// Measurement.
+    pub min_cell_voltage: u16,
+    /// Min Cell Voltage Module (CellVMinMod)
+    ///
+    /// Module containing the cell with minimum cell voltage.
+    pub min_cell_voltage_module: u16,
+    /// Average Cell Voltage (CellVAvg)
+    ///
+    /// Average voltage for all cells in the string.
+    ///
+    /// Calculation based on measurements.
+    pub average_cell_voltage: u16,
+    /// Max Module Temperature (ModTmpMax)
+    ///
+    /// Maximum temperature for all modules in the string.
+    ///
+    /// Measurement.
+    pub max_module_temperature: i16,
+    /// Max Module Temperature Module (ModTmpMaxMod)
+    ///
+    /// Module with the maximum temperature.
+    pub max_module_temperature_module: u16,
+    /// Min Module Temperature (ModTmpMin)
+    ///
+    /// Minimum temperature for all modules in the string.
+    ///
+    /// Measurement.
+    pub min_module_temperature: i16,
+    /// Min Module Temperature Module (ModTmpMinMod)
+    ///
+    /// Module with the minimum temperature.
+    pub min_module_temperature_module: u16,
+    /// Average Module Temperature (ModTmpAvg)
+    ///
+    /// Average temperature for all modules in the string.
+    ///
+    /// Calculation based on measurements.
+    pub average_module_temperature: i16,
+    /// Contactor Status (ConSt)
+    ///
+    /// Status of the contactor(s) for the string.
+    pub contactor_status: u32,
+    /// String Event 1 (Evt1)
+    ///
+    /// Alarms, warnings and status values.
+    pub string_event_1: u32,
+    /// String Event 2 (Evt2)
+    ///
+    /// Alarms, warnings and status values.
+    ///
+    /// Reserved for future use.
+    pub string_event_2: u32,
+    /// Vendor Event Bitfield 1 (EvtVnd1)
+    ///
+    /// Vendor defined events.
+    pub vendor_event_bitfield_1: u32,
+    /// Vendor Event Bitfield 2 (EvtVnd2)
+    ///
+    /// Vendor defined events.
+    pub vendor_event_bitfield_2: u32,
+    /// Enable/Disable String (SetEna)
+    ///
+    /// Enables and disables the string. Should reset to 0 upon completion.
+    pub enable_disable_string: u16,
+    /// Connect/Disconnect String (SetCon)
+    ///
+    /// Connects and disconnects the string.
+    ///
+    /// Should reset to 0 upon completion.
+    pub connect_disconnect_string: Model804SetCon,
+    /// SoC_SF
+    ///
+    /// Scale factor for string state of charge.
+    pub so_c_sf: i16,
+    /// SoH_SF
+    ///
+    /// Scale factor for string state of health.
+    pub so_h_sf: i16,
+    /// DoD_SF
+    ///
+    /// Scale factor for string depth of discharge.
+    pub do_d_sf: i16,
+    /// A_SF
+    ///
+    /// Scale factor for string current.
+    pub a_sf: i16,
+    /// V_SF
+    ///
+    /// Scale factor for string voltage.
+    pub v_sf: i16,
+    /// CellV_SF
+    ///
+    /// Scale factor for cell voltage.
+    pub cell_v_sf: i16,
+    /// ModTmp_SF
+    ///
+    /// Scale factor for module temperature.
+    pub mod_tmp_sf: i16,
+    pub lithium_ion_string_module: *mut Model804LithiumIonStringModulePtr,
+}
+
+#[repr(C)]
+pub struct Model804LithiumIonStringModulePtr {
+    /// Module Cell Count (ModNCell)
+    ///
+    /// Count of all cells in the module.
+    pub lithium_ion_string_module_module_cell_count: u16,
+    /// Module SoC (ModSoC)
+    ///
+    /// Module state of charge, expressed as a percentage.
+    pub lithium_ion_string_module_module_so_c: u16,
+    /// Module SoH (ModSoH)
+    ///
+    /// Module state of health, expressed as a percentage.
+    pub lithium_ion_string_module_module_so_h: u16,
+    /// Max Cell Voltage (ModCellVMax)
+    ///
+    /// Maximum voltage for all cells in the module.
+    pub lithium_ion_string_module_max_cell_voltage: u16,
+    /// Max Cell Voltage Cell (ModCellVMaxCell)
+    ///
+    /// Cell with maximum voltage.
+    pub lithium_ion_string_module_max_cell_voltage_cell: u16,
+    /// Min Cell Voltage (ModCellVMin)
+    ///
+    /// Minimum voltage for all cells in the module.
+    pub lithium_ion_string_module_min_cell_voltage: u16,
+    /// Min Cell Voltage Cell (ModCellVMinCell)
+    ///
+    /// Cell with minimum voltage.
+    pub lithium_ion_string_module_min_cell_voltage_cell: u16,
+    /// Average Cell Voltage (ModCellVAvg)
+    ///
+    /// Average voltage for all cells in the module.
+    pub lithium_ion_string_module_average_cell_voltage: u16,
+    /// Max Cell Temperature (ModCellTmpMax)
+    ///
+    /// Maximum temperature for all cells in the module.
+    pub lithium_ion_string_module_max_cell_temperature: i16,
+    /// Max Cell Temperature Cell (ModCellTmpMaxCell)
+    ///
+    /// Cell with maximum temperature.
+    pub lithium_ion_string_module_max_cell_temperature_cell: u16,
+    /// Min Cell Temperature (ModCellTmpMin)
+    ///
+    /// Minimum temperature for all cells in the module.
+    pub lithium_ion_string_module_min_cell_temperature: i16,
+    /// Min Cell Temperature Cell (ModCellTmpMinCell)
+    ///
+    /// Cell with minimum temperature.
+    pub lithium_ion_string_module_min_cell_temperature_cell: u16,
+    /// Average Cell Temperature (ModCellTmpAvg)
+    ///
+    /// Average temperature for all cells in the module.
+    pub lithium_ion_string_module_average_cell_temperature: i16,
+}
+
+impl ReadAdapter for Model804StatefulPtrAdapter {
+    fn string_index(&self) -> u16 {
+        self.string_index
+    }
+
+    fn module_count(&self) -> u16 {
+        self.module_count
+    }
+
+    fn string_status(&self) -> u32 {
+        self.string_status
+    }
+
+    fn connection_failure_reason(&self) -> Option<ConFail> {
+        Some(self.connection_failure_reason)
+    }
+
+    fn string_cell_balancing_count(&self) -> Option<u16> {
+        Some(self.string_cell_balancing_count)
+    }
+
+    fn string_state_of_charge(&self) -> u16 {
+        self.string_state_of_charge
+    }
+
+    fn string_depth_of_discharge(&self) -> Option<u16> {
+        Some(self.string_depth_of_discharge)
+    }
+
+    fn string_cycle_count(&self) -> Option<u32> {
+        Some(self.string_cycle_count)
+    }
+
+    fn string_state_of_health(&self) -> Option<u16> {
+        Some(self.string_state_of_health)
+    }
+
+    fn string_current(&self) -> i16 {
+        self.string_current
+    }
+
+    fn string_voltage(&self) -> Option<u16> {
+        Some(self.string_voltage)
+    }
+
+    fn max_cell_voltage(&self) -> u16 {
+        self.max_cell_voltage
+    }
+
+    fn max_cell_voltage_module(&self) -> Option<u16> {
+        Some(self.max_cell_voltage_module)
+    }
+
+    fn min_cell_voltage(&self) -> u16 {
+        self.min_cell_voltage
+    }
+
+    fn min_cell_voltage_module(&self) -> Option<u16> {
+        Some(self.min_cell_voltage_module)
+    }
+
+    fn average_cell_voltage(&self) -> u16 {
+        self.average_cell_voltage
+    }
+
+    fn max_module_temperature(&self) -> i16 {
+        self.max_module_temperature
+    }
+
+    fn max_module_temperature_module(&self) -> u16 {
+        self.max_module_temperature_module
+    }
+
+    fn min_module_temperature(&self) -> i16 {
+        self.min_module_temperature
+    }
+
+    fn min_module_temperature_module(&self) -> u16 {
+        self.min_module_temperature_module
+    }
+
+    fn average_module_temperature(&self) -> i16 {
+        self.average_module_temperature
+    }
+
+    fn contactor_status(&self) -> Option<u32> {
+        Some(self.contactor_status)
+    }
+
+    fn string_event_1(&self) -> u32 {
+        self.string_event_1
+    }
+
+    fn string_event_2(&self) -> Option<u32> {
+        Some(self.string_event_2)
+    }
+
+    fn vendor_event_bitfield_1(&self) -> Option<u32> {
+        Some(self.vendor_event_bitfield_1)
+    }
+
+    fn vendor_event_bitfield_2(&self) -> Option<u32> {
+        Some(self.vendor_event_bitfield_2)
+    }
+
+    fn enable_disable_string(&self) -> Option<u16> {
+        Some(self.enable_disable_string)
+    }
+
+    fn connect_disconnect_string(&self) -> Option<SetCon> {
+        Some(self.connect_disconnect_string)
+    }
+
+    fn so_c_sf(&self) -> i16 {
+        self.so_c_sf
+    }
+
+    fn so_h_sf(&self) -> Option<i16> {
+        Some(self.so_h_sf)
+    }
+
+    fn do_d_sf(&self) -> Option<i16> {
+        Some(self.do_d_sf)
+    }
+
+    fn a_sf(&self) -> i16 {
+        self.a_sf
+    }
+
+    fn v_sf(&self) -> Option<i16> {
+        Some(self.v_sf)
+    }
+
+    fn cell_v_sf(&self) -> i16 {
+        self.cell_v_sf
+    }
+
+    fn mod_tmp_sf(&self) -> i16 {
+        self.mod_tmp_sf
+    }
+
+    fn lithium_ion_string_module_module_cell_count(
+        &self,
+        lithium_ion_string_module_index: u16,
+    ) -> u16 {
+        unsafe {
+            (*self
+                .lithium_ion_string_module
+                .add(lithium_ion_string_module_index as usize))
+            .lithium_ion_string_module_module_cell_count
+        }
+    }
+
+    fn lithium_ion_string_module_module_so_c(
+        &self,
+        lithium_ion_string_module_index: u16,
+    ) -> Option<u16> {
+        Some(unsafe {
+            (*self
+                .lithium_ion_string_module
+                .add(lithium_ion_string_module_index as usize))
+            .lithium_ion_string_module_module_so_c
+        })
+    }
+
+    fn lithium_ion_string_module_module_so_h(
+        &self,
+        lithium_ion_string_module_index: u16,
+    ) -> Option<u16> {
+        Some(unsafe {
+            (*self
+                .lithium_ion_string_module
+                .add(lithium_ion_string_module_index as usize))
+            .lithium_ion_string_module_module_so_h
+        })
+    }
+
+    fn lithium_ion_string_module_max_cell_voltage(
+        &self,
+        lithium_ion_string_module_index: u16,
+    ) -> u16 {
+        unsafe {
+            (*self
+                .lithium_ion_string_module
+                .add(lithium_ion_string_module_index as usize))
+            .lithium_ion_string_module_max_cell_voltage
+        }
+    }
+
+    fn lithium_ion_string_module_max_cell_voltage_cell(
+        &self,
+        lithium_ion_string_module_index: u16,
+    ) -> Option<u16> {
+        Some(unsafe {
+            (*self
+                .lithium_ion_string_module
+                .add(lithium_ion_string_module_index as usize))
+            .lithium_ion_string_module_max_cell_voltage_cell
+        })
+    }
+
+    fn lithium_ion_string_module_min_cell_voltage(
+        &self,
+        lithium_ion_string_module_index: u16,
+    ) -> u16 {
+        unsafe {
+            (*self
+                .lithium_ion_string_module
+                .add(lithium_ion_string_module_index as usize))
+            .lithium_ion_string_module_min_cell_voltage
+        }
+    }
+
+    fn lithium_ion_string_module_min_cell_voltage_cell(
+        &self,
+        lithium_ion_string_module_index: u16,
+    ) -> Option<u16> {
+        Some(unsafe {
+            (*self
+                .lithium_ion_string_module
+                .add(lithium_ion_string_module_index as usize))
+            .lithium_ion_string_module_min_cell_voltage_cell
+        })
+    }
+
+    fn lithium_ion_string_module_average_cell_voltage(
+        &self,
+        lithium_ion_string_module_index: u16,
+    ) -> u16 {
+        unsafe {
+            (*self
+                .lithium_ion_string_module
+                .add(lithium_ion_string_module_index as usize))
+            .lithium_ion_string_module_average_cell_voltage
+        }
+    }
+
+    fn lithium_ion_string_module_max_cell_temperature(
+        &self,
+        lithium_ion_string_module_index: u16,
+    ) -> i16 {
+        unsafe {
+            (*self
+                .lithium_ion_string_module
+                .add(lithium_ion_string_module_index as usize))
+            .lithium_ion_string_module_max_cell_temperature
+        }
+    }
+
+    fn lithium_ion_string_module_max_cell_temperature_cell(
+        &self,
+        lithium_ion_string_module_index: u16,
+    ) -> Option<u16> {
+        Some(unsafe {
+            (*self
+                .lithium_ion_string_module
+                .add(lithium_ion_string_module_index as usize))
+            .lithium_ion_string_module_max_cell_temperature_cell
+        })
+    }
+
+    fn lithium_ion_string_module_min_cell_temperature(
+        &self,
+        lithium_ion_string_module_index: u16,
+    ) -> i16 {
+        unsafe {
+            (*self
+                .lithium_ion_string_module
+                .add(lithium_ion_string_module_index as usize))
+            .lithium_ion_string_module_min_cell_temperature
+        }
+    }
+
+    fn lithium_ion_string_module_min_cell_temperature_cell(
+        &self,
+        lithium_ion_string_module_index: u16,
+    ) -> Option<u16> {
+        Some(unsafe {
+            (*self
+                .lithium_ion_string_module
+                .add(lithium_ion_string_module_index as usize))
+            .lithium_ion_string_module_min_cell_temperature_cell
+        })
+    }
+
+    fn lithium_ion_string_module_average_cell_temperature(
+        &self,
+        lithium_ion_string_module_index: u16,
+    ) -> i16 {
+        unsafe {
+            (*self
+                .lithium_ion_string_module
+                .add(lithium_ion_string_module_index as usize))
+            .lithium_ion_string_module_average_cell_temperature
+        }
+    }
+}
+
+impl WriteAdapter for Model804StatefulPtrAdapter {
+    /// Enable/Disable String (SetEna)
+    ///
+    /// Enables and disables the string. Should reset to 0 upon completion.
+    fn set_enable_disable_string(&mut self, value: u16) {
+        self.enable_disable_string = value;
+    }
+
+    /// Connect/Disconnect String (SetCon)
+    ///
+    /// Connects and disconnects the string.
+    ///
+    /// Should reset to 0 upon completion.
+    fn set_connect_disconnect_string(&mut self, value: SetCon) {
+        self.connect_disconnect_string = value;
+    }
+}
+
 /// C-FFI dispatch descriptor for SunSpec model 804. A C `SunspecModelBinding` points
 /// at this static, so the service functions dispatch with no model-id lookup.
 #[unsafe(no_mangle)]
@@ -2406,6 +2950,7 @@ unsafe fn model_804_c_visit_read(
         module_count: repeat_count_0,
     };
     let adapter: Option<&dyn ReadAdapter> = match kind {
+        1 => Some(unsafe { &*(adapter as *const Model804StatefulPtrAdapter) } as &dyn ReadAdapter),
         2 => Some(unsafe { &*(adapter as *const Model804CallbackAdapter) } as &dyn ReadAdapter),
         _ => None,
     };
@@ -2435,6 +2980,9 @@ unsafe fn model_804_c_visit_write(
         module_count: repeat_count_0,
     };
     let adapter: Option<&mut dyn WriteAdapter> = match kind {
+        1 => Some(
+            unsafe { &mut *(adapter as *mut Model804StatefulPtrAdapter) } as &mut dyn WriteAdapter,
+        ),
         2 => {
             Some(unsafe { &mut *(adapter as *mut Model804CallbackAdapter) } as &mut dyn WriteAdapter)
         }

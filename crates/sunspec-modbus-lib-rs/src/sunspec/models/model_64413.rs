@@ -394,6 +394,64 @@ impl<const IV_LENGTH: usize> ReadAdapter for Model64413StatefulAdapter<IV_LENGTH
     }
 }
 
+/// Each repeating-group field points to the first element of a caller-allocated array with at least as many elements as that group's repeat count (the `repeat_count_*` passed for this model); a shorter array is undefined behaviour.
+#[repr(C)]
+pub struct Model64413StatefulPtrAdapter {
+    /// IV length (IVLen)
+    ///
+    /// Number of points in the IV curve.
+    pub iv_length: u16,
+    /// POA Irradiance (Irr)
+    ///
+    /// Plane of Array Irradiance
+    pub poa_irradiance: u16,
+    /// Irr_SF
+    pub irr_sf: i16,
+    pub iv: *mut Model64413IvPtr,
+}
+
+#[repr(C)]
+pub struct Model64413IvPtr {
+    /// Power (P)
+    ///
+    /// Power
+    pub iv_power: f32,
+    /// Current (I)
+    ///
+    /// Current
+    pub iv_current: f32,
+    /// Voltage (V)
+    ///
+    /// Voltage
+    pub iv_voltage: f32,
+}
+
+impl ReadAdapter for Model64413StatefulPtrAdapter {
+    fn iv_length(&self) -> Option<u16> {
+        Some(self.iv_length)
+    }
+
+    fn poa_irradiance(&self) -> Option<u16> {
+        Some(self.poa_irradiance)
+    }
+
+    fn irr_sf(&self) -> Option<i16> {
+        Some(self.irr_sf)
+    }
+
+    fn iv_power(&self, iv_index: u16) -> Option<f32> {
+        Some(unsafe { (*self.iv.add(iv_index as usize)).iv_power })
+    }
+
+    fn iv_current(&self, iv_index: u16) -> Option<f32> {
+        Some(unsafe { (*self.iv.add(iv_index as usize)).iv_current })
+    }
+
+    fn iv_voltage(&self, iv_index: u16) -> Option<f32> {
+        Some(unsafe { (*self.iv.add(iv_index as usize)).iv_voltage })
+    }
+}
+
 /// C-FFI dispatch descriptor for SunSpec model 64413. A C `SunspecModelBinding` points
 /// at this static, so the service functions dispatch with no model-id lookup.
 #[unsafe(no_mangle)]
@@ -427,6 +485,9 @@ unsafe fn model_64413_c_visit_read(
         iv_length: repeat_count_0,
     };
     let adapter: Option<&dyn ReadAdapter> = match kind {
+        1 => {
+            Some(unsafe { &*(adapter as *const Model64413StatefulPtrAdapter) } as &dyn ReadAdapter)
+        }
         2 => Some(unsafe { &*(adapter as *const Model64413CallbackAdapter) } as &dyn ReadAdapter),
         _ => None,
     };

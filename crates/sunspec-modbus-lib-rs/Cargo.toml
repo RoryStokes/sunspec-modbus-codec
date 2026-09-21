@@ -8,7 +8,7 @@ crate-type = ["lib"]
 
 [features]
 default = ["model_1"]
-test-models = ["model_701", "model_704"]
+test-models = ["model_701", "model_704", "model_708"]
 
 # One feature per generated model, plus an `all-models` feature aggregating all of them - see
 # crates/sunspec-gen. `model_1` is enabled by default; use `--features model_103,...` to compile

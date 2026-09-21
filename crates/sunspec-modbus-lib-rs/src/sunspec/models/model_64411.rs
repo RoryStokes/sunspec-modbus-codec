@@ -3252,7 +3252,7 @@ impl<const STORED_PROFILE_COUNT: usize, const MAX_PROFILE_POINT_COUNT: usize> Wr
     ///
     /// Profile name.
     fn set_prof_profile_name(&mut self, value: &CStr, prof_index: u16) {
-        for (dest, src) in self.stored_ac_profiles[prof_index as usize]
+        for (dest, src) in &mut self.stored_ac_profiles[prof_index as usize]
             .prof_profile_name
             .iter_mut()
             .zip(value.to_bytes_with_nul().iter())
@@ -3333,6 +3333,766 @@ impl<const STORED_PROFILE_COUNT: usize, const MAX_PROFILE_POINT_COUNT: usize> Wr
     }
 }
 
+/// Each repeating-group field points to the first element of a caller-allocated array with at least as many elements as that group's repeat count (the `repeat_count_*` passed for this model); a shorter array is undefined behaviour.
+#[repr(C)]
+pub struct Model64411StatefulPtrAdapter {
+    /// Active Phases (Phases)
+    ///
+    /// Set the number of active phases for the power supply
+    pub active_phases: u16,
+    /// Phase Angle (PhaseAngle)
+    ///
+    /// Phase angle (deg) between phases. 0 for signle phase, 120 for two phase, 120 for three phase.
+    pub phase_angle: u16,
+    /// Nominal Voltage (VNom)
+    ///
+    /// Nominal L-N Voltage
+    pub nominal_voltage: u16,
+    /// Maximum Voltage (VMax)
+    ///
+    /// Maximum Voltage Protection Level
+    pub maximum_voltage: u16,
+    /// Maximum Current (IMax)
+    ///
+    /// Maximum Current Protection Level
+    pub maximum_current: u16,
+    /// Frequency (Freq)
+    ///
+    /// Frequency Setpoint
+    pub frequency: u16,
+    /// Output State (Output)
+    ///
+    /// AC Output State
+    pub output_state: Model64411Output,
+    /// Relay State (Relay)
+    ///
+    /// AC Relay State
+    pub relay_state: Model64411Relay,
+    /// Regeneration State (Regen)
+    ///
+    /// Regeneration State
+    pub regeneration_state: Model64411Regen,
+    /// Voltage Setpoint (VSet)
+    ///
+    /// Voltage Setpoint (all phases)
+    pub voltage_setpoint: u16,
+    /// Voltage Setpoint Phase A (VSetA)
+    ///
+    /// Voltage Setpoint Phase A
+    pub voltage_setpoint_phase_a: u16,
+    /// Voltage Setpoint Phase B (VSetB)
+    ///
+    /// Voltage Setpoint Phase B
+    pub voltage_setpoint_phase_b: u16,
+    /// Voltage Setpoint Phase C (VSetC)
+    ///
+    /// Voltage Setpoint Phase C
+    pub voltage_setpoint_phase_c: u16,
+    /// Frequency Slew Rate (FreqSlew)
+    ///
+    /// Frequency Slew Rate
+    pub frequency_slew_rate: u16,
+    /// Voltage Slew Rate (VSlew)
+    ///
+    /// Voltage Slew Rate
+    pub voltage_slew_rate: u16,
+    /// Measured Voltage Phase A (VA)
+    ///
+    /// Measured Voltage Phase A
+    pub measured_voltage_phase_a: i32,
+    /// Measured Voltage Phase B (VB)
+    ///
+    /// Measured Voltage Phase B
+    pub measured_voltage_phase_b: i32,
+    /// Measured Voltage Phase C (VC)
+    ///
+    /// Measured Voltage Phase C
+    pub measured_voltage_phase_c: i32,
+    /// Measured Frequency (Hz)
+    ///
+    /// Measured Frequency
+    pub measured_frequency: i32,
+    /// Measured Current Phase A (IA)
+    ///
+    /// Measured Current Phase A
+    pub measured_current_phase_a: i32,
+    /// Measured Current Phase B (IB)
+    ///
+    /// Measured Current Phase B
+    pub measured_current_phase_b: i32,
+    /// Measured Current Phase C (IC)
+    ///
+    /// Measured Current Phase C
+    pub measured_current_phase_c: i32,
+    /// Voltage Harmonics Phase A (VHarA)
+    ///
+    /// Voltage Harmonics Pct, Phase A (comma seperated string for harmonics 1-50)
+    pub voltage_harmonics_phase_a: [c_char; 300],
+    /// Voltage Harmonics Phase B (VHarB)
+    ///
+    /// Voltage Harmonics Pct, Phase B (comma seperated string for harmonics 1-50)
+    pub voltage_harmonics_phase_b: [c_char; 300],
+    /// Voltage Harmonics Phase C (VHarC)
+    ///
+    /// Voltage Harmonics Pct, Phase C (comma seperated string for harmonics 1-50)
+    pub voltage_harmonics_phase_c: [c_char; 300],
+    /// Current Harmonics Phase A (IHarA)
+    ///
+    /// Current Harmonics Pct, Phase A (comma seperated string for harmonics 1-50)
+    pub current_harmonics_phase_a: [c_char; 300],
+    /// Current Harmonics Phase B (IHarB)
+    ///
+    /// Current Harmonics Pct, Phase B (comma seperated string for harmonics 1-50)
+    pub current_harmonics_phase_b: [c_char; 300],
+    /// Current Harmonics Phase C (IHarC)
+    ///
+    /// Current Harmonics Pct, Phase C (comma seperated string for harmonics 1-50)
+    pub current_harmonics_phase_c: [c_char; 300],
+    /// Current Interharmonics Phase A (IIntHarA)
+    ///
+    /// Current Interharmonics Pct, Phase A (comma seperated string for interharmonics 1-50)
+    pub current_interharmonics_phase_a: [c_char; 300],
+    /// Current Interharmonics Phase B (IIntHarB)
+    ///
+    /// Current Interharmonics Pct, Phase B (comma seperated string for interharmonics 1-50)
+    pub current_interharmonics_phase_b: [c_char; 300],
+    /// Current Interharmonics Phase C (IIntHarC)
+    ///
+    /// Current Interharmonics Pct, Phase C (comma seperated string for interharmonics 1-50)
+    pub current_interharmonics_phase_c: [c_char; 300],
+    /// Voltage THD Phase A (VThdA)
+    ///
+    /// Voltage THD Phase A
+    pub voltage_thd_phase_a: u16,
+    /// Voltage THD Phase B (VThdB)
+    ///
+    /// Voltage THD Phase B
+    pub voltage_thd_phase_b: u16,
+    /// Voltage THD Phase C (VThdC)
+    ///
+    /// Voltage THD Phase C
+    pub voltage_thd_phase_c: u16,
+    /// Current THD Phase A (IThdA)
+    ///
+    /// Current THD Phase A
+    pub current_thd_phase_a: u16,
+    /// Current THD Phase B (IThdB)
+    ///
+    /// Current THD Phase B
+    pub current_thd_phase_b: u16,
+    /// Current THD Phase C (IThdC)
+    ///
+    /// Current THD Phase C
+    pub current_thd_phase_c: u16,
+    /// Enable Profile (EnaProf)
+    ///
+    /// Start/Stop the AC Profile
+    pub enable_profile: Model64411EnaProf,
+    /// Profile Result (ProfRslt)
+    ///
+    /// Result of last profile operation.
+    pub profile_result: Model64411ProfRslt,
+    /// Stored Profile Count (NProf)
+    ///
+    /// Number of stored profiles supported.
+    pub stored_profile_count: u16,
+    /// Max Profile Point Count (NPt)
+    ///
+    /// Max profile points in the profiles.
+    pub max_profile_point_count: u16,
+    /// Voltage Scale Factor (V_SF)
+    ///
+    /// Scale factor for voltage points.
+    pub voltage_scale_factor: i16,
+    /// Current Scale Factor (A_SF)
+    ///
+    /// Scale factor for current points.
+    pub current_scale_factor: i16,
+    /// Time Scale Factor (Tms_SF)
+    ///
+    /// Scale factor for time points.
+    pub time_scale_factor: i16,
+    /// Frequency Scale Factor (Hz_SF)
+    ///
+    /// Scale factor for frequency points.
+    pub frequency_scale_factor: i16,
+    /// Frequency Slew Rate Scale Factor (HzSlew_SF)
+    ///
+    /// Scale factor for frequency slew rate.
+    pub frequency_slew_rate_scale_factor: i16,
+    /// Voltage Slew Rate Scale Factor (VSlew_SF)
+    ///
+    /// Scale factor for voltage slew rate.
+    pub voltage_slew_rate_scale_factor: i16,
+    /// THD Scale Factor (THD_SF)
+    ///
+    /// Scale factor for THD values.
+    pub thd_scale_factor: i16,
+    pub stored_ac_profiles: *mut Model64411StoredAcProfilesPtr,
+}
+
+/// Each repeating-group field points to the first element of a caller-allocated array with at least as many elements as that group's repeat count (the `repeat_count_*` passed for this model); a shorter array is undefined behaviour.
+#[repr(C)]
+pub struct Model64411StoredAcProfilesPtr {
+    /// Profile Name (Name)
+    ///
+    /// Profile name.
+    pub prof_profile_name: [c_char; 64],
+    /// Active Points (ActPt)
+    ///
+    /// Number of active points.
+    pub prof_active_points: u16,
+    pub stored_ac_profile_points: *mut Model64411StoredAcProfilePointsPtr,
+}
+
+#[repr(C)]
+pub struct Model64411StoredAcProfilePointsPtr {
+    /// Profile Time (Tms)
+    ///
+    /// Profile time.
+    pub pt_profile_time: u16,
+    /// Voltage Point (VA)
+    ///
+    /// Profile voltage phase A point in Volts.
+    pub pt_voltage_point: u16,
+    /// Voltage Point Phase B (VB)
+    ///
+    /// Profile voltage phase B point in Volts.
+    pub pt_voltage_point_phase_b: u16,
+    /// Voltage Point Phase C (VC)
+    ///
+    /// Profile voltage phase C point in Volts.
+    pub pt_voltage_point_phase_c: u16,
+    /// Frequency Point (Hz)
+    ///
+    /// Profile frequency point in Hz.
+    pub pt_frequency_point: u16,
+    /// Phase Angle A (PhaseAngleA)
+    ///
+    /// Profile phase A angle in degrees.
+    pub pt_phase_angle_a: u16,
+    /// Phase Angle B (PhaseAngleB)
+    ///
+    /// Profile phase B angle in degrees.
+    pub pt_phase_angle_b: u16,
+    /// Phase Angle C (PhaseAngleC)
+    ///
+    /// Profile phase C angle in degrees.
+    pub pt_phase_angle_c: u16,
+}
+
+impl ReadAdapter for Model64411StatefulPtrAdapter {
+    fn active_phases(&self) -> Option<u16> {
+        Some(self.active_phases)
+    }
+
+    fn phase_angle(&self) -> Option<u16> {
+        Some(self.phase_angle)
+    }
+
+    fn nominal_voltage(&self) -> Option<u16> {
+        Some(self.nominal_voltage)
+    }
+
+    fn maximum_voltage(&self) -> Option<u16> {
+        Some(self.maximum_voltage)
+    }
+
+    fn maximum_current(&self) -> Option<u16> {
+        Some(self.maximum_current)
+    }
+
+    fn frequency(&self) -> Option<u16> {
+        Some(self.frequency)
+    }
+
+    fn output_state(&self) -> Option<Output> {
+        Some(self.output_state)
+    }
+
+    fn relay_state(&self) -> Option<Relay> {
+        Some(self.relay_state)
+    }
+
+    fn regeneration_state(&self) -> Option<Regen> {
+        Some(self.regeneration_state)
+    }
+
+    fn voltage_setpoint(&self) -> Option<u16> {
+        Some(self.voltage_setpoint)
+    }
+
+    fn voltage_setpoint_phase_a(&self) -> Option<u16> {
+        Some(self.voltage_setpoint_phase_a)
+    }
+
+    fn voltage_setpoint_phase_b(&self) -> Option<u16> {
+        Some(self.voltage_setpoint_phase_b)
+    }
+
+    fn voltage_setpoint_phase_c(&self) -> Option<u16> {
+        Some(self.voltage_setpoint_phase_c)
+    }
+
+    fn frequency_slew_rate(&self) -> Option<u16> {
+        Some(self.frequency_slew_rate)
+    }
+
+    fn voltage_slew_rate(&self) -> Option<u16> {
+        Some(self.voltage_slew_rate)
+    }
+
+    fn measured_voltage_phase_a(&self) -> Option<i32> {
+        Some(self.measured_voltage_phase_a)
+    }
+
+    fn measured_voltage_phase_b(&self) -> Option<i32> {
+        Some(self.measured_voltage_phase_b)
+    }
+
+    fn measured_voltage_phase_c(&self) -> Option<i32> {
+        Some(self.measured_voltage_phase_c)
+    }
+
+    fn measured_frequency(&self) -> Option<i32> {
+        Some(self.measured_frequency)
+    }
+
+    fn measured_current_phase_a(&self) -> Option<i32> {
+        Some(self.measured_current_phase_a)
+    }
+
+    fn measured_current_phase_b(&self) -> Option<i32> {
+        Some(self.measured_current_phase_b)
+    }
+
+    fn measured_current_phase_c(&self) -> Option<i32> {
+        Some(self.measured_current_phase_c)
+    }
+
+    fn voltage_harmonics_phase_a(&self) -> Option<&CStr> {
+        Some(unsafe { CStr::from_ptr(self.voltage_harmonics_phase_a.as_ptr()) })
+    }
+
+    fn voltage_harmonics_phase_b(&self) -> Option<&CStr> {
+        Some(unsafe { CStr::from_ptr(self.voltage_harmonics_phase_b.as_ptr()) })
+    }
+
+    fn voltage_harmonics_phase_c(&self) -> Option<&CStr> {
+        Some(unsafe { CStr::from_ptr(self.voltage_harmonics_phase_c.as_ptr()) })
+    }
+
+    fn current_harmonics_phase_a(&self) -> Option<&CStr> {
+        Some(unsafe { CStr::from_ptr(self.current_harmonics_phase_a.as_ptr()) })
+    }
+
+    fn current_harmonics_phase_b(&self) -> Option<&CStr> {
+        Some(unsafe { CStr::from_ptr(self.current_harmonics_phase_b.as_ptr()) })
+    }
+
+    fn current_harmonics_phase_c(&self) -> Option<&CStr> {
+        Some(unsafe { CStr::from_ptr(self.current_harmonics_phase_c.as_ptr()) })
+    }
+
+    fn current_interharmonics_phase_a(&self) -> Option<&CStr> {
+        Some(unsafe { CStr::from_ptr(self.current_interharmonics_phase_a.as_ptr()) })
+    }
+
+    fn current_interharmonics_phase_b(&self) -> Option<&CStr> {
+        Some(unsafe { CStr::from_ptr(self.current_interharmonics_phase_b.as_ptr()) })
+    }
+
+    fn current_interharmonics_phase_c(&self) -> Option<&CStr> {
+        Some(unsafe { CStr::from_ptr(self.current_interharmonics_phase_c.as_ptr()) })
+    }
+
+    fn voltage_thd_phase_a(&self) -> Option<u16> {
+        Some(self.voltage_thd_phase_a)
+    }
+
+    fn voltage_thd_phase_b(&self) -> Option<u16> {
+        Some(self.voltage_thd_phase_b)
+    }
+
+    fn voltage_thd_phase_c(&self) -> Option<u16> {
+        Some(self.voltage_thd_phase_c)
+    }
+
+    fn current_thd_phase_a(&self) -> Option<u16> {
+        Some(self.current_thd_phase_a)
+    }
+
+    fn current_thd_phase_b(&self) -> Option<u16> {
+        Some(self.current_thd_phase_b)
+    }
+
+    fn current_thd_phase_c(&self) -> Option<u16> {
+        Some(self.current_thd_phase_c)
+    }
+
+    fn enable_profile(&self) -> Option<EnaProf> {
+        Some(self.enable_profile)
+    }
+
+    fn profile_result(&self) -> ProfRslt {
+        self.profile_result
+    }
+
+    fn stored_profile_count(&self) -> u16 {
+        self.stored_profile_count
+    }
+
+    fn max_profile_point_count(&self) -> u16 {
+        self.max_profile_point_count
+    }
+
+    fn voltage_scale_factor(&self) -> i16 {
+        self.voltage_scale_factor
+    }
+
+    fn current_scale_factor(&self) -> i16 {
+        self.current_scale_factor
+    }
+
+    fn time_scale_factor(&self) -> i16 {
+        self.time_scale_factor
+    }
+
+    fn frequency_scale_factor(&self) -> i16 {
+        self.frequency_scale_factor
+    }
+
+    fn frequency_slew_rate_scale_factor(&self) -> i16 {
+        self.frequency_slew_rate_scale_factor
+    }
+
+    fn voltage_slew_rate_scale_factor(&self) -> i16 {
+        self.voltage_slew_rate_scale_factor
+    }
+
+    fn thd_scale_factor(&self) -> i16 {
+        self.thd_scale_factor
+    }
+
+    fn prof_profile_name(&self, prof_index: u16) -> Option<&CStr> {
+        Some(unsafe {
+            CStr::from_ptr(
+                (*self.stored_ac_profiles.add(prof_index as usize))
+                    .prof_profile_name
+                    .as_ptr(),
+            )
+        })
+    }
+
+    fn prof_active_points(&self, prof_index: u16) -> u16 {
+        unsafe { (*self.stored_ac_profiles.add(prof_index as usize)).prof_active_points }
+    }
+
+    fn pt_profile_time(&self, prof_index: u16, pt_index: u16) -> Option<u16> {
+        Some(unsafe {
+            (*(*self.stored_ac_profiles.add(prof_index as usize))
+                .stored_ac_profile_points
+                .add(pt_index as usize))
+            .pt_profile_time
+        })
+    }
+
+    fn pt_voltage_point(&self, prof_index: u16, pt_index: u16) -> Option<u16> {
+        Some(unsafe {
+            (*(*self.stored_ac_profiles.add(prof_index as usize))
+                .stored_ac_profile_points
+                .add(pt_index as usize))
+            .pt_voltage_point
+        })
+    }
+
+    fn pt_voltage_point_phase_b(&self, prof_index: u16, pt_index: u16) -> Option<u16> {
+        Some(unsafe {
+            (*(*self.stored_ac_profiles.add(prof_index as usize))
+                .stored_ac_profile_points
+                .add(pt_index as usize))
+            .pt_voltage_point_phase_b
+        })
+    }
+
+    fn pt_voltage_point_phase_c(&self, prof_index: u16, pt_index: u16) -> Option<u16> {
+        Some(unsafe {
+            (*(*self.stored_ac_profiles.add(prof_index as usize))
+                .stored_ac_profile_points
+                .add(pt_index as usize))
+            .pt_voltage_point_phase_c
+        })
+    }
+
+    fn pt_frequency_point(&self, prof_index: u16, pt_index: u16) -> Option<u16> {
+        Some(unsafe {
+            (*(*self.stored_ac_profiles.add(prof_index as usize))
+                .stored_ac_profile_points
+                .add(pt_index as usize))
+            .pt_frequency_point
+        })
+    }
+
+    fn pt_phase_angle_a(&self, prof_index: u16, pt_index: u16) -> Option<u16> {
+        Some(unsafe {
+            (*(*self.stored_ac_profiles.add(prof_index as usize))
+                .stored_ac_profile_points
+                .add(pt_index as usize))
+            .pt_phase_angle_a
+        })
+    }
+
+    fn pt_phase_angle_b(&self, prof_index: u16, pt_index: u16) -> Option<u16> {
+        Some(unsafe {
+            (*(*self.stored_ac_profiles.add(prof_index as usize))
+                .stored_ac_profile_points
+                .add(pt_index as usize))
+            .pt_phase_angle_b
+        })
+    }
+
+    fn pt_phase_angle_c(&self, prof_index: u16, pt_index: u16) -> Option<u16> {
+        Some(unsafe {
+            (*(*self.stored_ac_profiles.add(prof_index as usize))
+                .stored_ac_profile_points
+                .add(pt_index as usize))
+            .pt_phase_angle_c
+        })
+    }
+}
+
+impl WriteAdapter for Model64411StatefulPtrAdapter {
+    /// Active Phases (Phases)
+    ///
+    /// Set the number of active phases for the power supply
+    fn set_active_phases(&mut self, value: u16) {
+        self.active_phases = value;
+    }
+
+    /// Phase Angle (PhaseAngle)
+    ///
+    /// Phase angle (deg) between phases. 0 for signle phase, 120 for two phase, 120 for three phase.
+    fn set_phase_angle(&mut self, value: u16) {
+        self.phase_angle = value;
+    }
+
+    /// Nominal Voltage (VNom)
+    ///
+    /// Nominal L-N Voltage
+    fn set_nominal_voltage(&mut self, value: u16) {
+        self.nominal_voltage = value;
+    }
+
+    /// Maximum Voltage (VMax)
+    ///
+    /// Maximum Voltage Protection Level
+    fn set_maximum_voltage(&mut self, value: u16) {
+        self.maximum_voltage = value;
+    }
+
+    /// Maximum Current (IMax)
+    ///
+    /// Maximum Current Protection Level
+    fn set_maximum_current(&mut self, value: u16) {
+        self.maximum_current = value;
+    }
+
+    /// Frequency (Freq)
+    ///
+    /// Frequency Setpoint
+    fn set_frequency(&mut self, value: u16) {
+        self.frequency = value;
+    }
+
+    /// Output State (Output)
+    ///
+    /// AC Output State
+    fn set_output_state(&mut self, value: Output) {
+        self.output_state = value;
+    }
+
+    /// Relay State (Relay)
+    ///
+    /// AC Relay State
+    fn set_relay_state(&mut self, value: Relay) {
+        self.relay_state = value;
+    }
+
+    /// Regeneration State (Regen)
+    ///
+    /// Regeneration State
+    fn set_regeneration_state(&mut self, value: Regen) {
+        self.regeneration_state = value;
+    }
+
+    /// Voltage Setpoint (VSet)
+    ///
+    /// Voltage Setpoint (all phases)
+    fn set_voltage_setpoint(&mut self, value: u16) {
+        self.voltage_setpoint = value;
+    }
+
+    /// Voltage Setpoint Phase A (VSetA)
+    ///
+    /// Voltage Setpoint Phase A
+    fn set_voltage_setpoint_phase_a(&mut self, value: u16) {
+        self.voltage_setpoint_phase_a = value;
+    }
+
+    /// Voltage Setpoint Phase B (VSetB)
+    ///
+    /// Voltage Setpoint Phase B
+    fn set_voltage_setpoint_phase_b(&mut self, value: u16) {
+        self.voltage_setpoint_phase_b = value;
+    }
+
+    /// Voltage Setpoint Phase C (VSetC)
+    ///
+    /// Voltage Setpoint Phase C
+    fn set_voltage_setpoint_phase_c(&mut self, value: u16) {
+        self.voltage_setpoint_phase_c = value;
+    }
+
+    /// Frequency Slew Rate (FreqSlew)
+    ///
+    /// Frequency Slew Rate
+    fn set_frequency_slew_rate(&mut self, value: u16) {
+        self.frequency_slew_rate = value;
+    }
+
+    /// Voltage Slew Rate (VSlew)
+    ///
+    /// Voltage Slew Rate
+    fn set_voltage_slew_rate(&mut self, value: u16) {
+        self.voltage_slew_rate = value;
+    }
+
+    /// Enable Profile (EnaProf)
+    ///
+    /// Start/Stop the AC Profile
+    fn set_enable_profile(&mut self, value: EnaProf) {
+        self.enable_profile = value;
+    }
+
+    /// Profile Name (Name)
+    ///
+    /// Profile name.
+    fn set_prof_profile_name(&mut self, value: &CStr, prof_index: u16) {
+        for (dest, src) in
+            unsafe { &mut (*self.stored_ac_profiles.add(prof_index as usize)).prof_profile_name }
+                .iter_mut()
+                .zip(value.to_bytes_with_nul().iter())
+        {
+            *dest = *src as c_char;
+        }
+    }
+
+    /// Active Points (ActPt)
+    ///
+    /// Number of active points.
+    fn set_prof_active_points(&mut self, value: u16, prof_index: u16) {
+        unsafe {
+            (*self.stored_ac_profiles.add(prof_index as usize)).prof_active_points = value;
+        }
+    }
+
+    /// Profile Time (Tms)
+    ///
+    /// Profile time.
+    fn set_pt_profile_time(&mut self, value: u16, prof_index: u16, pt_index: u16) {
+        unsafe {
+            (*(*self.stored_ac_profiles.add(prof_index as usize))
+                .stored_ac_profile_points
+                .add(pt_index as usize))
+            .pt_profile_time = value;
+        }
+    }
+
+    /// Voltage Point (VA)
+    ///
+    /// Profile voltage phase A point in Volts.
+    fn set_pt_voltage_point(&mut self, value: u16, prof_index: u16, pt_index: u16) {
+        unsafe {
+            (*(*self.stored_ac_profiles.add(prof_index as usize))
+                .stored_ac_profile_points
+                .add(pt_index as usize))
+            .pt_voltage_point = value;
+        }
+    }
+
+    /// Voltage Point Phase B (VB)
+    ///
+    /// Profile voltage phase B point in Volts.
+    fn set_pt_voltage_point_phase_b(&mut self, value: u16, prof_index: u16, pt_index: u16) {
+        unsafe {
+            (*(*self.stored_ac_profiles.add(prof_index as usize))
+                .stored_ac_profile_points
+                .add(pt_index as usize))
+            .pt_voltage_point_phase_b = value;
+        }
+    }
+
+    /// Voltage Point Phase C (VC)
+    ///
+    /// Profile voltage phase C point in Volts.
+    fn set_pt_voltage_point_phase_c(&mut self, value: u16, prof_index: u16, pt_index: u16) {
+        unsafe {
+            (*(*self.stored_ac_profiles.add(prof_index as usize))
+                .stored_ac_profile_points
+                .add(pt_index as usize))
+            .pt_voltage_point_phase_c = value;
+        }
+    }
+
+    /// Frequency Point (Hz)
+    ///
+    /// Profile frequency point in Hz.
+    fn set_pt_frequency_point(&mut self, value: u16, prof_index: u16, pt_index: u16) {
+        unsafe {
+            (*(*self.stored_ac_profiles.add(prof_index as usize))
+                .stored_ac_profile_points
+                .add(pt_index as usize))
+            .pt_frequency_point = value;
+        }
+    }
+
+    /// Phase Angle A (PhaseAngleA)
+    ///
+    /// Profile phase A angle in degrees.
+    fn set_pt_phase_angle_a(&mut self, value: u16, prof_index: u16, pt_index: u16) {
+        unsafe {
+            (*(*self.stored_ac_profiles.add(prof_index as usize))
+                .stored_ac_profile_points
+                .add(pt_index as usize))
+            .pt_phase_angle_a = value;
+        }
+    }
+
+    /// Phase Angle B (PhaseAngleB)
+    ///
+    /// Profile phase B angle in degrees.
+    fn set_pt_phase_angle_b(&mut self, value: u16, prof_index: u16, pt_index: u16) {
+        unsafe {
+            (*(*self.stored_ac_profiles.add(prof_index as usize))
+                .stored_ac_profile_points
+                .add(pt_index as usize))
+            .pt_phase_angle_b = value;
+        }
+    }
+
+    /// Phase Angle C (PhaseAngleC)
+    ///
+    /// Profile phase C angle in degrees.
+    fn set_pt_phase_angle_c(&mut self, value: u16, prof_index: u16, pt_index: u16) {
+        unsafe {
+            (*(*self.stored_ac_profiles.add(prof_index as usize))
+                .stored_ac_profile_points
+                .add(pt_index as usize))
+            .pt_phase_angle_c = value;
+        }
+    }
+}
+
 /// C-FFI dispatch descriptor for SunSpec model 64411. A C `SunspecModelBinding` points
 /// at this static, so the service functions dispatch with no model-id lookup.
 #[unsafe(no_mangle)]
@@ -3368,6 +4128,9 @@ unsafe fn model_64411_c_visit_read(
         max_profile_point_count: repeat_count_1,
     };
     let adapter: Option<&dyn ReadAdapter> = match kind {
+        1 => {
+            Some(unsafe { &*(adapter as *const Model64411StatefulPtrAdapter) } as &dyn ReadAdapter)
+        }
         2 => Some(unsafe { &*(adapter as *const Model64411CallbackAdapter) } as &dyn ReadAdapter),
         _ => None,
     };
@@ -3399,6 +4162,10 @@ unsafe fn model_64411_c_visit_write(
     };
     let adapter: Option<&mut dyn WriteAdapter> =
         match kind {
+            1 => Some(
+                unsafe { &mut *(adapter as *mut Model64411StatefulPtrAdapter) }
+                    as &mut dyn WriteAdapter,
+            ),
             2 => Some(unsafe { &mut *(adapter as *mut Model64411CallbackAdapter) }
                 as &mut dyn WriteAdapter),
             _ => None,

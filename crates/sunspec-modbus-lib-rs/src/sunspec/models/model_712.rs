@@ -1202,6 +1202,251 @@ impl<const STORED_CURVE_COUNT: usize, const NUMBER_OF_POINTS: usize> WriteAdapte
     }
 }
 
+/// Each repeating-group field points to the first element of a caller-allocated array with at least as many elements as that group's repeat count (the `repeat_count_*` passed for this model); a shorter array is undefined behaviour.
+#[repr(C)]
+pub struct Model712StatefulPtrAdapter {
+    /// DER Watt-Var Module Enable (Ena)
+    ///
+    /// DER Watt-Var control enable.
+    pub der_watt_var_module_enable: Model712Ena,
+    /// Set Active Curve Request (AdptCrvReq)
+    ///
+    /// Set active curve. 0 = No active curve.
+    pub active_curve_request: u16,
+    /// Set Active Curve Result (AdptCrvRslt)
+    ///
+    /// Result of last set active curve operation.
+    pub set_active_curve_result: Model712AdptCrvRslt,
+    /// Number Of Points (NPt)
+    ///
+    /// Number of curve points supported.
+    pub number_of_points: u16,
+    /// Stored Curve Count (NCrv)
+    ///
+    /// Number of stored curves supported.
+    pub stored_curve_count: u16,
+    /// Reversion Timeout (RvrtTms)
+    ///
+    /// Reversion time in seconds. 0 = No reversion time.
+    pub reversion_timeout: u32,
+    /// Reversion Time Left (RvrtRem)
+    ///
+    /// Reversion time remaining in seconds.
+    pub reversion_time_left: u32,
+    /// Reversion Curve (RvrtCrv)
+    ///
+    /// Default curve after reversion timeout.
+    pub reversion_curve: u16,
+    /// Active Power Scale Factor (W_SF)
+    ///
+    /// Scale factor for curve active power points.
+    pub active_power_scale_factor: i16,
+    /// Var Scale Factor (DeptRef_SF)
+    ///
+    /// Scale factor for curve var points.
+    pub var_scale_factor: i16,
+    pub stored_curves: *mut Model712StoredCurvesPtr,
+}
+
+/// Each repeating-group field points to the first element of a caller-allocated array with at least as many elements as that group's repeat count (the `repeat_count_*` passed for this model); a shorter array is undefined behaviour.
+#[repr(C)]
+pub struct Model712StoredCurvesPtr {
+    /// Active Points (ActPt)
+    ///
+    /// Number of active points.
+    pub crv_active_points: u16,
+    /// Dependent Reference (DeptRef)
+    ///
+    /// Curve dependent reference.
+    pub crv_dependent_reference: Model712DeptRef,
+    /// Power Priority (Pri)
+    ///
+    /// Power priority.
+    pub crv_power_priority: Model712Pri,
+    /// Curve Access (ReadOnly)
+    ///
+    /// Curve read-write access.
+    pub crv_curve_access: Model712ReadOnly,
+    pub stored_curve_points: *mut Model712StoredCurvePointsPtr,
+}
+
+#[repr(C)]
+pub struct Model712StoredCurvePointsPtr {
+    /// Active Power Point (W)
+    ///
+    /// Curve active power point as percentage.
+    ///
+    /// Internal curve conformance checks should be conducted when AdptCrvReq is set to 1, not on point writes. IEEE 1547 implementations must allow 0 values for all three load points.
+    pub pt_active_power_point: i16,
+    /// Reactive Power Point (Var)
+    ///
+    /// Curve reactive power point as set in DeptRef point.
+    ///
+    /// Internal curve conformance checks should be conducted when AdptCrvReq is set to 1, not on point writes. IEEE 1547 implementations must allow 0 values for all three load points
+    pub pt_reactive_power_point: i16,
+}
+
+impl ReadAdapter for Model712StatefulPtrAdapter {
+    fn der_watt_var_module_enable(&self) -> Ena {
+        self.der_watt_var_module_enable
+    }
+
+    fn active_curve_request(&self) -> u16 {
+        self.active_curve_request
+    }
+
+    fn set_active_curve_result(&self) -> AdptCrvRslt {
+        self.set_active_curve_result
+    }
+
+    fn number_of_points(&self) -> u16 {
+        self.number_of_points
+    }
+
+    fn stored_curve_count(&self) -> u16 {
+        self.stored_curve_count
+    }
+
+    fn reversion_timeout(&self) -> Option<u32> {
+        Some(self.reversion_timeout)
+    }
+
+    fn reversion_time_left(&self) -> Option<u32> {
+        Some(self.reversion_time_left)
+    }
+
+    fn reversion_curve(&self) -> Option<u16> {
+        Some(self.reversion_curve)
+    }
+
+    fn active_power_scale_factor(&self) -> i16 {
+        self.active_power_scale_factor
+    }
+
+    fn var_scale_factor(&self) -> i16 {
+        self.var_scale_factor
+    }
+
+    fn crv_active_points(&self, crv_index: u16) -> u16 {
+        unsafe { (*self.stored_curves.add(crv_index as usize)).crv_active_points }
+    }
+
+    fn crv_dependent_reference(&self, crv_index: u16) -> DeptRef {
+        unsafe { (*self.stored_curves.add(crv_index as usize)).crv_dependent_reference }
+    }
+
+    fn crv_power_priority(&self, crv_index: u16) -> Option<Pri> {
+        Some(unsafe { (*self.stored_curves.add(crv_index as usize)).crv_power_priority })
+    }
+
+    fn crv_curve_access(&self, crv_index: u16) -> ReadOnly {
+        unsafe { (*self.stored_curves.add(crv_index as usize)).crv_curve_access }
+    }
+
+    fn pt_active_power_point(&self, crv_index: u16, pt_index: u16) -> Option<i16> {
+        Some(unsafe {
+            (*(*self.stored_curves.add(crv_index as usize))
+                .stored_curve_points
+                .add(pt_index as usize))
+            .pt_active_power_point
+        })
+    }
+
+    fn pt_reactive_power_point(&self, crv_index: u16, pt_index: u16) -> Option<i16> {
+        Some(unsafe {
+            (*(*self.stored_curves.add(crv_index as usize))
+                .stored_curve_points
+                .add(pt_index as usize))
+            .pt_reactive_power_point
+        })
+    }
+}
+
+impl WriteAdapter for Model712StatefulPtrAdapter {
+    /// DER Watt-Var Module Enable (Ena)
+    ///
+    /// DER Watt-Var control enable.
+    fn set_der_watt_var_module_enable(&mut self, value: Ena) {
+        self.der_watt_var_module_enable = value;
+    }
+
+    /// Set Active Curve Request (AdptCrvReq)
+    ///
+    /// Set active curve. 0 = No active curve.
+    fn set_active_curve_request(&mut self, value: u16) {
+        self.active_curve_request = value;
+    }
+
+    /// Reversion Timeout (RvrtTms)
+    ///
+    /// Reversion time in seconds. 0 = No reversion time.
+    fn set_reversion_timeout(&mut self, value: u32) {
+        self.reversion_timeout = value;
+    }
+
+    /// Reversion Curve (RvrtCrv)
+    ///
+    /// Default curve after reversion timeout.
+    fn set_reversion_curve(&mut self, value: u16) {
+        self.reversion_curve = value;
+    }
+
+    /// Active Points (ActPt)
+    ///
+    /// Number of active points.
+    fn set_crv_active_points(&mut self, value: u16, crv_index: u16) {
+        unsafe {
+            (*self.stored_curves.add(crv_index as usize)).crv_active_points = value;
+        }
+    }
+
+    /// Dependent Reference (DeptRef)
+    ///
+    /// Curve dependent reference.
+    fn set_crv_dependent_reference(&mut self, value: DeptRef, crv_index: u16) {
+        unsafe {
+            (*self.stored_curves.add(crv_index as usize)).crv_dependent_reference = value;
+        }
+    }
+
+    /// Power Priority (Pri)
+    ///
+    /// Power priority.
+    fn set_crv_power_priority(&mut self, value: Pri, crv_index: u16) {
+        unsafe {
+            (*self.stored_curves.add(crv_index as usize)).crv_power_priority = value;
+        }
+    }
+
+    /// Active Power Point (W)
+    ///
+    /// Curve active power point as percentage.
+    ///
+    /// Internal curve conformance checks should be conducted when AdptCrvReq is set to 1, not on point writes. IEEE 1547 implementations must allow 0 values for all three load points.
+    fn set_pt_active_power_point(&mut self, value: i16, crv_index: u16, pt_index: u16) {
+        unsafe {
+            (*(*self.stored_curves.add(crv_index as usize))
+                .stored_curve_points
+                .add(pt_index as usize))
+            .pt_active_power_point = value;
+        }
+    }
+
+    /// Reactive Power Point (Var)
+    ///
+    /// Curve reactive power point as set in DeptRef point.
+    ///
+    /// Internal curve conformance checks should be conducted when AdptCrvReq is set to 1, not on point writes. IEEE 1547 implementations must allow 0 values for all three load points
+    fn set_pt_reactive_power_point(&mut self, value: i16, crv_index: u16, pt_index: u16) {
+        unsafe {
+            (*(*self.stored_curves.add(crv_index as usize))
+                .stored_curve_points
+                .add(pt_index as usize))
+            .pt_reactive_power_point = value;
+        }
+    }
+}
+
 /// C-FFI dispatch descriptor for SunSpec model 712. A C `SunspecModelBinding` points
 /// at this static, so the service functions dispatch with no model-id lookup.
 #[unsafe(no_mangle)]
@@ -1237,6 +1482,7 @@ unsafe fn model_712_c_visit_read(
         number_of_points: repeat_count_1,
     };
     let adapter: Option<&dyn ReadAdapter> = match kind {
+        1 => Some(unsafe { &*(adapter as *const Model712StatefulPtrAdapter) } as &dyn ReadAdapter),
         2 => Some(unsafe { &*(adapter as *const Model712CallbackAdapter) } as &dyn ReadAdapter),
         _ => None,
     };
@@ -1267,6 +1513,9 @@ unsafe fn model_712_c_visit_write(
         number_of_points: repeat_count_1,
     };
     let adapter: Option<&mut dyn WriteAdapter> = match kind {
+        1 => Some(
+            unsafe { &mut *(adapter as *mut Model712StatefulPtrAdapter) } as &mut dyn WriteAdapter,
+        ),
         2 => {
             Some(unsafe { &mut *(adapter as *mut Model712CallbackAdapter) } as &mut dyn WriteAdapter)
         }

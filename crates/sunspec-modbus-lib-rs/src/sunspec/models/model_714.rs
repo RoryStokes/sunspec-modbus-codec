@@ -1057,6 +1057,200 @@ impl<const NUMBER_OF_PORTS: usize> ReadAdapter for Model714StatefulAdapter<NUMBE
     }
 }
 
+/// Each repeating-group field points to the first element of a caller-allocated array with at least as many elements as that group's repeat count (the `repeat_count_*` passed for this model); a shorter array is undefined behaviour.
+#[repr(C)]
+pub struct Model714StatefulPtrAdapter {
+    /// Port Alarms (PrtAlrms)
+    ///
+    /// Bitfield of ports with active alarms. Bit is 1 if port has an active alarm. Bit 0 is first port.
+    pub port_alarms: u32,
+    /// Number Of Ports (NPrt)
+    ///
+    /// Number of DC ports.
+    pub number_of_ports: u16,
+    /// DC Current (DCA)
+    ///
+    /// Total DC current for all ports.
+    pub dc_current: i16,
+    /// DC Power (DCW)
+    ///
+    /// Total DC power for all ports.
+    pub dc_power: i16,
+    /// DC Energy Injected (DCWhInj)
+    ///
+    /// Total cumulative DC energy injected for all ports.
+    pub dc_energy_injected: u64,
+    /// DC Energy Absorbed (DCWhAbs)
+    ///
+    /// Total cumulative DC energy absorbed for all ports.
+    pub dc_energy_absorbed: u64,
+    /// DC Current Scale Factor (DCA_SF)
+    ///
+    /// DC current scale factor.
+    pub dc_current_scale_factor: i16,
+    /// DC Voltage Scale Factor (DCV_SF)
+    ///
+    /// DC voltage scale factor.
+    pub dc_voltage_scale_factor: i16,
+    /// DC Power Scale Factor (DCW_SF)
+    ///
+    /// DC power scale factor.
+    pub dc_power_scale_factor: i16,
+    /// DC Energy Scale Factor (DCWH_SF)
+    ///
+    /// DC energy scale factor.
+    pub dc_energy_scale_factor: i16,
+    /// Temperature Scale Factor (Tmp_SF)
+    ///
+    /// Temperature Scale Factor.
+    pub temperature_scale_factor: i16,
+    pub prt: *mut Model714PrtPtr,
+}
+
+#[repr(C)]
+pub struct Model714PrtPtr {
+    /// Port Type (PrtTyp)
+    ///
+    /// Port type.
+    pub prt_port_type: Model714PrtTyp,
+    /// Port ID (ID)
+    ///
+    /// Port ID.
+    pub prt_port_id: u16,
+    /// Port ID String (IDStr)
+    ///
+    /// Port ID string.
+    pub prt_port_id_string: [c_char; 16],
+    /// DC Current (DCA)
+    ///
+    /// DC current for the port.
+    pub prt_dc_current: i16,
+    /// DC Voltage (DCV)
+    ///
+    /// DC voltage for the port.
+    pub prt_dc_voltage: u16,
+    /// DC Power (DCW)
+    ///
+    /// DC power for the port.
+    pub prt_dc_power: i16,
+    /// DC Energy Injected (DCWhInj)
+    ///
+    /// Total cumulative DC energy injected for the port.
+    pub prt_dc_energy_injected: u64,
+    /// DC Energy Absorbed (DCWhAbs)
+    ///
+    /// Total cumulative DC energy absorbed for the port.
+    pub prt_dc_energy_absorbed: u64,
+    /// DC Port Temperature (Tmp)
+    ///
+    /// DC port temperature.
+    pub prt_dc_port_temperature: i16,
+    /// DC Port Status (DCSta)
+    ///
+    /// DC port status.
+    pub prt_dc_port_status: Model714DcSta,
+    /// DC Port Alarm (DCAlrm)
+    ///
+    /// DC port alarm.
+    pub prt_dc_port_alarm: u32,
+}
+
+impl ReadAdapter for Model714StatefulPtrAdapter {
+    fn port_alarms(&self) -> Option<u32> {
+        Some(self.port_alarms)
+    }
+
+    fn number_of_ports(&self) -> Option<u16> {
+        Some(self.number_of_ports)
+    }
+
+    fn dc_current(&self) -> Option<i16> {
+        Some(self.dc_current)
+    }
+
+    fn dc_power(&self) -> Option<i16> {
+        Some(self.dc_power)
+    }
+
+    fn dc_energy_injected(&self) -> Option<u64> {
+        Some(self.dc_energy_injected)
+    }
+
+    fn dc_energy_absorbed(&self) -> Option<u64> {
+        Some(self.dc_energy_absorbed)
+    }
+
+    fn dc_current_scale_factor(&self) -> Option<i16> {
+        Some(self.dc_current_scale_factor)
+    }
+
+    fn dc_voltage_scale_factor(&self) -> Option<i16> {
+        Some(self.dc_voltage_scale_factor)
+    }
+
+    fn dc_power_scale_factor(&self) -> Option<i16> {
+        Some(self.dc_power_scale_factor)
+    }
+
+    fn dc_energy_scale_factor(&self) -> Option<i16> {
+        Some(self.dc_energy_scale_factor)
+    }
+
+    fn temperature_scale_factor(&self) -> Option<i16> {
+        Some(self.temperature_scale_factor)
+    }
+
+    fn prt_port_type(&self, prt_index: u16) -> Option<PrtTyp> {
+        Some(unsafe { (*self.prt.add(prt_index as usize)).prt_port_type })
+    }
+
+    fn prt_port_id(&self, prt_index: u16) -> Option<u16> {
+        Some(unsafe { (*self.prt.add(prt_index as usize)).prt_port_id })
+    }
+
+    fn prt_port_id_string(&self, prt_index: u16) -> Option<&CStr> {
+        Some(unsafe {
+            CStr::from_ptr(
+                (*self.prt.add(prt_index as usize))
+                    .prt_port_id_string
+                    .as_ptr(),
+            )
+        })
+    }
+
+    fn prt_dc_current(&self, prt_index: u16) -> Option<i16> {
+        Some(unsafe { (*self.prt.add(prt_index as usize)).prt_dc_current })
+    }
+
+    fn prt_dc_voltage(&self, prt_index: u16) -> Option<u16> {
+        Some(unsafe { (*self.prt.add(prt_index as usize)).prt_dc_voltage })
+    }
+
+    fn prt_dc_power(&self, prt_index: u16) -> Option<i16> {
+        Some(unsafe { (*self.prt.add(prt_index as usize)).prt_dc_power })
+    }
+
+    fn prt_dc_energy_injected(&self, prt_index: u16) -> Option<u64> {
+        Some(unsafe { (*self.prt.add(prt_index as usize)).prt_dc_energy_injected })
+    }
+
+    fn prt_dc_energy_absorbed(&self, prt_index: u16) -> Option<u64> {
+        Some(unsafe { (*self.prt.add(prt_index as usize)).prt_dc_energy_absorbed })
+    }
+
+    fn prt_dc_port_temperature(&self, prt_index: u16) -> Option<i16> {
+        Some(unsafe { (*self.prt.add(prt_index as usize)).prt_dc_port_temperature })
+    }
+
+    fn prt_dc_port_status(&self, prt_index: u16) -> Option<DcSta> {
+        Some(unsafe { (*self.prt.add(prt_index as usize)).prt_dc_port_status })
+    }
+
+    fn prt_dc_port_alarm(&self, prt_index: u16) -> Option<u32> {
+        Some(unsafe { (*self.prt.add(prt_index as usize)).prt_dc_port_alarm })
+    }
+}
+
 /// C-FFI dispatch descriptor for SunSpec model 714. A C `SunspecModelBinding` points
 /// at this static, so the service functions dispatch with no model-id lookup.
 #[unsafe(no_mangle)]
@@ -1090,6 +1284,7 @@ unsafe fn model_714_c_visit_read(
         number_of_ports: repeat_count_0,
     };
     let adapter: Option<&dyn ReadAdapter> = match kind {
+        1 => Some(unsafe { &*(adapter as *const Model714StatefulPtrAdapter) } as &dyn ReadAdapter),
         2 => Some(unsafe { &*(adapter as *const Model714CallbackAdapter) } as &dyn ReadAdapter),
         _ => None,
     };

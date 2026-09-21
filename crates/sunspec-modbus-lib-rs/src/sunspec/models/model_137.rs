@@ -3491,7 +3491,7 @@ impl WriteAdapter for Model137StatefulAdapter {
     ///
     /// Optional description for curve.
     fn set_curve_crv_nam(&mut self, value: &CStr) {
-        for (dest, src) in self
+        for (dest, src) in &mut self
             .curve_crv_nam
             .iter_mut()
             .zip(value.to_bytes_with_nul().iter())

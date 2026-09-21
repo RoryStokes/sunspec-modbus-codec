@@ -2145,6 +2145,462 @@ impl<const STRING_COUNT: usize> WriteAdapter for Model803StatefulAdapter<STRING_
     }
 }
 
+/// Each repeating-group field points to the first element of a caller-allocated array with at least as many elements as that group's repeat count (the `repeat_count_*` passed for this model); a shorter array is undefined behaviour.
+#[repr(C)]
+pub struct Model803StatefulPtrAdapter {
+    /// String Count (NStr)
+    ///
+    /// Number of strings in the bank.
+    pub string_count: u16,
+    /// Connected String Count (NStrCon)
+    ///
+    /// Number of strings with contactor closed.
+    pub connected_string_count: u16,
+    /// Max Module Temperature (ModTmpMax)
+    ///
+    /// Maximum temperature for all modules in the bank.
+    ///
+    /// Measurement.
+    pub max_module_temperature: i16,
+    /// Max Module Temperature String (ModTmpMaxStr)
+    ///
+    /// String containing the module with maximum temperature.
+    pub max_module_temperature_string: u16,
+    /// Max Module Temperature Module (ModTmpMaxMod)
+    ///
+    /// Module with maximum temperature.
+    pub max_module_temperature_module: u16,
+    /// Min Module Temperature (ModTmpMin)
+    ///
+    /// Minimum temperature for all modules in the bank.
+    ///
+    /// Measurement.
+    pub min_module_temperature: i16,
+    /// Min Module Temperature String (ModTmpMinStr)
+    ///
+    /// String containing the module with minimum temperature.
+    pub min_module_temperature_string: u16,
+    /// Min Module Temperature Module (ModTmpMinMod)
+    ///
+    /// Module with minimum temperature.
+    pub min_module_temperature_module: u16,
+    /// Average Module Temperature (ModTmpAvg)
+    ///
+    /// Average temperature for all modules in the bank.
+    ///
+    /// Calculation based on measurements.
+    pub average_module_temperature: i16,
+    /// Max String Voltage (StrVMax)
+    ///
+    /// Maximum string voltage for all strings in the bank.
+    ///
+    /// Measurement.
+    pub max_string_voltage: u16,
+    /// Max String Voltage String (StrVMaxStr)
+    ///
+    /// String with maximum voltage.
+    pub max_string_voltage_string: u16,
+    /// Min String Voltage (StrVMin)
+    ///
+    /// Minimum string voltage for all strings in the bank.
+    ///
+    /// Measurement.
+    pub min_string_voltage: u16,
+    /// Min String Voltage String (StrVMinStr)
+    ///
+    /// String with minimum voltage.
+    pub min_string_voltage_string: u16,
+    /// Average String Voltage (StrVAvg)
+    ///
+    /// Average string voltage for all strings in the bank.
+    ///
+    /// Calculation based on measurements.
+    pub average_string_voltage: u16,
+    /// Max String Current (StrAMax)
+    ///
+    /// Maximum current of any string in the bank.
+    ///
+    /// Measurement.
+    pub max_string_current: i16,
+    /// Max String Current String (StrAMaxStr)
+    ///
+    /// String with the maximum current.
+    pub max_string_current_string: u16,
+    /// Min String Current (StrAMin)
+    ///
+    /// Minimum current of any string in the bank.
+    ///
+    /// Measurement.
+    pub min_string_current: i16,
+    /// Min String Current String (StrAMinStr)
+    ///
+    /// String with the minimum current.
+    pub min_string_current_string: u16,
+    /// Average String Current (StrAAvg)
+    ///
+    /// Average string current for all strings in the bank.
+    ///
+    /// Calculation based on measurements.
+    pub average_string_current: i16,
+    /// Battery Cell Balancing Count (NCellBal)
+    ///
+    /// Total number of cells that are currently being balanced.
+    pub battery_cell_balancing_count: u16,
+    /// CellV_SF
+    ///
+    /// Scale factor for cell voltage.
+    pub cell_v_sf: i16,
+    /// ModTmp_SF
+    ///
+    /// Scale factor for module temperatures.
+    pub mod_tmp_sf: i16,
+    /// A_SF
+    ///
+    /// Scale factor for string currents.
+    pub a_sf: i16,
+    /// SoH_SF
+    ///
+    /// Scale factor for string state of health.
+    pub so_h_sf: i16,
+    /// SoC_SF
+    ///
+    /// Scale factor for string state of charge.
+    pub so_c_sf: i16,
+    /// V_SF
+    ///
+    /// Scale factor for string voltage.
+    pub v_sf: i16,
+    pub string: *mut Model803StringPtr,
+}
+
+#[repr(C)]
+pub struct Model803StringPtr {
+    /// Module Count (StrNMod)
+    ///
+    /// Count of modules in the string.
+    pub string_module_count: u16,
+    /// String Status (StrSt)
+    ///
+    /// Current status of the string.
+    pub string_string_status: u32,
+    /// Connection Failure Reason (StrConFail)
+    pub string_connection_failure_reason: Model803StrConFail,
+    /// String State of Charge (StrSoC)
+    ///
+    /// Battery string state of charge, expressed as a percentage.
+    pub string_string_state_of_charge: u16,
+    /// String State of Health (StrSoH)
+    ///
+    /// Battery string state of health, expressed as a percentage.
+    pub string_string_state_of_health: u16,
+    /// String Current (StrA)
+    ///
+    /// String current measurement.
+    pub string_string_current: i16,
+    /// Max Cell Voltage (StrCellVMax)
+    ///
+    /// Maximum voltage for all cells in the string.
+    pub string_max_cell_voltage: u16,
+    /// Max Cell Voltage Module (StrCellVMaxMod)
+    ///
+    /// Module containing the maximum cell voltage.
+    pub string_max_cell_voltage_module: u16,
+    /// Min Cell Voltage (StrCellVMin)
+    ///
+    /// Minimum voltage for all cells in the string.
+    pub string_min_cell_voltage: u16,
+    /// Min Cell Voltage Module (StrCellVMinMod)
+    ///
+    /// Module containing the minimum cell voltage.
+    pub string_min_cell_voltage_module: u16,
+    /// Average Cell Voltage (StrCellVAvg)
+    ///
+    /// Average voltage for all cells in the string.
+    pub string_average_cell_voltage: u16,
+    /// Max Module Temperature (StrModTmpMax)
+    ///
+    /// Maximum temperature for all modules in the bank.
+    pub string_max_module_temperature: i16,
+    /// Max Module Temperature Module (StrModTmpMaxMod)
+    ///
+    /// Module with the maximum temperature.
+    pub string_max_module_temperature_module: u16,
+    /// Min Module Temperature (StrModTmpMin)
+    ///
+    /// Minimum temperature for all modules in the bank.
+    pub string_min_module_temperature: i16,
+    /// Min Module Temperature Module (StrModTmpMinMod)
+    ///
+    /// Module with the minimum temperature.
+    pub string_min_module_temperature_module: u16,
+    /// Average Module Temperature (StrModTmpAvg)
+    ///
+    /// Average temperature for all modules in the bank.
+    pub string_average_module_temperature: i16,
+    /// Disabled Reason (StrDisRsn)
+    ///
+    /// Reason why the string is currently disabled.
+    pub string_disabled_reason: Model803StrDisRsn,
+    /// Contactor Status (StrConSt)
+    ///
+    /// Status of the contactor(s) for the string.
+    pub string_contactor_status: u32,
+    /// String Event 1 (StrEvt1)
+    ///
+    /// Alarms, warnings and status values.
+    pub string_string_event_1: u32,
+    /// String Event 2 (StrEvt2)
+    ///
+    /// Alarms, warnings and status values.
+    pub string_string_event_2: u32,
+    /// Vendor String Event Bitfield 1 (StrEvtVnd1)
+    ///
+    /// Vendor defined events.
+    pub string_vendor_string_event_bitfield_1: u32,
+    /// Vendor String Event Bitfield 2 (StrEvtVnd2)
+    ///
+    /// Vendor defined events.
+    pub string_vendor_string_event_bitfield_2: u32,
+    /// Enable/Disable String (StrSetEna)
+    ///
+    /// Enables and disables the string.
+    pub string_enable_disable_string: Model803StrSetEna,
+    /// Connect/Disconnect String (StrSetCon)
+    ///
+    /// Connects and disconnects the string.
+    pub string_connect_disconnect_string: Model803StrSetCon,
+}
+
+impl ReadAdapter for Model803StatefulPtrAdapter {
+    fn string_count(&self) -> u16 {
+        self.string_count
+    }
+
+    fn connected_string_count(&self) -> u16 {
+        self.connected_string_count
+    }
+
+    fn max_module_temperature(&self) -> i16 {
+        self.max_module_temperature
+    }
+
+    fn max_module_temperature_string(&self) -> Option<u16> {
+        Some(self.max_module_temperature_string)
+    }
+
+    fn max_module_temperature_module(&self) -> Option<u16> {
+        Some(self.max_module_temperature_module)
+    }
+
+    fn min_module_temperature(&self) -> i16 {
+        self.min_module_temperature
+    }
+
+    fn min_module_temperature_string(&self) -> Option<u16> {
+        Some(self.min_module_temperature_string)
+    }
+
+    fn min_module_temperature_module(&self) -> Option<u16> {
+        Some(self.min_module_temperature_module)
+    }
+
+    fn average_module_temperature(&self) -> Option<i16> {
+        Some(self.average_module_temperature)
+    }
+
+    fn max_string_voltage(&self) -> Option<u16> {
+        Some(self.max_string_voltage)
+    }
+
+    fn max_string_voltage_string(&self) -> Option<u16> {
+        Some(self.max_string_voltage_string)
+    }
+
+    fn min_string_voltage(&self) -> Option<u16> {
+        Some(self.min_string_voltage)
+    }
+
+    fn min_string_voltage_string(&self) -> Option<u16> {
+        Some(self.min_string_voltage_string)
+    }
+
+    fn average_string_voltage(&self) -> Option<u16> {
+        Some(self.average_string_voltage)
+    }
+
+    fn max_string_current(&self) -> Option<i16> {
+        Some(self.max_string_current)
+    }
+
+    fn max_string_current_string(&self) -> Option<u16> {
+        Some(self.max_string_current_string)
+    }
+
+    fn min_string_current(&self) -> Option<i16> {
+        Some(self.min_string_current)
+    }
+
+    fn min_string_current_string(&self) -> Option<u16> {
+        Some(self.min_string_current_string)
+    }
+
+    fn average_string_current(&self) -> Option<i16> {
+        Some(self.average_string_current)
+    }
+
+    fn battery_cell_balancing_count(&self) -> Option<u16> {
+        Some(self.battery_cell_balancing_count)
+    }
+
+    fn cell_v_sf(&self) -> i16 {
+        self.cell_v_sf
+    }
+
+    fn mod_tmp_sf(&self) -> i16 {
+        self.mod_tmp_sf
+    }
+
+    fn a_sf(&self) -> i16 {
+        self.a_sf
+    }
+
+    fn so_h_sf(&self) -> Option<i16> {
+        Some(self.so_h_sf)
+    }
+
+    fn so_c_sf(&self) -> i16 {
+        self.so_c_sf
+    }
+
+    fn v_sf(&self) -> Option<i16> {
+        Some(self.v_sf)
+    }
+
+    fn string_module_count(&self, string_index: u16) -> u16 {
+        unsafe { (*self.string.add(string_index as usize)).string_module_count }
+    }
+
+    fn string_string_status(&self, string_index: u16) -> u32 {
+        unsafe { (*self.string.add(string_index as usize)).string_string_status }
+    }
+
+    fn string_connection_failure_reason(&self, string_index: u16) -> Option<StrConFail> {
+        Some(unsafe { (*self.string.add(string_index as usize)).string_connection_failure_reason })
+    }
+
+    fn string_string_state_of_charge(&self, string_index: u16) -> u16 {
+        unsafe { (*self.string.add(string_index as usize)).string_string_state_of_charge }
+    }
+
+    fn string_string_state_of_health(&self, string_index: u16) -> Option<u16> {
+        Some(unsafe { (*self.string.add(string_index as usize)).string_string_state_of_health })
+    }
+
+    fn string_string_current(&self, string_index: u16) -> i16 {
+        unsafe { (*self.string.add(string_index as usize)).string_string_current }
+    }
+
+    fn string_max_cell_voltage(&self, string_index: u16) -> u16 {
+        unsafe { (*self.string.add(string_index as usize)).string_max_cell_voltage }
+    }
+
+    fn string_max_cell_voltage_module(&self, string_index: u16) -> Option<u16> {
+        Some(unsafe { (*self.string.add(string_index as usize)).string_max_cell_voltage_module })
+    }
+
+    fn string_min_cell_voltage(&self, string_index: u16) -> u16 {
+        unsafe { (*self.string.add(string_index as usize)).string_min_cell_voltage }
+    }
+
+    fn string_min_cell_voltage_module(&self, string_index: u16) -> Option<u16> {
+        Some(unsafe { (*self.string.add(string_index as usize)).string_min_cell_voltage_module })
+    }
+
+    fn string_average_cell_voltage(&self, string_index: u16) -> u16 {
+        unsafe { (*self.string.add(string_index as usize)).string_average_cell_voltage }
+    }
+
+    fn string_max_module_temperature(&self, string_index: u16) -> i16 {
+        unsafe { (*self.string.add(string_index as usize)).string_max_module_temperature }
+    }
+
+    fn string_max_module_temperature_module(&self, string_index: u16) -> Option<u16> {
+        Some(unsafe {
+            (*self.string.add(string_index as usize)).string_max_module_temperature_module
+        })
+    }
+
+    fn string_min_module_temperature(&self, string_index: u16) -> i16 {
+        unsafe { (*self.string.add(string_index as usize)).string_min_module_temperature }
+    }
+
+    fn string_min_module_temperature_module(&self, string_index: u16) -> Option<u16> {
+        Some(unsafe {
+            (*self.string.add(string_index as usize)).string_min_module_temperature_module
+        })
+    }
+
+    fn string_average_module_temperature(&self, string_index: u16) -> i16 {
+        unsafe { (*self.string.add(string_index as usize)).string_average_module_temperature }
+    }
+
+    fn string_disabled_reason(&self, string_index: u16) -> Option<StrDisRsn> {
+        Some(unsafe { (*self.string.add(string_index as usize)).string_disabled_reason })
+    }
+
+    fn string_contactor_status(&self, string_index: u16) -> Option<u32> {
+        Some(unsafe { (*self.string.add(string_index as usize)).string_contactor_status })
+    }
+
+    fn string_string_event_1(&self, string_index: u16) -> u32 {
+        unsafe { (*self.string.add(string_index as usize)).string_string_event_1 }
+    }
+
+    fn string_string_event_2(&self, string_index: u16) -> Option<u32> {
+        Some(unsafe { (*self.string.add(string_index as usize)).string_string_event_2 })
+    }
+
+    fn string_vendor_string_event_bitfield_1(&self, string_index: u16) -> Option<u32> {
+        Some(unsafe {
+            (*self.string.add(string_index as usize)).string_vendor_string_event_bitfield_1
+        })
+    }
+
+    fn string_vendor_string_event_bitfield_2(&self, string_index: u16) -> Option<u32> {
+        Some(unsafe {
+            (*self.string.add(string_index as usize)).string_vendor_string_event_bitfield_2
+        })
+    }
+
+    fn string_enable_disable_string(&self, string_index: u16) -> Option<StrSetEna> {
+        Some(unsafe { (*self.string.add(string_index as usize)).string_enable_disable_string })
+    }
+
+    fn string_connect_disconnect_string(&self, string_index: u16) -> Option<StrSetCon> {
+        Some(unsafe { (*self.string.add(string_index as usize)).string_connect_disconnect_string })
+    }
+}
+
+impl WriteAdapter for Model803StatefulPtrAdapter {
+    /// Enable/Disable String (StrSetEna)
+    ///
+    /// Enables and disables the string.
+    fn set_string_enable_disable_string(&mut self, value: StrSetEna, string_index: u16) {
+        unsafe {
+            (*self.string.add(string_index as usize)).string_enable_disable_string = value;
+        }
+    }
+
+    /// Connect/Disconnect String (StrSetCon)
+    ///
+    /// Connects and disconnects the string.
+    fn set_string_connect_disconnect_string(&mut self, value: StrSetCon, string_index: u16) {
+        unsafe {
+            (*self.string.add(string_index as usize)).string_connect_disconnect_string = value;
+        }
+    }
+}
+
 /// C-FFI dispatch descriptor for SunSpec model 803. A C `SunspecModelBinding` points
 /// at this static, so the service functions dispatch with no model-id lookup.
 #[unsafe(no_mangle)]
@@ -2178,6 +2634,7 @@ unsafe fn model_803_c_visit_read(
         string_count: repeat_count_0,
     };
     let adapter: Option<&dyn ReadAdapter> = match kind {
+        1 => Some(unsafe { &*(adapter as *const Model803StatefulPtrAdapter) } as &dyn ReadAdapter),
         2 => Some(unsafe { &*(adapter as *const Model803CallbackAdapter) } as &dyn ReadAdapter),
         _ => None,
     };
@@ -2207,6 +2664,9 @@ unsafe fn model_803_c_visit_write(
         string_count: repeat_count_0,
     };
     let adapter: Option<&mut dyn WriteAdapter> = match kind {
+        1 => Some(
+            unsafe { &mut *(adapter as *mut Model803StatefulPtrAdapter) } as &mut dyn WriteAdapter,
+        ),
         2 => {
             Some(unsafe { &mut *(adapter as *mut Model803CallbackAdapter) } as &mut dyn WriteAdapter)
         }

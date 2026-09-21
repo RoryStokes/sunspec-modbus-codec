@@ -2077,6 +2077,19 @@ pub extern "C" fn sunspec_model_705_callback(
     }
 }
 
+/// Build a [`SunspecAdapter`] for model 705 backed by a stateful adapter.
+#[cfg(feature = "model_705")]
+#[unsafe(no_mangle)]
+pub extern "C" fn sunspec_model_705_stateful(
+    adapter: *mut sunspec_modbus_lib_rs::sunspec::models::model_705::Model705StatefulPtrAdapter,
+) -> SunspecAdapter {
+    SunspecAdapter {
+        model_spec: &sunspec_modbus_lib_rs::sunspec::models::model_705::SUNSPEC_MODEL_705,
+        kind: SUNSPEC_ADAPTER_STATEFUL,
+        adapter: adapter as *mut c_void,
+    }
+}
+
 /// Build a [`SunspecAdapter`] for model 706 backed by a callback adapter.
 #[cfg(feature = "model_706")]
 #[unsafe(no_mangle)]
@@ -2086,6 +2099,19 @@ pub extern "C" fn sunspec_model_706_callback(
     SunspecAdapter {
         model_spec: &sunspec_modbus_lib_rs::sunspec::models::model_706::SUNSPEC_MODEL_706,
         kind: SUNSPEC_ADAPTER_CALLBACK,
+        adapter: adapter as *mut c_void,
+    }
+}
+
+/// Build a [`SunspecAdapter`] for model 706 backed by a stateful adapter.
+#[cfg(feature = "model_706")]
+#[unsafe(no_mangle)]
+pub extern "C" fn sunspec_model_706_stateful(
+    adapter: *mut sunspec_modbus_lib_rs::sunspec::models::model_706::Model706StatefulPtrAdapter,
+) -> SunspecAdapter {
+    SunspecAdapter {
+        model_spec: &sunspec_modbus_lib_rs::sunspec::models::model_706::SUNSPEC_MODEL_706,
+        kind: SUNSPEC_ADAPTER_STATEFUL,
         adapter: adapter as *mut c_void,
     }
 }
@@ -2103,6 +2129,19 @@ pub extern "C" fn sunspec_model_707_callback(
     }
 }
 
+/// Build a [`SunspecAdapter`] for model 707 backed by a stateful adapter.
+#[cfg(feature = "model_707")]
+#[unsafe(no_mangle)]
+pub extern "C" fn sunspec_model_707_stateful(
+    adapter: *mut sunspec_modbus_lib_rs::sunspec::models::model_707::Model707StatefulPtrAdapter,
+) -> SunspecAdapter {
+    SunspecAdapter {
+        model_spec: &sunspec_modbus_lib_rs::sunspec::models::model_707::SUNSPEC_MODEL_707,
+        kind: SUNSPEC_ADAPTER_STATEFUL,
+        adapter: adapter as *mut c_void,
+    }
+}
+
 /// Build a [`SunspecAdapter`] for model 708 backed by a callback adapter.
 #[cfg(feature = "model_708")]
 #[unsafe(no_mangle)]
@@ -2112,6 +2151,19 @@ pub extern "C" fn sunspec_model_708_callback(
     SunspecAdapter {
         model_spec: &sunspec_modbus_lib_rs::sunspec::models::model_708::SUNSPEC_MODEL_708,
         kind: SUNSPEC_ADAPTER_CALLBACK,
+        adapter: adapter as *mut c_void,
+    }
+}
+
+/// Build a [`SunspecAdapter`] for model 708 backed by a stateful adapter.
+#[cfg(feature = "model_708")]
+#[unsafe(no_mangle)]
+pub extern "C" fn sunspec_model_708_stateful(
+    adapter: *mut sunspec_modbus_lib_rs::sunspec::models::model_708::Model708StatefulPtrAdapter,
+) -> SunspecAdapter {
+    SunspecAdapter {
+        model_spec: &sunspec_modbus_lib_rs::sunspec::models::model_708::SUNSPEC_MODEL_708,
+        kind: SUNSPEC_ADAPTER_STATEFUL,
         adapter: adapter as *mut c_void,
     }
 }
@@ -2129,6 +2181,19 @@ pub extern "C" fn sunspec_model_709_callback(
     }
 }
 
+/// Build a [`SunspecAdapter`] for model 709 backed by a stateful adapter.
+#[cfg(feature = "model_709")]
+#[unsafe(no_mangle)]
+pub extern "C" fn sunspec_model_709_stateful(
+    adapter: *mut sunspec_modbus_lib_rs::sunspec::models::model_709::Model709StatefulPtrAdapter,
+) -> SunspecAdapter {
+    SunspecAdapter {
+        model_spec: &sunspec_modbus_lib_rs::sunspec::models::model_709::SUNSPEC_MODEL_709,
+        kind: SUNSPEC_ADAPTER_STATEFUL,
+        adapter: adapter as *mut c_void,
+    }
+}
+
 /// Build a [`SunspecAdapter`] for model 710 backed by a callback adapter.
 #[cfg(feature = "model_710")]
 #[unsafe(no_mangle)]
@@ -2138,6 +2203,19 @@ pub extern "C" fn sunspec_model_710_callback(
     SunspecAdapter {
         model_spec: &sunspec_modbus_lib_rs::sunspec::models::model_710::SUNSPEC_MODEL_710,
         kind: SUNSPEC_ADAPTER_CALLBACK,
+        adapter: adapter as *mut c_void,
+    }
+}
+
+/// Build a [`SunspecAdapter`] for model 710 backed by a stateful adapter.
+#[cfg(feature = "model_710")]
+#[unsafe(no_mangle)]
+pub extern "C" fn sunspec_model_710_stateful(
+    adapter: *mut sunspec_modbus_lib_rs::sunspec::models::model_710::Model710StatefulPtrAdapter,
+) -> SunspecAdapter {
+    SunspecAdapter {
+        model_spec: &sunspec_modbus_lib_rs::sunspec::models::model_710::SUNSPEC_MODEL_710,
+        kind: SUNSPEC_ADAPTER_STATEFUL,
         adapter: adapter as *mut c_void,
     }
 }
@@ -2155,6 +2233,19 @@ pub extern "C" fn sunspec_model_711_callback(
     }
 }
 
+/// Build a [`SunspecAdapter`] for model 711 backed by a stateful adapter.
+#[cfg(feature = "model_711")]
+#[unsafe(no_mangle)]
+pub extern "C" fn sunspec_model_711_stateful(
+    adapter: *mut sunspec_modbus_lib_rs::sunspec::models::model_711::Model711StatefulPtrAdapter,
+) -> SunspecAdapter {
+    SunspecAdapter {
+        model_spec: &sunspec_modbus_lib_rs::sunspec::models::model_711::SUNSPEC_MODEL_711,
+        kind: SUNSPEC_ADAPTER_STATEFUL,
+        adapter: adapter as *mut c_void,
+    }
+}
+
 /// Build a [`SunspecAdapter`] for model 712 backed by a callback adapter.
 #[cfg(feature = "model_712")]
 #[unsafe(no_mangle)]
@@ -2164,6 +2255,19 @@ pub extern "C" fn sunspec_model_712_callback(
     SunspecAdapter {
         model_spec: &sunspec_modbus_lib_rs::sunspec::models::model_712::SUNSPEC_MODEL_712,
         kind: SUNSPEC_ADAPTER_CALLBACK,
+        adapter: adapter as *mut c_void,
+    }
+}
+
+/// Build a [`SunspecAdapter`] for model 712 backed by a stateful adapter.
+#[cfg(feature = "model_712")]
+#[unsafe(no_mangle)]
+pub extern "C" fn sunspec_model_712_stateful(
+    adapter: *mut sunspec_modbus_lib_rs::sunspec::models::model_712::Model712StatefulPtrAdapter,
+) -> SunspecAdapter {
+    SunspecAdapter {
+        model_spec: &sunspec_modbus_lib_rs::sunspec::models::model_712::SUNSPEC_MODEL_712,
+        kind: SUNSPEC_ADAPTER_STATEFUL,
         adapter: adapter as *mut c_void,
     }
 }
@@ -2203,6 +2307,19 @@ pub extern "C" fn sunspec_model_714_callback(
     SunspecAdapter {
         model_spec: &sunspec_modbus_lib_rs::sunspec::models::model_714::SUNSPEC_MODEL_714,
         kind: SUNSPEC_ADAPTER_CALLBACK,
+        adapter: adapter as *mut c_void,
+    }
+}
+
+/// Build a [`SunspecAdapter`] for model 714 backed by a stateful adapter.
+#[cfg(feature = "model_714")]
+#[unsafe(no_mangle)]
+pub extern "C" fn sunspec_model_714_stateful(
+    adapter: *mut sunspec_modbus_lib_rs::sunspec::models::model_714::Model714StatefulPtrAdapter,
+) -> SunspecAdapter {
+    SunspecAdapter {
+        model_spec: &sunspec_modbus_lib_rs::sunspec::models::model_714::SUNSPEC_MODEL_714,
+        kind: SUNSPEC_ADAPTER_STATEFUL,
         adapter: adapter as *mut c_void,
     }
 }
@@ -2298,6 +2415,19 @@ pub extern "C" fn sunspec_model_803_callback(
     }
 }
 
+/// Build a [`SunspecAdapter`] for model 803 backed by a stateful adapter.
+#[cfg(feature = "model_803")]
+#[unsafe(no_mangle)]
+pub extern "C" fn sunspec_model_803_stateful(
+    adapter: *mut sunspec_modbus_lib_rs::sunspec::models::model_803::Model803StatefulPtrAdapter,
+) -> SunspecAdapter {
+    SunspecAdapter {
+        model_spec: &sunspec_modbus_lib_rs::sunspec::models::model_803::SUNSPEC_MODEL_803,
+        kind: SUNSPEC_ADAPTER_STATEFUL,
+        adapter: adapter as *mut c_void,
+    }
+}
+
 /// Build a [`SunspecAdapter`] for model 804 backed by a callback adapter.
 #[cfg(feature = "model_804")]
 #[unsafe(no_mangle)]
@@ -2307,6 +2437,19 @@ pub extern "C" fn sunspec_model_804_callback(
     SunspecAdapter {
         model_spec: &sunspec_modbus_lib_rs::sunspec::models::model_804::SUNSPEC_MODEL_804,
         kind: SUNSPEC_ADAPTER_CALLBACK,
+        adapter: adapter as *mut c_void,
+    }
+}
+
+/// Build a [`SunspecAdapter`] for model 804 backed by a stateful adapter.
+#[cfg(feature = "model_804")]
+#[unsafe(no_mangle)]
+pub extern "C" fn sunspec_model_804_stateful(
+    adapter: *mut sunspec_modbus_lib_rs::sunspec::models::model_804::Model804StatefulPtrAdapter,
+) -> SunspecAdapter {
+    SunspecAdapter {
+        model_spec: &sunspec_modbus_lib_rs::sunspec::models::model_804::SUNSPEC_MODEL_804,
+        kind: SUNSPEC_ADAPTER_STATEFUL,
         adapter: adapter as *mut c_void,
     }
 }
@@ -2636,6 +2779,19 @@ pub extern "C" fn sunspec_model_64410_callback(
     }
 }
 
+/// Build a [`SunspecAdapter`] for model 64410 backed by a stateful adapter.
+#[cfg(feature = "model_64410")]
+#[unsafe(no_mangle)]
+pub extern "C" fn sunspec_model_64410_stateful(
+    adapter: *mut sunspec_modbus_lib_rs::sunspec::models::model_64410::Model64410StatefulPtrAdapter,
+) -> SunspecAdapter {
+    SunspecAdapter {
+        model_spec: &sunspec_modbus_lib_rs::sunspec::models::model_64410::SUNSPEC_MODEL_64410,
+        kind: SUNSPEC_ADAPTER_STATEFUL,
+        adapter: adapter as *mut c_void,
+    }
+}
+
 /// Build a [`SunspecAdapter`] for model 64411 backed by a callback adapter.
 #[cfg(feature = "model_64411")]
 #[unsafe(no_mangle)]
@@ -2645,6 +2801,19 @@ pub extern "C" fn sunspec_model_64411_callback(
     SunspecAdapter {
         model_spec: &sunspec_modbus_lib_rs::sunspec::models::model_64411::SUNSPEC_MODEL_64411,
         kind: SUNSPEC_ADAPTER_CALLBACK,
+        adapter: adapter as *mut c_void,
+    }
+}
+
+/// Build a [`SunspecAdapter`] for model 64411 backed by a stateful adapter.
+#[cfg(feature = "model_64411")]
+#[unsafe(no_mangle)]
+pub extern "C" fn sunspec_model_64411_stateful(
+    adapter: *mut sunspec_modbus_lib_rs::sunspec::models::model_64411::Model64411StatefulPtrAdapter,
+) -> SunspecAdapter {
+    SunspecAdapter {
+        model_spec: &sunspec_modbus_lib_rs::sunspec::models::model_64411::SUNSPEC_MODEL_64411,
+        kind: SUNSPEC_ADAPTER_STATEFUL,
         adapter: adapter as *mut c_void,
     }
 }
@@ -2684,6 +2853,19 @@ pub extern "C" fn sunspec_model_64413_callback(
     SunspecAdapter {
         model_spec: &sunspec_modbus_lib_rs::sunspec::models::model_64413::SUNSPEC_MODEL_64413,
         kind: SUNSPEC_ADAPTER_CALLBACK,
+        adapter: adapter as *mut c_void,
+    }
+}
+
+/// Build a [`SunspecAdapter`] for model 64413 backed by a stateful adapter.
+#[cfg(feature = "model_64413")]
+#[unsafe(no_mangle)]
+pub extern "C" fn sunspec_model_64413_stateful(
+    adapter: *mut sunspec_modbus_lib_rs::sunspec::models::model_64413::Model64413StatefulPtrAdapter,
+) -> SunspecAdapter {
+    SunspecAdapter {
+        model_spec: &sunspec_modbus_lib_rs::sunspec::models::model_64413::SUNSPEC_MODEL_64413,
+        kind: SUNSPEC_ADAPTER_STATEFUL,
         adapter: adapter as *mut c_void,
     }
 }

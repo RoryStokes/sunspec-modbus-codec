@@ -1197,6 +1197,259 @@ impl<const STORED_CURVE_COUNT: usize, const NUMBER_OF_POINTS: usize> WriteAdapte
     }
 }
 
+/// Each repeating-group field points to the first element of a caller-allocated array with at least as many elements as that group's repeat count (the `repeat_count_*` passed for this model); a shorter array is undefined behaviour.
+#[repr(C)]
+pub struct Model706StatefulPtrAdapter {
+    /// DER Volt-Watt Module Enable (Ena)
+    ///
+    /// Volt-Watt control enable.
+    pub der_volt_watt_module_enable: Model706Ena,
+    /// Adopt Curve Request (AdptCrvReq)
+    ///
+    /// Index of curve points to adopt. First curve index is 1.
+    pub adopt_curve_request: u16,
+    /// Adopt Curve Result (AdptCrvRslt)
+    ///
+    /// Result of last adopt curve operation.
+    pub adopt_curve_result: Model706AdptCrvRslt,
+    /// Number Of Points (NPt)
+    ///
+    /// Number of curve points supported.
+    pub number_of_points: u16,
+    /// Stored Curve Count (NCrv)
+    ///
+    /// Number of stored curves supported.
+    pub stored_curve_count: u16,
+    /// Reversion Timeout (RvrtTms)
+    ///
+    /// Reversion time in seconds. 0 = No reversion time.
+    pub reversion_timeout: u32,
+    /// Reversion Time Remaining (RvrtRem)
+    ///
+    /// Reversion time remaining in seconds.
+    pub reversion_time_remaining: u32,
+    /// Reversion Curve (RvrtCrv)
+    ///
+    /// Default curve after reversion timeout.
+    pub reversion_curve: u16,
+    /// Voltage Scale Factor (V_SF)
+    ///
+    /// Scale factor for curve voltage points.
+    pub voltage_scale_factor: i16,
+    /// Watt Scale Factor (DeptRef_SF)
+    ///
+    /// Scale factor for curve watt points.
+    pub watt_scale_factor: i16,
+    /// Open-Loop Scale Factor (RspTms_SF)
+    ///
+    /// Open loop response time scale factor.
+    pub open_loop_scale_factor: i16,
+    pub stored_curves: *mut Model706StoredCurvesPtr,
+}
+
+/// Each repeating-group field points to the first element of a caller-allocated array with at least as many elements as that group's repeat count (the `repeat_count_*` passed for this model); a shorter array is undefined behaviour.
+#[repr(C)]
+pub struct Model706StoredCurvesPtr {
+    /// Active Points (ActPt)
+    ///
+    /// Number of active points.
+    pub crv_active_points: u16,
+    /// Dependent Reference (DeptRef)
+    ///
+    /// Curve dependent reference.
+    pub crv_dependent_reference: Model706DeptRef,
+    /// Open Loop Response Time (RspTms)
+    ///
+    /// Open loop response time.
+    pub crv_open_loop_response_time: u32,
+    /// Curve Access (ReadOnly)
+    ///
+    /// Curve read-write access.
+    pub crv_curve_access: Model706ReadOnly,
+    pub stored_curve_points: *mut Model706StoredCurvePointsPtr,
+}
+
+#[repr(C)]
+pub struct Model706StoredCurvePointsPtr {
+    /// Voltage Point (V)
+    ///
+    /// Curve voltage point as percentage.
+    ///
+    /// Internal curve conformance checks should be conducted when AdptCrvReq is set to 1, not on point writes.
+    pub pt_voltage_point: u16,
+    /// Dependent Reference (W)
+    ///
+    /// Active power in percent of rated active power.
+    ///
+    /// Internal curve conformance checks should be conducted when AdptCrvReq is set to 1, not on point writes.
+    pub pt_dependent_reference: i16,
+}
+
+impl ReadAdapter for Model706StatefulPtrAdapter {
+    fn der_volt_watt_module_enable(&self) -> Ena {
+        self.der_volt_watt_module_enable
+    }
+
+    fn adopt_curve_request(&self) -> u16 {
+        self.adopt_curve_request
+    }
+
+    fn adopt_curve_result(&self) -> AdptCrvRslt {
+        self.adopt_curve_result
+    }
+
+    fn number_of_points(&self) -> u16 {
+        self.number_of_points
+    }
+
+    fn stored_curve_count(&self) -> u16 {
+        self.stored_curve_count
+    }
+
+    fn reversion_timeout(&self) -> Option<u32> {
+        Some(self.reversion_timeout)
+    }
+
+    fn reversion_time_remaining(&self) -> Option<u32> {
+        Some(self.reversion_time_remaining)
+    }
+
+    fn reversion_curve(&self) -> Option<u16> {
+        Some(self.reversion_curve)
+    }
+
+    fn voltage_scale_factor(&self) -> i16 {
+        self.voltage_scale_factor
+    }
+
+    fn watt_scale_factor(&self) -> i16 {
+        self.watt_scale_factor
+    }
+
+    fn open_loop_scale_factor(&self) -> i16 {
+        self.open_loop_scale_factor
+    }
+
+    fn crv_active_points(&self, crv_index: u16) -> u16 {
+        unsafe { (*self.stored_curves.add(crv_index as usize)).crv_active_points }
+    }
+
+    fn crv_dependent_reference(&self, crv_index: u16) -> DeptRef {
+        unsafe { (*self.stored_curves.add(crv_index as usize)).crv_dependent_reference }
+    }
+
+    fn crv_open_loop_response_time(&self, crv_index: u16) -> Option<u32> {
+        Some(unsafe { (*self.stored_curves.add(crv_index as usize)).crv_open_loop_response_time })
+    }
+
+    fn crv_curve_access(&self, crv_index: u16) -> ReadOnly {
+        unsafe { (*self.stored_curves.add(crv_index as usize)).crv_curve_access }
+    }
+
+    fn pt_voltage_point(&self, crv_index: u16, pt_index: u16) -> Option<u16> {
+        Some(unsafe {
+            (*(*self.stored_curves.add(crv_index as usize))
+                .stored_curve_points
+                .add(pt_index as usize))
+            .pt_voltage_point
+        })
+    }
+
+    fn pt_dependent_reference(&self, crv_index: u16, pt_index: u16) -> Option<i16> {
+        Some(unsafe {
+            (*(*self.stored_curves.add(crv_index as usize))
+                .stored_curve_points
+                .add(pt_index as usize))
+            .pt_dependent_reference
+        })
+    }
+}
+
+impl WriteAdapter for Model706StatefulPtrAdapter {
+    /// DER Volt-Watt Module Enable (Ena)
+    ///
+    /// Volt-Watt control enable.
+    fn set_der_volt_watt_module_enable(&mut self, value: Ena) {
+        self.der_volt_watt_module_enable = value;
+    }
+
+    /// Adopt Curve Request (AdptCrvReq)
+    ///
+    /// Index of curve points to adopt. First curve index is 1.
+    fn set_adopt_curve_request(&mut self, value: u16) {
+        self.adopt_curve_request = value;
+    }
+
+    /// Reversion Timeout (RvrtTms)
+    ///
+    /// Reversion time in seconds. 0 = No reversion time.
+    fn set_reversion_timeout(&mut self, value: u32) {
+        self.reversion_timeout = value;
+    }
+
+    /// Reversion Curve (RvrtCrv)
+    ///
+    /// Default curve after reversion timeout.
+    fn set_reversion_curve(&mut self, value: u16) {
+        self.reversion_curve = value;
+    }
+
+    /// Active Points (ActPt)
+    ///
+    /// Number of active points.
+    fn set_crv_active_points(&mut self, value: u16, crv_index: u16) {
+        unsafe {
+            (*self.stored_curves.add(crv_index as usize)).crv_active_points = value;
+        }
+    }
+
+    /// Dependent Reference (DeptRef)
+    ///
+    /// Curve dependent reference.
+    fn set_crv_dependent_reference(&mut self, value: DeptRef, crv_index: u16) {
+        unsafe {
+            (*self.stored_curves.add(crv_index as usize)).crv_dependent_reference = value;
+        }
+    }
+
+    /// Open Loop Response Time (RspTms)
+    ///
+    /// Open loop response time.
+    fn set_crv_open_loop_response_time(&mut self, value: u32, crv_index: u16) {
+        unsafe {
+            (*self.stored_curves.add(crv_index as usize)).crv_open_loop_response_time = value;
+        }
+    }
+
+    /// Voltage Point (V)
+    ///
+    /// Curve voltage point as percentage.
+    ///
+    /// Internal curve conformance checks should be conducted when AdptCrvReq is set to 1, not on point writes.
+    fn set_pt_voltage_point(&mut self, value: u16, crv_index: u16, pt_index: u16) {
+        unsafe {
+            (*(*self.stored_curves.add(crv_index as usize))
+                .stored_curve_points
+                .add(pt_index as usize))
+            .pt_voltage_point = value;
+        }
+    }
+
+    /// Dependent Reference (W)
+    ///
+    /// Active power in percent of rated active power.
+    ///
+    /// Internal curve conformance checks should be conducted when AdptCrvReq is set to 1, not on point writes.
+    fn set_pt_dependent_reference(&mut self, value: i16, crv_index: u16, pt_index: u16) {
+        unsafe {
+            (*(*self.stored_curves.add(crv_index as usize))
+                .stored_curve_points
+                .add(pt_index as usize))
+            .pt_dependent_reference = value;
+        }
+    }
+}
+
 /// C-FFI dispatch descriptor for SunSpec model 706. A C `SunspecModelBinding` points
 /// at this static, so the service functions dispatch with no model-id lookup.
 #[unsafe(no_mangle)]
@@ -1232,6 +1485,7 @@ unsafe fn model_706_c_visit_read(
         number_of_points: repeat_count_1,
     };
     let adapter: Option<&dyn ReadAdapter> = match kind {
+        1 => Some(unsafe { &*(adapter as *const Model706StatefulPtrAdapter) } as &dyn ReadAdapter),
         2 => Some(unsafe { &*(adapter as *const Model706CallbackAdapter) } as &dyn ReadAdapter),
         _ => None,
     };
@@ -1262,6 +1516,9 @@ unsafe fn model_706_c_visit_write(
         number_of_points: repeat_count_1,
     };
     let adapter: Option<&mut dyn WriteAdapter> = match kind {
+        1 => Some(
+            unsafe { &mut *(adapter as *mut Model706StatefulPtrAdapter) } as &mut dyn WriteAdapter,
+        ),
         2 => {
             Some(unsafe { &mut *(adapter as *mut Model706CallbackAdapter) } as &mut dyn WriteAdapter)
         }

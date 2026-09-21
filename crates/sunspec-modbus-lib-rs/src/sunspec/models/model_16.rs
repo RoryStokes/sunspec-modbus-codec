@@ -719,7 +719,7 @@ impl WriteAdapter for Model16StatefulAdapter {
     ///
     /// Interface name. (8 chars)
     fn set_name(&mut self, value: &CStr) {
-        for (dest, src) in self.name.iter_mut().zip(value.to_bytes_with_nul().iter()) {
+        for (dest, src) in &mut self.name.iter_mut().zip(value.to_bytes_with_nul().iter()) {
             *dest = *src as c_char;
         }
     }
@@ -735,7 +735,7 @@ impl WriteAdapter for Model16StatefulAdapter {
     ///
     /// IP address
     fn set_address(&mut self, value: &CStr) {
-        for (dest, src) in self
+        for (dest, src) in &mut self
             .address
             .iter_mut()
             .zip(value.to_bytes_with_nul().iter())
@@ -748,7 +748,7 @@ impl WriteAdapter for Model16StatefulAdapter {
     ///
     /// Netmask
     fn set_netmask(&mut self, value: &CStr) {
-        for (dest, src) in self
+        for (dest, src) in &mut self
             .netmask
             .iter_mut()
             .zip(value.to_bytes_with_nul().iter())
@@ -761,7 +761,7 @@ impl WriteAdapter for Model16StatefulAdapter {
     ///
     /// Gateway IP address
     fn set_gateway(&mut self, value: &CStr) {
-        for (dest, src) in self
+        for (dest, src) in &mut self
             .gateway
             .iter_mut()
             .zip(value.to_bytes_with_nul().iter())
@@ -774,7 +774,7 @@ impl WriteAdapter for Model16StatefulAdapter {
     ///
     /// 32 bit IP address of DNS server
     fn set_dns1(&mut self, value: &CStr) {
-        for (dest, src) in self.dns1.iter_mut().zip(value.to_bytes_with_nul().iter()) {
+        for (dest, src) in &mut self.dns1.iter_mut().zip(value.to_bytes_with_nul().iter()) {
             *dest = *src as c_char;
         }
     }
@@ -783,7 +783,7 @@ impl WriteAdapter for Model16StatefulAdapter {
     ///
     /// 32 bit IP address of DNS server
     fn set_dns2(&mut self, value: &CStr) {
-        for (dest, src) in self.dns2.iter_mut().zip(value.to_bytes_with_nul().iter()) {
+        for (dest, src) in &mut self.dns2.iter_mut().zip(value.to_bytes_with_nul().iter()) {
             *dest = *src as c_char;
         }
     }

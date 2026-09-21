@@ -1038,7 +1038,7 @@ impl WriteAdapter for Model13StatefulAdapter {
     ///
     /// Interface name
     fn set_name(&mut self, value: &CStr) {
-        for (dest, src) in self.name.iter_mut().zip(value.to_bytes_with_nul().iter()) {
+        for (dest, src) in &mut self.name.iter_mut().zip(value.to_bytes_with_nul().iter()) {
             *dest = *src as c_char;
         }
     }
@@ -1061,7 +1061,7 @@ impl WriteAdapter for Model13StatefulAdapter {
     ///
     /// IPv6 numeric address as a dotted string xxxx.xxxx.xxxx.xxxx
     fn set_ip(&mut self, value: &CStr) {
-        for (dest, src) in self.ip.iter_mut().zip(value.to_bytes_with_nul().iter()) {
+        for (dest, src) in &mut self.ip.iter_mut().zip(value.to_bytes_with_nul().iter()) {
             *dest = *src as c_char;
         }
     }
@@ -1070,7 +1070,7 @@ impl WriteAdapter for Model13StatefulAdapter {
     ///
     /// Classless Inter-Domain Routing Number
     fn set_cidr(&mut self, value: &CStr) {
-        for (dest, src) in self.cidr.iter_mut().zip(value.to_bytes_with_nul().iter()) {
+        for (dest, src) in &mut self.cidr.iter_mut().zip(value.to_bytes_with_nul().iter()) {
             *dest = *src as c_char;
         }
     }
@@ -1079,7 +1079,7 @@ impl WriteAdapter for Model13StatefulAdapter {
     ///
     /// IPv6 numeric address as a dotted string xxxx.xxxx.xxxx.xxxx
     fn set_gateway(&mut self, value: &CStr) {
-        for (dest, src) in self
+        for (dest, src) in &mut self
             .gateway
             .iter_mut()
             .zip(value.to_bytes_with_nul().iter())
@@ -1092,7 +1092,7 @@ impl WriteAdapter for Model13StatefulAdapter {
     ///
     /// IPv6 numeric DNS address as a dotted string xxxx.xxxx.xxxx.xxxx
     fn set_dns1(&mut self, value: &CStr) {
-        for (dest, src) in self.dns1.iter_mut().zip(value.to_bytes_with_nul().iter()) {
+        for (dest, src) in &mut self.dns1.iter_mut().zip(value.to_bytes_with_nul().iter()) {
             *dest = *src as c_char;
         }
     }
@@ -1101,7 +1101,7 @@ impl WriteAdapter for Model13StatefulAdapter {
     ///
     /// IPv6 numeric DNS address as a dotted string xxxx.xxxx.xxxx.xxxx
     fn set_dns2(&mut self, value: &CStr) {
-        for (dest, src) in self.dns2.iter_mut().zip(value.to_bytes_with_nul().iter()) {
+        for (dest, src) in &mut self.dns2.iter_mut().zip(value.to_bytes_with_nul().iter()) {
             *dest = *src as c_char;
         }
     }
@@ -1110,7 +1110,7 @@ impl WriteAdapter for Model13StatefulAdapter {
     ///
     /// IPv6 numeric NTP address as a name or dotted string xxxx.xxxx.xxxx.xxxx
     fn set_ntp1(&mut self, value: &CStr) {
-        for (dest, src) in self.ntp1.iter_mut().zip(value.to_bytes_with_nul().iter()) {
+        for (dest, src) in &mut self.ntp1.iter_mut().zip(value.to_bytes_with_nul().iter()) {
             *dest = *src as c_char;
         }
     }
@@ -1119,7 +1119,7 @@ impl WriteAdapter for Model13StatefulAdapter {
     ///
     /// IPv6 numeric NTP address as a name or dotted string xxxx.xxxx.xxxx.xxxx
     fn set_ntp2(&mut self, value: &CStr) {
-        for (dest, src) in self.ntp2.iter_mut().zip(value.to_bytes_with_nul().iter()) {
+        for (dest, src) in &mut self.ntp2.iter_mut().zip(value.to_bytes_with_nul().iter()) {
             *dest = *src as c_char;
         }
     }
@@ -1128,7 +1128,7 @@ impl WriteAdapter for Model13StatefulAdapter {
     ///
     /// Domain name (24 chars max)
     fn set_domain(&mut self, value: &CStr) {
-        for (dest, src) in self.domain.iter_mut().zip(value.to_bytes_with_nul().iter()) {
+        for (dest, src) in &mut self.domain.iter_mut().zip(value.to_bytes_with_nul().iter()) {
             *dest = *src as c_char;
         }
     }
@@ -1137,7 +1137,7 @@ impl WriteAdapter for Model13StatefulAdapter {
     ///
     /// Host name (24 chars max)
     fn set_host_name(&mut self, value: &CStr) {
-        for (dest, src) in self
+        for (dest, src) in &mut self
             .host_name
             .iter_mut()
             .zip(value.to_bytes_with_nul().iter())

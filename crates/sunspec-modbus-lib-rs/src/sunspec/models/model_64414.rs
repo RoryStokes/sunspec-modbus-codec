@@ -686,7 +686,7 @@ impl WriteAdapter for Model64414StatefulAdapter {
     ///
     /// The data source for the grid model. 'csv' or 'const'
     fn set_grid_model_source(&mut self, value: &CStr) {
-        for (dest, src) in self
+        for (dest, src) in &mut self
             .grid_model_source
             .iter_mut()
             .zip(value.to_bytes_with_nul().iter())
@@ -699,7 +699,7 @@ impl WriteAdapter for Model64414StatefulAdapter {
     ///
     /// The data source for the irradiance model. 'csv' or 'const'
     fn set_irradiance_model_source(&mut self, value: &CStr) {
-        for (dest, src) in self
+        for (dest, src) in &mut self
             .irradiance_model_source
             .iter_mut()
             .zip(value.to_bytes_with_nul().iter())
