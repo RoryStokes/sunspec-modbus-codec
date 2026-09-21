@@ -263,7 +263,7 @@ rand = { workspace = true }
 rmodbus = { workspace = true }
 heapless = { workspace = true }
 embassy-executor = { workspace = true }
-embassy-net = { workspace = true }
+embassy-net = { workspace = true, features = ["tcp", "proto-ipv4", "medium-ethernet"] }
 embassy-net-tuntap = { workspace = true }
 embassy-time = { workspace = true }
 embedded-io-async = { workspace = true }
