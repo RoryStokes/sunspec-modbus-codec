@@ -247,6 +247,10 @@ model_64415 = []
 name = "tokio-modbus"
 required-features = ["model_103", "model_708"]
 
+[[example]]
+name = "rmodbus"
+required-features = ["model_103", "model_708"]
+
 [dependencies]
 bytemuck = { workspace = true }
 sunspec-modbus-derive = { workspace = true }
@@ -256,3 +260,11 @@ hex.workspace = true
 tokio = { workspace = true, features = ["time"] }
 tokio-modbus = { workspace = true, default-features = false, features = ["tcp-server"] }
 rand = { workspace = true }
+rmodbus = { workspace = true }
+heapless = { workspace = true }
+embassy-executor = { workspace = true }
+embassy-net = { workspace = true }
+embassy-net-tuntap = { workspace = true }
+embassy-time = { workspace = true }
+embedded-io-async = { workspace = true }
+static_cell = { workspace = true }
