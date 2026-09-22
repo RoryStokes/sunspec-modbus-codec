@@ -249,7 +249,7 @@ required-features = ["model_103", "model_708"]
 
 [[example]]
 name = "rmodbus"
-required-features = ["model_103", "model_708"]
+required-features = ["model_1", "model_103", "model_708"]
 
 [dependencies]
 bytemuck = { workspace = true }
