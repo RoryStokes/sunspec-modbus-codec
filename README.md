@@ -106,7 +106,7 @@ LIBMODBUS_PREFIX=/opt/homebrew/opt/libmodbus
 
 An example can be compiled and executed using the following steps (you will need a Sunspec MODBUS client to drive it):
 ```sh
-cargo build --release -p sunspec-modbus-lib-static --features model_103,model_708
+cargo build --release -p sunspecmodbus --features model_103,model_708
 cc crates/sunspec-modbus-lib-static/examples/libmodbus.c \
   -DSUNSPEC_MODEL_103_ENABLED \
   -DSUNSPEC_MODEL_708_ENABLED \

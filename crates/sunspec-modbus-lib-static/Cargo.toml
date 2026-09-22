@@ -1,5 +1,5 @@
 [package]
-name = "sunspec-modbus-lib-static"
+name = "sunspecmodbus"
 version = "0.1.0"
 edition = "2024"
 
