@@ -6,6 +6,12 @@ members = [
     "crates/sunspec-modbus-derive",
     "crates/sunspec-gen"
 ]
+# The output of sunspec-gen is committed to the repository - it only needs to be rebuilt if the models or codegen are changing.
+default-members = [
+    "crates/sunspec-modbus-lib-rs",
+    "crates/sunspec-modbus-lib-static",
+    "crates/sunspec-modbus-derive",
+]
 
 [profile.dev]
 lto = true
