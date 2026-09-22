@@ -11,8 +11,9 @@ pub const STARTING_REGISTER_OFFSET: u16 = 40000;
 /// The `SunS` identifier that precedes every SunSpec model in the map.
 const SUNS_HEADER_WORDS: u16 = 2;
 
+/// The SunSpec end-model header: model id `0xFFFF` with a model length of `0`.
 const SUNS_END_MODEL: [u8; 4] = [0xff, 0xff, 0x00, 0x00];
-
+const SUNS_END_MODEL_WORDS: u16 = (SUNS_END_MODEL.len() / 2) as u16;
 /// A single SunSpec model: how long its register block is, and how to encode/decode its
 /// points against a model-specific read or write adapter.
 ///
