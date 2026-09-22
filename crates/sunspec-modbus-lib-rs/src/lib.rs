@@ -203,6 +203,7 @@ mod tests {
     /// writable subset (positions 0, 1) rather than reusing the original struct's positions
     /// (0, 2) - otherwise this would either fail to compile or write through the wrong adapter.
     #[test]
+    #[cfg(feature = "test-models")]
     fn derived_tuple_struct_model_list_write_indexes_the_writable_subset() {
         #[derive(ModelList)]
         struct Trio(model_1::Model1, model_701::Model701, model_704::Model704);
@@ -253,6 +254,7 @@ mod tests {
     /// derived `ModelList`'s `Sunspec` wrapper, rather than just the binding order `write_iter`
     /// produces.
     #[test]
+    #[cfg(feature = "test-models")]
     fn derived_tuple_struct_model_list_write_reaches_the_right_adapter()
     -> Result<(), ModbusException> {
         #[derive(ModelList)]
