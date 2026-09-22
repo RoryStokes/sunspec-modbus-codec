@@ -130,6 +130,20 @@ fn handle_request(request: &[u8]) -> Result<Option<heapless::Vec<u8, 256>>, Erro
     }
 }
 
+/// Number of bytes of a Modbus TCP ADU that precede the length field's own count: the
+/// transaction identifier, protocol identifier and length field itself.
+const MBAP_LENGTH_OFFSET: usize = 6;
+
+/// Returns the total ADU length (MBAP header, including the unit identifier, plus PDU) once
+/// enough of `buf` has arrived to read the MBAP length field, per the Modbus TCP framing in the
+/// spec (unlike serial Modbus, TCP has no inter-frame silence to mark boundaries, so this length
+/// field is the only way to tell where one request ends and the next begins).
+fn mbap_frame_len(buf: &[u8]) -> Option<usize> {
+    let header = buf.get(..MBAP_LENGTH_OFFSET)?;
+    let length_field = u16::from_be_bytes([header[4], header[5]]) as usize;
+    Some(MBAP_LENGTH_OFFSET + length_field)
+}
+
 /// Accepts one connection at a time on [`MODBUS_PORT`], answering requests until the client
 /// disconnects or sends something unparseable.
 #[embassy_executor::task]
@@ -143,19 +157,40 @@ async fn modbus_server(stack: Stack<'static>) {
             continue;
         }
 
-        let mut request: ModbusFrameBuf = [0; 256];
-        while let Ok(len @ 1..) = socket.read(&mut request).await {
-            match handle_request(&request[..len]) {
-                Ok(Some(response)) => {
-                    if socket.write_all(&response).await.is_err() {
-                        break;
-                    }
+        let mut buf: ModbusFrameBuf = [0; 256];
+        let mut len = 0;
+        'connection: while let Ok(n) = socket.read(&mut buf[len..]).await
+            && n > 0
+        {
+            len += n;
+
+            // Drain every complete frame already buffered before reading more: a single read can
+            // return several coalesced requests at once.
+            while let Some(frame_len) = mbap_frame_len(&buf[..len]) {
+                if frame_len > buf.len() {
+                    // Declares more data than the buffer, and so more than rmodbus supports.
+                    break 'connection;
                 }
-                Ok(None) => {}
-                Err(_) => break,
+                if frame_len > len {
+                    // Frame isn't fully buffered yet.
+                    break;
+                }
+
+                match handle_request(&buf[..frame_len]) {
+                    Ok(Some(response)) => {
+                        if socket.write_all(&response).await.is_err() {
+                            break 'connection;
+                        }
+                    }
+                    Ok(None) => {}
+                    Err(_) => break 'connection,
+                }
+
+                // Advance to the next frame
+                buf.copy_within(frame_len..len, 0);
+                len -= frame_len;
             }
         }
-
         socket.abort();
         let _ = socket.flush().await;
     }
