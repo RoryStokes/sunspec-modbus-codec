@@ -60,10 +60,52 @@ includes the other parameters required to safely cast to the specific implementa
 traversal methods.
 
 ## Crates
+
+### sunspec-modbus-lib-rs
+This is the core Rust crate that provides serialisation and deserialisation of SunSpec MODBUS models from a collection of
+adapters.
+
+An example can be compiled and executed using the following steps (you will need a Sunspec MODBUS client to drive it):
+```sh
+cargo run --example tokio-modbus --features "model_103","model_708"
+```
+
+### sunspec-modbus-lib-static
+This wraps a subset of the `sunspec-modbus-lib-rs` crate in a stable FFI-safe interface to allow its use from C. This is the 
+source of the c library `libsunspecmodbus`.
+
+First, declare a path to where libmodbus lives, e.g.:
+```sh
+LIBMODBUS_PREFIX=/opt/homebrew/opt/libmodbus
+```
+
+An example can be compiled and executed using the following steps (you will need a Sunspec MODBUS client to drive it):
+```sh
+cargo build --release -p sunspecmodbus --features model_103,model_708
+cc crates/sunspec-modbus-lib-static/examples/libmodbus.c \
+  -DSUNSPEC_MODEL_103_ENABLED \
+  -DSUNSPEC_MODEL_708_ENABLED \
+  -I"$LIBMODBUS_PREFIX/include" \
+  -L"$LIBMODBUS_PREFIX/lib" \
+  -o ./target/example-libmodbus.o \
+  -lmodbus \
+  -L./target/release \
+  -lsunspecmodbus \
+  -pthread
+./target/example-libmodbus.o
+```
 ### sunspec-gen
+> [!NOTE]
+> This is excluded from the default crates - as generated files are committed to the repository, this crate doesn't need 
+> to be built unless changes are being made directly to it, or the source models have been updated.
 This crate is responsible for generating the content of the `src/sunspec` directory of the `sunspec-modbus-lib-rs` crate
 described below, and C-safe wrappers for this (`src/generated.rs`) of `sunspec-modbus-lib-static`. It sources the latest 
 SunSpec MODBUS model definitions from https://github.com/sunspec/models, and generates adapter definitions for each model.
+
+These models are made available via a git submodule - before building this crate, the submodule must be resolved:
+```sh
+git submodule update --init --recursive
+```
 
 It also defines a Cargo feature per generated model (e.g. `model_1`, `model_103`), gating that model's generated code in
 both `sunspec-modbus-lib-rs` and `sunspec-modbus-lib-static`, plus an `all-models` feature aggregating all of them - see the
@@ -85,39 +127,6 @@ This repo uses [lefthook](https://github.com/evilmartians/lefthook) to do this a
 the result, so install it once per clone:
 ```sh
 lefthook install
-```
-
-### sunspec-modbus-lib-rs
-This is the core Rust crate that provides serialisation and deserialisation of SunSpec MODBUS models from a collection of
-adapters.
-
-An example can be compiled and executed using the following steps (you will need a Sunspec MODBUS client to drive it):
-```sh
-cargo run --example tokio-modbus --features "model_103","model_708"
-```
-
-### sunspec-modbus-lib-static
-This wraps a subset of the `sunspec-modbus-lib-rs` crate in a stable FFI-safe interface to allow its use from C.
-
-First, declare a path to where libmodbus lives, e.g.:
-```sh
-LIBMODBUS_PREFIX=/opt/homebrew/opt/libmodbus
-```
-
-An example can be compiled and executed using the following steps (you will need a Sunspec MODBUS client to drive it):
-```sh
-cargo build --release -p sunspecmodbus --features model_103,model_708
-cc crates/sunspec-modbus-lib-static/examples/libmodbus.c \
-  -DSUNSPEC_MODEL_103_ENABLED \
-  -DSUNSPEC_MODEL_708_ENABLED \
-  -I"$LIBMODBUS_PREFIX/include" \
-  -L"$LIBMODBUS_PREFIX/lib" \
-  -o ./target/example-libmodbus.o \
-  -lmodbus \
-  -L./target/release \
-  -lsunspec_modbus_lib_static \
-  -pthread
-./target/example-libmodbus.o
 ```
 
 ## Contribution policy
