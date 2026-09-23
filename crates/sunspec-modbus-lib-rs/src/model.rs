@@ -185,7 +185,7 @@ impl<L: ModelList> Sunspec<L> {
             read_model(model, &mut cursor, &mut buffer);
         }
 
-        let _ = cursor.visit_source_block(2, |offset, from, len| {
+        let _ = cursor.visit_source_block(SUNS_END_MODEL_WORDS, |offset, from, len| {
             buffer.slice(from, len).write_bytes(&SUNS_END_MODEL, offset);
             Ok(())
         });
