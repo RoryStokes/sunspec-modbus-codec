@@ -27,14 +27,14 @@ strip = true
 panic = "abort"
 
 [workspace.package]
-version = "0.0.1"
+version = "1.0.0-SNAPSHOT"
 license = "Apache-2.0"
 repository = "https://github.com/cuprous-au/sunspec-modbus-codec"
 readme = "README.md"
 
 [workspace.dependencies]
 # Internal workspace dependencies
-sunspec-modbus-derive = { path = "crates/sunspec-modbus-derive", version = "0.0.1" }
+sunspec-modbus-derive = { path = "crates/sunspec-modbus-derive", version = "1.0.0-SNAPSHOT" }
 
 # External dependencies
 bytemuck = "1.25.2"
