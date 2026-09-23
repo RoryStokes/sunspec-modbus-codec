@@ -44,6 +44,7 @@ jobs:
     
     # CRITICAL: Required for secure OIDC token exchange
     permissions:
+      contents: read
       id-token: write
 
     steps:
@@ -61,8 +62,8 @@ jobs:
         run: |
           TAG="${{ github.ref_name }}"
           sed -i "s/1.0.0-SNAPSHOT/${TAG#v}/g" Cargo.toml
-          cargo publish -p sunspec-modbus-derive
-          cargo publish -p sunspec-modbus-lib-rs
+          cargo publish --allow-dirty -p sunspec-modbus-derive
+          cargo publish --allow-dirty -p sunspec-modbus-lib-rs
         env:
           CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
   release:
