@@ -4,9 +4,8 @@
 
 use crate::buffer::{ReadableRegisterBuffer, WritableRegisterBuffer};
 use crate::cursor::Cursor;
-use crate::model::StaticModelSpec;
 use crate::sunspec::models::*;
-use crate::{ModbusException, ModelSpec};
+use crate::{ModbusException, ModelSpec, StaticModelSpec};
 use core::ffi::c_void;
 
 /// One model's read side: a statically known model paired with a shared borrow of

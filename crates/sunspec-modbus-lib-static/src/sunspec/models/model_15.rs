@@ -4,11 +4,10 @@
 
 use crate::SunspecAdapter;
 use core::ffi::c_void;
-use sunspec_modbus_lib_rs::ModbusException;
 use sunspec_modbus_lib_rs::buffer::{ReadableRegisterBuffer, WritableRegisterBuffer};
 use sunspec_modbus_lib_rs::cursor::Cursor;
-use sunspec_modbus_lib_rs::model::{ModelSpec, StaticModelSpec};
 use sunspec_modbus_lib_rs::sunspec::models::model_15::*;
+use sunspec_modbus_lib_rs::{ModbusException, ModelSpec, StaticModelSpec};
 
 #[repr(C)]
 pub struct Model15CallbackAdapter {

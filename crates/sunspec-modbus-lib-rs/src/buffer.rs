@@ -1,3 +1,7 @@
+//! Buffers of unsigned 16 bit words that track the expected byte ordering.
+//!
+//! These structures provide compatibility with byte handling of other libraries - which may convert to big-endian order
+//! internally.
 use core::{
     ffi::CStr,
     net::Ipv4Addr,
@@ -6,6 +10,10 @@ use core::{
 
 use crate::ModbusException;
 
+/// The order of bytes within each word of a given buffer.
+///
+/// In the case of system ordering, it's expected that the library being used for transport handles this ordering as
+/// part of encoding/decoding Modbus payloads.
 #[derive(Clone, Copy)]
 pub enum ModbusWordByteOrder {
     System,

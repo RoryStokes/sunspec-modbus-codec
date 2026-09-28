@@ -1,11 +1,4 @@
-//! `#[derive(ModelList)]` for `sunspec_modbus_lib_rs::ModelList`.
-//!
-//! Derives a [`ModelList`](https://docs.rs/sunspec-modbus-lib-rs) impl for a struct of SunSpec models - either tuple or
-//! named. This includes:
-//!  * a ReadAdapters struct covering every model,
-//!  * a WriteAdapters struct covering only the models that are writable,
-//!  * traversable Iterator impls for each of the above that pair each model with its adapter, traversed in the order of
-//!    definition in the source struct
+#![doc = include_str!("../README.md")]
 
 use proc_macro::TokenStream;
 use quote::{format_ident, quote};
@@ -77,6 +70,10 @@ fn resolve_field(index: usize, field: &syn::Field) -> syn::Result<ModelField> {
     })
 }
 
+/// Derive the ModelList implementation with associated read and write adapter structures for a given named or tuple
+/// struct.
+///
+/// The order of definition in the struct defines the order that the models will be exposed via Modbus in.
 #[proc_macro_derive(ModelList)]
 pub fn derive_model_list(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);

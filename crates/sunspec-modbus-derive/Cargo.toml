@@ -6,6 +6,7 @@ repository.workspace = true
 edition = "2024"
 description = "Provides a derive macro for convenience declaratively defining a ModelList for use in the sunspec-modbus-lib-rs library"
 publish = true
+readme = "README.md"
 
 [lib]
 proc-macro = true
