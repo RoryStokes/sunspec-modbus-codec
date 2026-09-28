@@ -2,9 +2,8 @@
 // https://github.com/sunspec/models at tag v2026-04-20.
 // Do not edit by hand - run `cargo run -p sunspec-gen` to regenerate.
 
-use crate::ModbusException;
 use crate::buffer::{ReadableRegisterBuffer, WritableRegisterBuffer};
-use crate::model::ModelSpec;
+use crate::{ModbusException, ModelSpec};
 use core::cmp::min;
 
 static POINTS: [PointDetails<()>; 91] = [

@@ -8,6 +8,10 @@ edition = "2024"
 description = "A SunSpec Modbus codec written in Rust with C bindings for fast, reliable serialisation and deserialisation of wire-compatible models."
 publish = true
 
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
 [lib]
 crate-type = ["lib"]
 

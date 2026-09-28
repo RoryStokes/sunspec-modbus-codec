@@ -224,7 +224,7 @@ pub fn generate_adapters_mod(models: &[ResolvedModel]) -> Scope {
     scope.import("crate::buffer", "ReadableRegisterBuffer");
     scope.import("crate::buffer", "WritableRegisterBuffer");
     scope.import("crate::cursor", "Cursor");
-    scope.import("crate::model", "StaticModelSpec");
+    scope.import("crate", "StaticModelSpec");
 
     let read_enum = scope
         .new_enum("ReadBinding")
@@ -1198,7 +1198,7 @@ pub fn generate_model(model: &ResolvedModel) -> Scope {
 
     scope.import("crate::buffer", "WritableRegisterBuffer");
     scope.import("crate::buffer", "ReadableRegisterBuffer");
-    scope.import("crate::model", "ModelSpec");
+    scope.import("crate", "ModelSpec");
     scope.import("crate", "ModbusException");
     scope.import("core::cmp", "min");
 
@@ -1334,8 +1334,8 @@ pub fn generate_static_model(model: &ResolvedModel) -> Option<Scope> {
     scope.import("sunspec_modbus_lib_rs::buffer", "ReadableRegisterBuffer");
     scope.import("sunspec_modbus_lib_rs", "ModbusException");
     scope.import("sunspec_modbus_lib_rs::cursor", "Cursor");
-    scope.import("sunspec_modbus_lib_rs::model", "ModelSpec");
-    scope.import("sunspec_modbus_lib_rs::model", "StaticModelSpec");
+    scope.import("sunspec_modbus_lib_rs", "ModelSpec");
+    scope.import("sunspec_modbus_lib_rs", "StaticModelSpec");
     scope.import("crate", "SunspecAdapter");
     // Glob, not a named list: besides the model marker and its `ReadAdapter`/`WriteAdapter`,
     // the callback struct's getters/setters can reference the model's own point enums (e.g.

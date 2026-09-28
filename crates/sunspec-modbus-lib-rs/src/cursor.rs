@@ -1,3 +1,8 @@
+//! Supports the co-traversal of a pair of u16 indexed collections.
+//!
+//! Given a source collection of lazily evaluated blocks, allows a u16 addressed slice to be handled in alignment with
+//! the target.
+
 use core::cmp::min;
 
 /// A mutable handle to support stepping through a u16 indexed target for some range of values.
