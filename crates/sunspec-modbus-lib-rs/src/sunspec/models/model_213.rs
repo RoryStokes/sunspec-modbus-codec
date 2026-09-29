@@ -417,7 +417,7 @@ impl<'ad> ModelSpec<'ad> for Model213 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: Option<&Self::ReadAdapter>,
+        adapter: &Self::ReadAdapter,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -477,7 +477,7 @@ impl<'ad> ModelSpec<'ad> for Model213 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model213,
-    adapter: Option<&dyn ReadAdapter>,
+    adapter: &dyn ReadAdapter,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -490,489 +490,370 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::Amps => {
-            if let Some(value) = adapter.map(|adapter| adapter.amps()) {
-                buffer.write_f32(value, offset);
-            } else {
-                buffer.write_f32(crate::not_implemented::FLOAT32, offset);
-            }
+            buffer.write_f32(adapter.amps(), offset);
         }
         Point::AmpsPhaseA => {
-            if let Some(value) = adapter.map(|adapter| adapter.amps_phase_a()) {
-                buffer.write_f32(value, offset);
-            } else {
-                buffer.write_f32(crate::not_implemented::FLOAT32, offset);
-            }
+            buffer.write_f32(adapter.amps_phase_a(), offset);
         }
         Point::AmpsPhaseB => {
-            if let Some(value) = adapter.map(|adapter| adapter.amps_phase_b()) {
-                buffer.write_f32(value, offset);
-            } else {
-                buffer.write_f32(crate::not_implemented::FLOAT32, offset);
-            }
+            buffer.write_f32(adapter.amps_phase_b(), offset);
         }
         Point::AmpsPhaseC => {
-            if let Some(value) = adapter.map(|adapter| adapter.amps_phase_c()) {
-                buffer.write_f32(value, offset);
-            } else {
-                buffer.write_f32(crate::not_implemented::FLOAT32, offset);
-            }
+            buffer.write_f32(adapter.amps_phase_c(), offset);
         }
         Point::VoltageLn => {
-            if let Some(value) = adapter.map(|adapter| adapter.voltage_ln()) {
-                buffer.write_f32(value, offset);
-            } else {
-                buffer.write_f32(crate::not_implemented::FLOAT32, offset);
-            }
+            buffer.write_f32(adapter.voltage_ln(), offset);
         }
         Point::PhaseVoltageAn => {
-            if let Some(value) = adapter.map(|adapter| adapter.phase_voltage_an()) {
-                buffer.write_f32(value, offset);
-            } else {
-                buffer.write_f32(crate::not_implemented::FLOAT32, offset);
-            }
+            buffer.write_f32(adapter.phase_voltage_an(), offset);
         }
         Point::PhaseVoltageBn => {
-            if let Some(value) = adapter.map(|adapter| adapter.phase_voltage_bn()) {
-                buffer.write_f32(value, offset);
-            } else {
-                buffer.write_f32(crate::not_implemented::FLOAT32, offset);
-            }
+            buffer.write_f32(adapter.phase_voltage_bn(), offset);
         }
         Point::PhaseVoltageCn => {
-            if let Some(value) = adapter.map(|adapter| adapter.phase_voltage_cn()) {
-                buffer.write_f32(value, offset);
-            } else {
-                buffer.write_f32(crate::not_implemented::FLOAT32, offset);
-            }
+            buffer.write_f32(adapter.phase_voltage_cn(), offset);
         }
         Point::VoltageLl => {
-            if let Some(value) = adapter.map(|adapter| adapter.voltage_ll()) {
-                buffer.write_f32(value, offset);
-            } else {
-                buffer.write_f32(crate::not_implemented::FLOAT32, offset);
-            }
+            buffer.write_f32(adapter.voltage_ll(), offset);
         }
         Point::PhaseVoltageAb => {
-            if let Some(value) = adapter.map(|adapter| adapter.phase_voltage_ab()) {
-                buffer.write_f32(value, offset);
-            } else {
-                buffer.write_f32(crate::not_implemented::FLOAT32, offset);
-            }
+            buffer.write_f32(adapter.phase_voltage_ab(), offset);
         }
         Point::PhaseVoltageBc => {
-            if let Some(value) = adapter.map(|adapter| adapter.phase_voltage_bc()) {
-                buffer.write_f32(value, offset);
-            } else {
-                buffer.write_f32(crate::not_implemented::FLOAT32, offset);
-            }
+            buffer.write_f32(adapter.phase_voltage_bc(), offset);
         }
         Point::PhaseVoltageCa => {
-            if let Some(value) = adapter.map(|adapter| adapter.phase_voltage_ca()) {
-                buffer.write_f32(value, offset);
-            } else {
-                buffer.write_f32(crate::not_implemented::FLOAT32, offset);
-            }
+            buffer.write_f32(adapter.phase_voltage_ca(), offset);
         }
         Point::Hz => {
-            if let Some(value) = adapter.map(|adapter| adapter.hz()) {
-                buffer.write_f32(value, offset);
-            } else {
-                buffer.write_f32(crate::not_implemented::FLOAT32, offset);
-            }
+            buffer.write_f32(adapter.hz(), offset);
         }
         Point::Watts => {
-            if let Some(value) = adapter.map(|adapter| adapter.watts()) {
-                buffer.write_f32(value, offset);
-            } else {
-                buffer.write_f32(crate::not_implemented::FLOAT32, offset);
-            }
+            buffer.write_f32(adapter.watts(), offset);
         }
         Point::WattsPhaseA => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.watts_phase_a()) {
+            if let Some(value) = adapter.watts_phase_a() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::WattsPhaseB => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.watts_phase_b()) {
+            if let Some(value) = adapter.watts_phase_b() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::WattsPhaseC => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.watts_phase_c()) {
+            if let Some(value) = adapter.watts_phase_c() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::Va => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.va()) {
+            if let Some(value) = adapter.va() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::VaPhaseA => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.va_phase_a()) {
+            if let Some(value) = adapter.va_phase_a() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::VaPhaseB => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.va_phase_b()) {
+            if let Some(value) = adapter.va_phase_b() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::VaPhaseC => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.va_phase_c()) {
+            if let Some(value) = adapter.va_phase_c() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::Var => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.var()) {
+            if let Some(value) = adapter.var() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::VarPhaseA => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.var_phase_a()) {
+            if let Some(value) = adapter.var_phase_a() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::VarPhaseB => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.var_phase_b()) {
+            if let Some(value) = adapter.var_phase_b() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::VarPhaseC => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.var_phase_c()) {
+            if let Some(value) = adapter.var_phase_c() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::Pf => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.pf()) {
+            if let Some(value) = adapter.pf() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::PfPhaseA => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.pf_phase_a()) {
+            if let Some(value) = adapter.pf_phase_a() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::PfPhaseB => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.pf_phase_b()) {
+            if let Some(value) = adapter.pf_phase_b() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::PfPhaseC => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.pf_phase_c()) {
+            if let Some(value) = adapter.pf_phase_c() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalWattHoursExported => {
-            if let Some(value) = adapter.map(|adapter| adapter.total_watt_hours_exported()) {
-                buffer.write_f32(value, offset);
-            } else {
-                buffer.write_f32(crate::not_implemented::FLOAT32, offset);
-            }
+            buffer.write_f32(adapter.total_watt_hours_exported(), offset);
         }
         Point::TotalWattHoursExportedPhaseA => {
-            if let Some(value) =
-                adapter.and_then(|adapter| adapter.total_watt_hours_exported_phase_a())
-            {
+            if let Some(value) = adapter.total_watt_hours_exported_phase_a() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalWattHoursExportedPhaseB => {
-            if let Some(value) =
-                adapter.and_then(|adapter| adapter.total_watt_hours_exported_phase_b())
-            {
+            if let Some(value) = adapter.total_watt_hours_exported_phase_b() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalWattHoursExportedPhaseC => {
-            if let Some(value) =
-                adapter.and_then(|adapter| adapter.total_watt_hours_exported_phase_c())
-            {
+            if let Some(value) = adapter.total_watt_hours_exported_phase_c() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalWattHoursImported => {
-            if let Some(value) = adapter.map(|adapter| adapter.total_watt_hours_imported()) {
-                buffer.write_f32(value, offset);
-            } else {
-                buffer.write_f32(crate::not_implemented::FLOAT32, offset);
-            }
+            buffer.write_f32(adapter.total_watt_hours_imported(), offset);
         }
         Point::TotalWattHoursImportedPhaseA => {
-            if let Some(value) =
-                adapter.and_then(|adapter| adapter.total_watt_hours_imported_phase_a())
-            {
+            if let Some(value) = adapter.total_watt_hours_imported_phase_a() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalWattHoursImportedPhaseB => {
-            if let Some(value) =
-                adapter.and_then(|adapter| adapter.total_watt_hours_imported_phase_b())
-            {
+            if let Some(value) = adapter.total_watt_hours_imported_phase_b() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalWattHoursImportedPhaseC => {
-            if let Some(value) =
-                adapter.and_then(|adapter| adapter.total_watt_hours_imported_phase_c())
-            {
+            if let Some(value) = adapter.total_watt_hours_imported_phase_c() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalVaHoursExported => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.total_va_hours_exported()) {
+            if let Some(value) = adapter.total_va_hours_exported() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalVaHoursExportedPhaseA => {
-            if let Some(value) =
-                adapter.and_then(|adapter| adapter.total_va_hours_exported_phase_a())
-            {
+            if let Some(value) = adapter.total_va_hours_exported_phase_a() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalVaHoursExportedPhaseB => {
-            if let Some(value) =
-                adapter.and_then(|adapter| adapter.total_va_hours_exported_phase_b())
-            {
+            if let Some(value) = adapter.total_va_hours_exported_phase_b() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalVaHoursExportedPhaseC => {
-            if let Some(value) =
-                adapter.and_then(|adapter| adapter.total_va_hours_exported_phase_c())
-            {
+            if let Some(value) = adapter.total_va_hours_exported_phase_c() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalVaHoursImported => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.total_va_hours_imported()) {
+            if let Some(value) = adapter.total_va_hours_imported() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalVaHoursImportedPhaseA => {
-            if let Some(value) =
-                adapter.and_then(|adapter| adapter.total_va_hours_imported_phase_a())
-            {
+            if let Some(value) = adapter.total_va_hours_imported_phase_a() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalVaHoursImportedPhaseB => {
-            if let Some(value) =
-                adapter.and_then(|adapter| adapter.total_va_hours_imported_phase_b())
-            {
+            if let Some(value) = adapter.total_va_hours_imported_phase_b() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalVaHoursImportedPhaseC => {
-            if let Some(value) =
-                adapter.and_then(|adapter| adapter.total_va_hours_imported_phase_c())
-            {
+            if let Some(value) = adapter.total_va_hours_imported_phase_c() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalVarHoursImportedQ1 => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.total_var_hours_imported_q1()) {
+            if let Some(value) = adapter.total_var_hours_imported_q1() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalVArHoursImportedQ1PhaseA => {
-            if let Some(value) =
-                adapter.and_then(|adapter| adapter.total_v_ar_hours_imported_q1_phase_a())
-            {
+            if let Some(value) = adapter.total_v_ar_hours_imported_q1_phase_a() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalVArHoursImportedQ1PhaseB => {
-            if let Some(value) =
-                adapter.and_then(|adapter| adapter.total_v_ar_hours_imported_q1_phase_b())
-            {
+            if let Some(value) = adapter.total_v_ar_hours_imported_q1_phase_b() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalVArHoursImportedQ1PhaseC => {
-            if let Some(value) =
-                adapter.and_then(|adapter| adapter.total_v_ar_hours_imported_q1_phase_c())
-            {
+            if let Some(value) = adapter.total_v_ar_hours_imported_q1_phase_c() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalVArHoursImportedQ2 => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.total_v_ar_hours_imported_q2())
-            {
+            if let Some(value) = adapter.total_v_ar_hours_imported_q2() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalVArHoursImportedQ2PhaseA => {
-            if let Some(value) =
-                adapter.and_then(|adapter| adapter.total_v_ar_hours_imported_q2_phase_a())
-            {
+            if let Some(value) = adapter.total_v_ar_hours_imported_q2_phase_a() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalVArHoursImportedQ2PhaseB => {
-            if let Some(value) =
-                adapter.and_then(|adapter| adapter.total_v_ar_hours_imported_q2_phase_b())
-            {
+            if let Some(value) = adapter.total_v_ar_hours_imported_q2_phase_b() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalVArHoursImportedQ2PhaseC => {
-            if let Some(value) =
-                adapter.and_then(|adapter| adapter.total_v_ar_hours_imported_q2_phase_c())
-            {
+            if let Some(value) = adapter.total_v_ar_hours_imported_q2_phase_c() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalVArHoursExportedQ3 => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.total_v_ar_hours_exported_q3())
-            {
+            if let Some(value) = adapter.total_v_ar_hours_exported_q3() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalVArHoursExportedQ3PhaseA => {
-            if let Some(value) =
-                adapter.and_then(|adapter| adapter.total_v_ar_hours_exported_q3_phase_a())
-            {
+            if let Some(value) = adapter.total_v_ar_hours_exported_q3_phase_a() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalVArHoursExportedQ3PhaseB => {
-            if let Some(value) =
-                adapter.and_then(|adapter| adapter.total_v_ar_hours_exported_q3_phase_b())
-            {
+            if let Some(value) = adapter.total_v_ar_hours_exported_q3_phase_b() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalVArHoursExportedQ3PhaseC => {
-            if let Some(value) =
-                adapter.and_then(|adapter| adapter.total_v_ar_hours_exported_q3_phase_c())
-            {
+            if let Some(value) = adapter.total_v_ar_hours_exported_q3_phase_c() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalVArHoursExportedQ4 => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.total_v_ar_hours_exported_q4())
-            {
+            if let Some(value) = adapter.total_v_ar_hours_exported_q4() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalVArHoursExportedQ4ImportedPhaseA => {
-            if let Some(value) =
-                adapter.and_then(|adapter| adapter.total_v_ar_hours_exported_q4_imported_phase_a())
-            {
+            if let Some(value) = adapter.total_v_ar_hours_exported_q4_imported_phase_a() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalVArHoursExportedQ4ImportedPhaseB => {
-            if let Some(value) =
-                adapter.and_then(|adapter| adapter.total_v_ar_hours_exported_q4_imported_phase_b())
-            {
+            if let Some(value) = adapter.total_v_ar_hours_exported_q4_imported_phase_b() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::TotalVArHoursExportedQ4ImportedPhaseC => {
-            if let Some(value) =
-                adapter.and_then(|adapter| adapter.total_v_ar_hours_exported_q4_imported_phase_c())
-            {
+            if let Some(value) = adapter.total_v_ar_hours_exported_q4_imported_phase_c() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::Events => {
-            if let Some(value) = adapter.map(|adapter| adapter.events()) {
-                buffer.write_u32(value, offset);
-            } else {
-                buffer.write_u32(crate::not_implemented::BITFIELD32, offset);
-            }
+            buffer.write_u32(adapter.events(), offset);
         }
     }
 }

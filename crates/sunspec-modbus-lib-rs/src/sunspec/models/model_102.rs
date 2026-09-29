@@ -303,7 +303,7 @@ impl<'ad> ModelSpec<'ad> for Model102 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: Option<&Self::ReadAdapter>,
+        adapter: &Self::ReadAdapter,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -363,7 +363,7 @@ impl<'ad> ModelSpec<'ad> for Model102 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model102,
-    adapter: Option<&dyn ReadAdapter>,
+    adapter: &dyn ReadAdapter,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -376,301 +376,229 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::Amps => {
-            if let Some(value) = adapter.map(|adapter| adapter.amps()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.amps());
         }
         Point::AmpsPhaseA => {
-            if let Some(value) = adapter.map(|adapter| adapter.amps_phase_a()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.amps_phase_a());
         }
         Point::AmpsPhaseB => {
-            if let Some(value) = adapter.map(|adapter| adapter.amps_phase_b()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.amps_phase_b());
         }
         Point::AmpsPhaseC => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.amps_phase_c()) {
+            if let Some(value) = adapter.amps_phase_c() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::ASf => {
-            if let Some(value) = adapter.map(|adapter| adapter.a_sf()) {
-                buffer.write_i16(value);
-            } else {
-                buffer.write_i16(crate::not_implemented::SUNSSF);
-            }
+            buffer.write_i16(adapter.a_sf());
         }
         Point::PhaseVoltageAb => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.phase_voltage_ab()) {
+            if let Some(value) = adapter.phase_voltage_ab() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::PhaseVoltageBc => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.phase_voltage_bc()) {
+            if let Some(value) = adapter.phase_voltage_bc() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::PhaseVoltageCa => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.phase_voltage_ca()) {
+            if let Some(value) = adapter.phase_voltage_ca() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::PhaseVoltageAn => {
-            if let Some(value) = adapter.map(|adapter| adapter.phase_voltage_an()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.phase_voltage_an());
         }
         Point::PhaseVoltageBn => {
-            if let Some(value) = adapter.map(|adapter| adapter.phase_voltage_bn()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.phase_voltage_bn());
         }
         Point::PhaseVoltageCn => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.phase_voltage_cn()) {
+            if let Some(value) = adapter.phase_voltage_cn() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::VSf => {
-            if let Some(value) = adapter.map(|adapter| adapter.v_sf()) {
-                buffer.write_i16(value);
-            } else {
-                buffer.write_i16(crate::not_implemented::SUNSSF);
-            }
+            buffer.write_i16(adapter.v_sf());
         }
         Point::Watts => {
-            if let Some(value) = adapter.map(|adapter| adapter.watts()) {
-                buffer.write_i16(value);
-            } else {
-                buffer.write_i16(crate::not_implemented::INT16);
-            }
+            buffer.write_i16(adapter.watts());
         }
         Point::WSf => {
-            if let Some(value) = adapter.map(|adapter| adapter.w_sf()) {
-                buffer.write_i16(value);
-            } else {
-                buffer.write_i16(crate::not_implemented::SUNSSF);
-            }
+            buffer.write_i16(adapter.w_sf());
         }
         Point::Hz => {
-            if let Some(value) = adapter.map(|adapter| adapter.hz()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.hz());
         }
         Point::HzSf => {
-            if let Some(value) = adapter.map(|adapter| adapter.hz_sf()) {
-                buffer.write_i16(value);
-            } else {
-                buffer.write_i16(crate::not_implemented::SUNSSF);
-            }
+            buffer.write_i16(adapter.hz_sf());
         }
         Point::Va => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.va()) {
+            if let Some(value) = adapter.va() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::VaSf => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.va_sf()) {
+            if let Some(value) = adapter.va_sf() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::SUNSSF);
             }
         }
         Point::VAr => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.v_ar()) {
+            if let Some(value) = adapter.v_ar() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::VArSf => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.v_ar_sf()) {
+            if let Some(value) = adapter.v_ar_sf() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::SUNSSF);
             }
         }
         Point::Pf => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.pf()) {
+            if let Some(value) = adapter.pf() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::PfSf => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.pf_sf()) {
+            if let Some(value) = adapter.pf_sf() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::SUNSSF);
             }
         }
         Point::WattHours => {
-            if let Some(value) = adapter.map(|adapter| adapter.watt_hours()) {
-                buffer.write_u32(value, offset);
-            } else {
-                buffer.zero();
-            }
+            buffer.write_u32(adapter.watt_hours(), offset);
         }
         Point::WhSf => {
-            if let Some(value) = adapter.map(|adapter| adapter.wh_sf()) {
-                buffer.write_i16(value);
-            } else {
-                buffer.write_i16(crate::not_implemented::SUNSSF);
-            }
+            buffer.write_i16(adapter.wh_sf());
         }
         Point::DcAmps => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.dc_amps()) {
+            if let Some(value) = adapter.dc_amps() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::DcaSf => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.dca_sf()) {
+            if let Some(value) = adapter.dca_sf() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::SUNSSF);
             }
         }
         Point::DcVoltage => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.dc_voltage()) {
+            if let Some(value) = adapter.dc_voltage() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::DcvSf => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.dcv_sf()) {
+            if let Some(value) = adapter.dcv_sf() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::SUNSSF);
             }
         }
         Point::DcWatts => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.dc_watts()) {
+            if let Some(value) = adapter.dc_watts() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::DcwSf => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.dcw_sf()) {
+            if let Some(value) = adapter.dcw_sf() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::SUNSSF);
             }
         }
         Point::CabinetTemperature => {
-            if let Some(value) = adapter.map(|adapter| adapter.cabinet_temperature()) {
-                buffer.write_i16(value);
-            } else {
-                buffer.write_i16(crate::not_implemented::INT16);
-            }
+            buffer.write_i16(adapter.cabinet_temperature());
         }
         Point::HeatSinkTemperature => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.heat_sink_temperature()) {
+            if let Some(value) = adapter.heat_sink_temperature() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::TransformerTemperature => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.transformer_temperature()) {
+            if let Some(value) = adapter.transformer_temperature() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::OtherTemperature => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.other_temperature()) {
+            if let Some(value) = adapter.other_temperature() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::TmpSf => {
-            if let Some(value) = adapter.map(|adapter| adapter.tmp_sf()) {
-                buffer.write_i16(value);
-            } else {
-                buffer.write_i16(crate::not_implemented::SUNSSF);
-            }
+            buffer.write_i16(adapter.tmp_sf());
         }
         Point::OperatingState => {
-            if let Some(value) = adapter.map(|adapter| adapter.operating_state()) {
-                buffer.write_u16(value as u16);
-            } else {
-                buffer.write_u16(crate::not_implemented::ENUM16);
-            }
+            buffer.write_u16(adapter.operating_state() as u16);
         }
         Point::VendorOperatingState => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.vendor_operating_state()) {
+            if let Some(value) = adapter.vendor_operating_state() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::Event1 => {
-            if let Some(value) = adapter.map(|adapter| adapter.event1()) {
-                buffer.write_u32(value, offset);
-            } else {
-                buffer.write_u32(crate::not_implemented::BITFIELD32, offset);
-            }
+            buffer.write_u32(adapter.event1(), offset);
         }
         Point::EventBitfield2 => {
-            if let Some(value) = adapter.map(|adapter| adapter.event_bitfield_2()) {
-                buffer.write_u32(value, offset);
-            } else {
-                buffer.write_u32(crate::not_implemented::BITFIELD32, offset);
-            }
+            buffer.write_u32(adapter.event_bitfield_2(), offset);
         }
         Point::VendorEventBitfield1 => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.vendor_event_bitfield_1()) {
+            if let Some(value) = adapter.vendor_event_bitfield_1() {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.write_u32(crate::not_implemented::BITFIELD32, offset);
             }
         }
         Point::VendorEventBitfield2 => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.vendor_event_bitfield_2()) {
+            if let Some(value) = adapter.vendor_event_bitfield_2() {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.write_u32(crate::not_implemented::BITFIELD32, offset);
             }
         }
         Point::VendorEventBitfield3 => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.vendor_event_bitfield_3()) {
+            if let Some(value) = adapter.vendor_event_bitfield_3() {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.write_u32(crate::not_implemented::BITFIELD32, offset);
             }
         }
         Point::VendorEventBitfield4 => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.vendor_event_bitfield_4()) {
+            if let Some(value) = adapter.vendor_event_bitfield_4() {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.write_u32(crate::not_implemented::BITFIELD32, offset);

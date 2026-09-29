@@ -106,7 +106,7 @@ impl<'ad> ModelSpec<'ad> for Model7 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: Option<&Self::ReadAdapter>,
+        adapter: &Self::ReadAdapter,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -176,7 +176,7 @@ impl<'ad> ModelSpec<'ad> for Model7 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model7,
-    adapter: Option<&dyn ReadAdapter>,
+    adapter: &dyn ReadAdapter,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -189,70 +189,34 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::RequestSequence => {
-            if let Some(value) = adapter.map(|adapter| adapter.request_sequence()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.request_sequence());
         }
         Point::Status => {
-            if let Some(value) = adapter.map(|adapter| adapter.status()) {
-                buffer.write_u16(value as u16);
-            } else {
-                buffer.write_u16(crate::not_implemented::ENUM16);
-            }
+            buffer.write_u16(adapter.status() as u16);
         }
         Point::Timestamp => {
-            if let Some(value) = adapter.map(|adapter| adapter.timestamp()) {
-                buffer.write_u32(value, offset);
-            } else {
-                buffer.write_u32(crate::not_implemented::UINT32, offset);
-            }
+            buffer.write_u32(adapter.timestamp(), offset);
         }
         Point::Milliseconds => {
-            if let Some(value) = adapter.map(|adapter| adapter.milliseconds()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.milliseconds());
         }
         Point::Sequence => {
-            if let Some(value) = adapter.map(|adapter| adapter.sequence()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.sequence());
         }
         Point::Alarm => {
-            if let Some(value) = adapter.map(|adapter| adapter.alarm()) {
-                buffer.write_u16(value as u16);
-            } else {
-                buffer.write_u16(crate::not_implemented::ENUM16);
-            }
+            buffer.write_u16(adapter.alarm() as u16);
         }
         Point::Rsrvd => {
             buffer.write_u16(crate::not_implemented::PAD);
         }
         Point::Algorithm => {
-            if let Some(value) = adapter.map(|adapter| adapter.algorithm()) {
-                buffer.write_u16(value as u16);
-            } else {
-                buffer.write_u16(crate::not_implemented::ENUM16);
-            }
+            buffer.write_u16(adapter.algorithm() as u16);
         }
         Point::N => {
-            if let Some(value) = adapter.map(|adapter| adapter.n()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.n());
         }
         Point::RepeatingDs => {
-            if let Some(value) = adapter.map(|adapter| adapter.repeating_ds()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.repeating_ds());
         }
     }
 }

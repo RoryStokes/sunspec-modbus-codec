@@ -75,7 +75,7 @@ impl<'ad> ModelSpec<'ad> for Model715 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: Option<&Self::ReadAdapter>,
+        adapter: &Self::ReadAdapter,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -135,7 +135,7 @@ impl<'ad> ModelSpec<'ad> for Model715 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model715,
-    adapter: Option<&dyn ReadAdapter>,
+    adapter: &dyn ReadAdapter,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -148,35 +148,35 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(7);
         }
         Point::ControlMode => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.control_mode()) {
+            if let Some(value) = adapter.control_mode() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::DerHeartbeat => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.der_heartbeat()) {
+            if let Some(value) = adapter.der_heartbeat() {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.write_u32(crate::not_implemented::UINT32, offset);
             }
         }
         Point::ControllerHeartbeat => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.controller_heartbeat()) {
+            if let Some(value) = adapter.controller_heartbeat() {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.write_u32(crate::not_implemented::UINT32, offset);
             }
         }
         Point::AlarmReset => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.alarm_reset()) {
+            if let Some(value) = adapter.alarm_reset() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::Operation => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.operation()) {
+            if let Some(value) = adapter.operation() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);

@@ -88,7 +88,7 @@ impl<'ad> ModelSpec<'ad> for Model1 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: Option<&Self::ReadAdapter>,
+        adapter: &Self::ReadAdapter,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -148,7 +148,7 @@ impl<'ad> ModelSpec<'ad> for Model1 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model1,
-    adapter: Option<&dyn ReadAdapter>,
+    adapter: &dyn ReadAdapter,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -161,42 +161,30 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::Manufacturer => {
-            if let Some(value) = adapter.map(|adapter| adapter.manufacturer()) {
-                buffer.write_string(value, offset);
-            } else {
-                buffer.zero();
-            }
+            buffer.write_string(adapter.manufacturer(), offset);
         }
         Point::Model => {
-            if let Some(value) = adapter.map(|adapter| adapter.model()) {
-                buffer.write_string(value, offset);
-            } else {
-                buffer.zero();
-            }
+            buffer.write_string(adapter.model(), offset);
         }
         Point::Options => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.options()) {
+            if let Some(value) = adapter.options() {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Version => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.version()) {
+            if let Some(value) = adapter.version() {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::SerialNumber => {
-            if let Some(value) = adapter.map(|adapter| adapter.serial_number()) {
-                buffer.write_string(value, offset);
-            } else {
-                buffer.zero();
-            }
+            buffer.write_string(adapter.serial_number(), offset);
         }
         Point::DeviceAddress => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.device_address()) {
+            if let Some(value) = adapter.device_address() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);

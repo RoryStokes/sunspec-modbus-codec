@@ -93,7 +93,7 @@ impl<'ad> ModelSpec<'ad> for Model145 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: Option<&Self::ReadAdapter>,
+        adapter: &Self::ReadAdapter,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -153,7 +153,7 @@ impl<'ad> ModelSpec<'ad> for Model145 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model145,
-    adapter: Option<&dyn ReadAdapter>,
+    adapter: &dyn ReadAdapter,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -166,56 +166,56 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::RampUpRate => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.ramp_up_rate()) {
+            if let Some(value) = adapter.ramp_up_rate() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::NomRmpDnRte => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.nom_rmp_dn_rte()) {
+            if let Some(value) = adapter.nom_rmp_dn_rte() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::EmergencyRampUpRate => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.emergency_ramp_up_rate()) {
+            if let Some(value) = adapter.emergency_ramp_up_rate() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::EmergencyRampDownRate => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.emergency_ramp_down_rate()) {
+            if let Some(value) = adapter.emergency_ramp_down_rate() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::ConnectRampUpRate => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.connect_ramp_up_rate()) {
+            if let Some(value) = adapter.connect_ramp_up_rate() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::ConnectRampDownRate => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.connect_ramp_down_rate()) {
+            if let Some(value) = adapter.connect_ramp_down_rate() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::DefaultRampRate => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.default_ramp_rate()) {
+            if let Some(value) = adapter.default_ramp_rate() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::RampRateScaleFactor => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.ramp_rate_scale_factor()) {
+            if let Some(value) = adapter.ramp_rate_scale_factor() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::SUNSSF);

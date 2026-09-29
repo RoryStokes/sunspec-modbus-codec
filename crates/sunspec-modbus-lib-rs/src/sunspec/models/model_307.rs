@@ -111,7 +111,7 @@ impl<'ad> ModelSpec<'ad> for Model307 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: Option<&Self::ReadAdapter>,
+        adapter: &Self::ReadAdapter,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -171,7 +171,7 @@ impl<'ad> ModelSpec<'ad> for Model307 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model307,
-    adapter: Option<&dyn ReadAdapter>,
+    adapter: &dyn ReadAdapter,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -184,77 +184,77 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::AmbientTemperature => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.ambient_temperature()) {
+            if let Some(value) = adapter.ambient_temperature() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::RelativeHumidity => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.relative_humidity()) {
+            if let Some(value) = adapter.relative_humidity() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::BarometricPressure => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.barometric_pressure()) {
+            if let Some(value) = adapter.barometric_pressure() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::WindSpeed => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.wind_speed()) {
+            if let Some(value) = adapter.wind_speed() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::WindDirection => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.wind_direction()) {
+            if let Some(value) = adapter.wind_direction() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::Rainfall => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.rainfall()) {
+            if let Some(value) = adapter.rainfall() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::SnowDepth => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.snow_depth()) {
+            if let Some(value) = adapter.snow_depth() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::PrecipitationType => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.precipitation_type()) {
+            if let Some(value) = adapter.precipitation_type() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::ElectricField => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.electric_field()) {
+            if let Some(value) = adapter.electric_field() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::SurfaceWetness => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.surface_wetness()) {
+            if let Some(value) = adapter.surface_wetness() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::SoilWetness => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.soil_wetness()) {
+            if let Some(value) = adapter.soil_wetness() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);

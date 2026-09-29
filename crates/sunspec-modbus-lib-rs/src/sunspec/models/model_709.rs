@@ -186,7 +186,7 @@ impl<'ad> ModelSpec<'ad> for Model709 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: Option<&Self::ReadAdapter>,
+        adapter: &Self::ReadAdapter,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -436,7 +436,7 @@ impl<'ad> ModelSpec<'ad> for Model709 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model709,
-    adapter: Option<&dyn ReadAdapter>,
+    adapter: &dyn ReadAdapter,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -449,83 +449,47 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::DerTripLfModuleEnable => {
-            if let Some(value) = adapter.map(|adapter| adapter.der_trip_lf_module_enable()) {
-                buffer.write_u16(value as u16);
-            } else {
-                buffer.write_u16(crate::not_implemented::ENUM16);
-            }
+            buffer.write_u16(adapter.der_trip_lf_module_enable() as u16);
         }
         Point::AdoptCurveRequest => {
-            if let Some(value) = adapter.map(|adapter| adapter.adopt_curve_request()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.adopt_curve_request());
         }
         Point::AdoptCurveResult => {
-            if let Some(value) = adapter.map(|adapter| adapter.adopt_curve_result()) {
-                buffer.write_u16(value as u16);
-            } else {
-                buffer.write_u16(crate::not_implemented::ENUM16);
-            }
+            buffer.write_u16(adapter.adopt_curve_result() as u16);
         }
         Point::NumberOfPoints => {
-            if let Some(value) = adapter.map(|adapter| adapter.number_of_points()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.number_of_points());
         }
         Point::StoredCurveCount => {
-            if let Some(value) = adapter.map(|adapter| adapter.stored_curve_count()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.stored_curve_count());
         }
         Point::FrequencyScaleFactor => {
-            if let Some(value) = adapter.map(|adapter| adapter.frequency_scale_factor()) {
-                buffer.write_i16(value);
-            } else {
-                buffer.write_i16(crate::not_implemented::SUNSSF);
-            }
+            buffer.write_i16(adapter.frequency_scale_factor());
         }
         Point::TimePointScaleFactor => {
-            if let Some(value) = adapter.map(|adapter| adapter.time_point_scale_factor()) {
-                buffer.write_i16(value);
-            } else {
-                buffer.write_i16(crate::not_implemented::SUNSSF);
-            }
+            buffer.write_i16(adapter.time_point_scale_factor());
         }
         Point::CrvCurveAccess { crv_index } => {
-            if let Some(value) = adapter.map(|adapter| adapter.crv_curve_access(*crv_index)) {
-                buffer.write_u16(value as u16);
-            } else {
-                buffer.write_u16(crate::not_implemented::ENUM16);
-            }
+            buffer.write_u16(adapter.crv_curve_access(*crv_index) as u16);
         }
         Point::MustTripCurveCrvNumberOfActivePoints { crv_index } => {
-            if let Some(value) = adapter
-                .and_then(|adapter| adapter.must_trip_curve_crv_number_of_active_points(*crv_index))
-            {
+            if let Some(value) = adapter.must_trip_curve_crv_number_of_active_points(*crv_index) {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::MayTripCurveCrvNumberOfActivePoints { crv_index } => {
-            if let Some(value) = adapter
-                .and_then(|adapter| adapter.may_trip_curve_crv_number_of_active_points(*crv_index))
-            {
+            if let Some(value) = adapter.may_trip_curve_crv_number_of_active_points(*crv_index) {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::MomentaryCessationCurveCrvNumberOfActivePoints { crv_index } => {
-            if let Some(value) = adapter.and_then(|adapter| {
+            if let Some(value) =
                 adapter.momentary_cessation_curve_crv_number_of_active_points(*crv_index)
-            }) {
+            {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
@@ -535,9 +499,7 @@ pub(crate) fn write_point_to_buffer<'a>(
             crv_index,
             pt_index,
         } => {
-            if let Some(value) = adapter.and_then(|adapter| {
-                adapter.must_trip_curve_pt_frequency_point(*crv_index, *pt_index)
-            }) {
+            if let Some(value) = adapter.must_trip_curve_pt_frequency_point(*crv_index, *pt_index) {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.write_u32(crate::not_implemented::UINT32, offset);
@@ -547,9 +509,7 @@ pub(crate) fn write_point_to_buffer<'a>(
             crv_index,
             pt_index,
         } => {
-            if let Some(value) = adapter
-                .and_then(|adapter| adapter.must_trip_curve_pt_time_point(*crv_index, *pt_index))
-            {
+            if let Some(value) = adapter.must_trip_curve_pt_time_point(*crv_index, *pt_index) {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.write_u32(crate::not_implemented::UINT32, offset);
@@ -559,9 +519,7 @@ pub(crate) fn write_point_to_buffer<'a>(
             crv_index,
             pt_index,
         } => {
-            if let Some(value) = adapter.and_then(|adapter| {
-                adapter.may_trip_curve_pt_frequency_point(*crv_index, *pt_index)
-            }) {
+            if let Some(value) = adapter.may_trip_curve_pt_frequency_point(*crv_index, *pt_index) {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.write_u32(crate::not_implemented::UINT32, offset);
@@ -571,9 +529,7 @@ pub(crate) fn write_point_to_buffer<'a>(
             crv_index,
             pt_index,
         } => {
-            if let Some(value) = adapter
-                .and_then(|adapter| adapter.may_trip_curve_pt_time_point(*crv_index, *pt_index))
-            {
+            if let Some(value) = adapter.may_trip_curve_pt_time_point(*crv_index, *pt_index) {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.write_u32(crate::not_implemented::UINT32, offset);
@@ -583,9 +539,9 @@ pub(crate) fn write_point_to_buffer<'a>(
             crv_index,
             pt_index,
         } => {
-            if let Some(value) = adapter.and_then(|adapter| {
+            if let Some(value) =
                 adapter.momentary_cessation_curve_pt_frequency_point(*crv_index, *pt_index)
-            }) {
+            {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.write_u32(crate::not_implemented::UINT32, offset);
@@ -595,9 +551,9 @@ pub(crate) fn write_point_to_buffer<'a>(
             crv_index,
             pt_index,
         } => {
-            if let Some(value) = adapter.and_then(|adapter| {
+            if let Some(value) =
                 adapter.momentary_cessation_curve_pt_time_point(*crv_index, *pt_index)
-            }) {
+            {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.write_u32(crate::not_implemented::UINT32, offset);

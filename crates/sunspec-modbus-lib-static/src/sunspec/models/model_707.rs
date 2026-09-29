@@ -370,8 +370,8 @@ fn model_707_c_length(repeat_count_0: u16, repeat_count_1: u16) -> u16 {
 }
 
 /// # Safety
-/// `adapter` must be null or point to a live `Model707CallbackAdapter`, valid for the
-/// duration of the call.
+/// `adapter` must point to a live `Model707CallbackAdapter`, valid for the duration of
+/// the call.
 unsafe fn model_707_c_visit_read(
     adapter: *const c_void,
     repeat_count_0: u16,
@@ -384,10 +384,10 @@ unsafe fn model_707_c_visit_read(
         number_of_points: repeat_count_1,
     };
     // SAFETY: as required by this function's own contract.
-    let adapter = unsafe { (adapter as *const Model707CallbackAdapter).as_ref() }
-        .map(|adapter| adapter as &dyn ReadAdapter);
-    cursor.visit_source_block(model.model_length(), |offset, from, len| {
-        model.traverse_points_read(adapter, &mut buffer.slice(from, len), offset)
+    let adapter = unsafe { (adapter as *const Model707CallbackAdapter).as_ref() };
+    cursor.visit_source_block(model.model_length(), |offset, from, len| match adapter {
+        Some(adapter) => model.traverse_points_read(adapter, &mut buffer.slice(from, len), offset),
+        None => Err(ModbusException::ServerDeviceFailure),
     });
 }
 
@@ -408,7 +408,7 @@ unsafe fn model_707_c_visit_write(
     let adapter = unsafe { (adapter as *mut Model707CallbackAdapter).as_mut() };
     cursor.visit_source_block(model.model_length(), |offset, from, len| match adapter {
         Some(adapter) => model.traverse_points_write(adapter, &buffer.slice(from, len), offset),
-        None => Err(ModbusException::IllegalDataAddress),
+        None => Err(ModbusException::ServerDeviceFailure),
     });
 }
 

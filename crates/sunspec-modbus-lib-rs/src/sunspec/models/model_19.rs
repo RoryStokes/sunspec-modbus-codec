@@ -106,7 +106,7 @@ impl<'ad> ModelSpec<'ad> for Model19 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: Option<&Self::ReadAdapter>,
+        adapter: &Self::ReadAdapter,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -166,7 +166,7 @@ impl<'ad> ModelSpec<'ad> for Model19 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model19,
-    adapter: Option<&dyn ReadAdapter>,
+    adapter: &dyn ReadAdapter,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -179,63 +179,51 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::Name => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.name()) {
+            if let Some(value) = adapter.name() {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Rate => {
-            if let Some(value) = adapter.map(|adapter| adapter.rate()) {
-                buffer.write_u32(value, offset);
-            } else {
-                buffer.write_u32(crate::not_implemented::UINT32, offset);
-            }
+            buffer.write_u32(adapter.rate(), offset);
         }
         Point::Bits => {
-            if let Some(value) = adapter.map(|adapter| adapter.bits()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.bits());
         }
         Point::Parity => {
-            if let Some(value) = adapter.map(|adapter| adapter.parity()) {
-                buffer.write_u16(value as u16);
-            } else {
-                buffer.write_u16(crate::not_implemented::ENUM16);
-            }
+            buffer.write_u16(adapter.parity() as u16);
         }
         Point::Duplex => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.duplex()) {
+            if let Some(value) = adapter.duplex() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::FlowControl => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.flow_control()) {
+            if let Some(value) = adapter.flow_control() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::Authentication => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.authentication()) {
+            if let Some(value) = adapter.authentication() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::Username => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.username()) {
+            if let Some(value) = adapter.username() {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Password => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.password()) {
+            if let Some(value) = adapter.password() {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();

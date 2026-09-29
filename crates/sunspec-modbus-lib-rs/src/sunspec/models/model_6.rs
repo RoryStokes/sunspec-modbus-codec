@@ -586,7 +586,7 @@ impl<'ad> ModelSpec<'ad> for Model6 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: Option<&Self::ReadAdapter>,
+        adapter: &Self::ReadAdapter,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -656,7 +656,7 @@ impl<'ad> ModelSpec<'ad> for Model6 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model6,
-    adapter: Option<&dyn ReadAdapter>,
+    adapter: &dyn ReadAdapter,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -669,630 +669,274 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::X => {
-            if let Some(value) = adapter.map(|adapter| adapter.x()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.x());
         }
         Point::Offset => {
-            if let Some(value) = adapter.map(|adapter| adapter.offset()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.offset());
         }
         Point::Value1 => {
-            if let Some(value) = adapter.map(|adapter| adapter.value1()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.value1());
         }
         Point::Val2 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val2()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val2());
         }
         Point::Val3 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val3()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val3());
         }
         Point::Val4 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val4()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val4());
         }
         Point::Val5 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val5()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val5());
         }
         Point::Val6 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val6()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val6());
         }
         Point::Val7 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val7()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val7());
         }
         Point::Val8 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val8()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val8());
         }
         Point::Val9 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val9()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val9());
         }
         Point::Val10 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val10()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val10());
         }
         Point::Val11 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val11()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val11());
         }
         Point::Val12 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val12()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val12());
         }
         Point::Val13 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val13()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val13());
         }
         Point::Val14 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val14()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val14());
         }
         Point::Val15 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val15()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val15());
         }
         Point::Val16 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val16()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val16());
         }
         Point::Val17 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val17()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val17());
         }
         Point::Val18 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val18()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val18());
         }
         Point::Val19 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val19()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val19());
         }
         Point::Val20 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val20()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val20());
         }
         Point::Val21 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val21()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val21());
         }
         Point::Val22 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val22()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val22());
         }
         Point::Val23 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val23()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val23());
         }
         Point::Val24 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val24()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val24());
         }
         Point::Val25 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val25()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val25());
         }
         Point::Val26 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val26()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val26());
         }
         Point::Val27 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val27()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val27());
         }
         Point::Val28 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val28()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val28());
         }
         Point::Val29 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val29()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val29());
         }
         Point::Val30 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val30()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val30());
         }
         Point::Val31 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val31()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val31());
         }
         Point::Val32 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val32()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val32());
         }
         Point::Val33 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val33()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val33());
         }
         Point::Val34 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val34()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val34());
         }
         Point::Val35 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val35()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val35());
         }
         Point::Val36 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val36()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val36());
         }
         Point::Val37 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val37()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val37());
         }
         Point::Val38 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val38()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val38());
         }
         Point::Val39 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val39()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val39());
         }
         Point::Val40 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val40()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val40());
         }
         Point::Val41 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val41()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val41());
         }
         Point::Val42 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val42()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val42());
         }
         Point::Val43 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val43()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val43());
         }
         Point::Val44 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val44()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val44());
         }
         Point::Val45 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val45()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val45());
         }
         Point::Val46 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val46()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val46());
         }
         Point::Val47 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val47()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val47());
         }
         Point::Val48 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val48()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val48());
         }
         Point::Val49 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val49()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val49());
         }
         Point::Val50 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val50()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val50());
         }
         Point::Val51 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val51()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val51());
         }
         Point::Val52 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val52()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val52());
         }
         Point::Val53 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val53()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val53());
         }
         Point::Val54 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val54()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val54());
         }
         Point::Val55 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val55()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val55());
         }
         Point::Val56 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val56()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val56());
         }
         Point::Val57 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val57()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val57());
         }
         Point::Val58 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val58()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val58());
         }
         Point::Val59 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val59()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val59());
         }
         Point::Val60 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val60()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val60());
         }
         Point::Val61 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val61()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val61());
         }
         Point::Val62 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val62()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val62());
         }
         Point::Val63 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val63()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val63());
         }
         Point::Val64 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val64()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val64());
         }
         Point::Val65 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val65()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val65());
         }
         Point::Val66 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val66()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val66());
         }
         Point::Val67 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val67()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val67());
         }
         Point::Val68 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val68()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val68());
         }
         Point::Val69 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val69()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val69());
         }
         Point::Val70 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val70()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val70());
         }
         Point::Val71 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val71()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val71());
         }
         Point::Val72 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val72()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val72());
         }
         Point::Val73 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val73()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val73());
         }
         Point::Val74 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val74()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val74());
         }
         Point::Val75 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val75()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val75());
         }
         Point::Val76 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val76()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val76());
         }
         Point::Val77 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val77()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val77());
         }
         Point::Val78 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val78()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val78());
         }
         Point::Val79 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val79()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val79());
         }
         Point::Val80 => {
-            if let Some(value) = adapter.map(|adapter| adapter.val80()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.val80());
         }
         Point::Timestamp => {
-            if let Some(value) = adapter.map(|adapter| adapter.timestamp()) {
-                buffer.write_u32(value, offset);
-            } else {
-                buffer.write_u32(crate::not_implemented::UINT32, offset);
-            }
+            buffer.write_u32(adapter.timestamp(), offset);
         }
         Point::Milliseconds => {
-            if let Some(value) = adapter.map(|adapter| adapter.milliseconds()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.milliseconds());
         }
         Point::Sequence => {
-            if let Some(value) = adapter.map(|adapter| adapter.sequence()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.sequence());
         }
         Point::Role => {
-            if let Some(value) = adapter.map(|adapter| adapter.role()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.role());
         }
         Point::Rsrvd => {
             buffer.write_u16(crate::not_implemented::PAD);
         }
         Point::Algorithm => {
-            if let Some(value) = adapter.map(|adapter| adapter.algorithm()) {
-                buffer.write_u16(value as u16);
-            } else {
-                buffer.write_u16(crate::not_implemented::ENUM16);
-            }
+            buffer.write_u16(adapter.algorithm() as u16);
         }
         Point::N => {
-            if let Some(value) = adapter.map(|adapter| adapter.n()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.n());
         }
         Point::RepeatingDs => {
-            if let Some(value) = adapter.map(|adapter| adapter.repeating_ds()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.repeating_ds());
         }
     }
 }

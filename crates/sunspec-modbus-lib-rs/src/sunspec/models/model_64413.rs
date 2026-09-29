@@ -87,7 +87,7 @@ impl<'ad> ModelSpec<'ad> for Model64413 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: Option<&Self::ReadAdapter>,
+        adapter: &Self::ReadAdapter,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -165,7 +165,7 @@ impl<'ad> ModelSpec<'ad> for Model64413 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model64413,
-    adapter: Option<&dyn ReadAdapter>,
+    adapter: &dyn ReadAdapter,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -178,42 +178,42 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::IvLength => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.iv_length()) {
+            if let Some(value) = adapter.iv_length() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::COUNT);
             }
         }
         Point::PoaIrradiance => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.poa_irradiance()) {
+            if let Some(value) = adapter.poa_irradiance() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::IrrSf => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.irr_sf()) {
+            if let Some(value) = adapter.irr_sf() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::SUNSSF);
             }
         }
         Point::IvPower { iv_index } => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.iv_power(*iv_index)) {
+            if let Some(value) = adapter.iv_power(*iv_index) {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::IvCurrent { iv_index } => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.iv_current(*iv_index)) {
+            if let Some(value) = adapter.iv_current(*iv_index) {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::IvVoltage { iv_index } => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.iv_voltage(*iv_index)) {
+            if let Some(value) = adapter.iv_voltage(*iv_index) {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);

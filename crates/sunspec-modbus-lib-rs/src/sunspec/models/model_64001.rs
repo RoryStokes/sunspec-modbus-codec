@@ -256,7 +256,7 @@ impl<'ad> ModelSpec<'ad> for Model64001 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: Option<&Self::ReadAdapter>,
+        adapter: &Self::ReadAdapter,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -316,7 +316,7 @@ impl<'ad> ModelSpec<'ad> for Model64001 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model64001,
-    adapter: Option<&dyn ReadAdapter>,
+    adapter: &dyn ReadAdapter,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -329,245 +329,245 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::CommandCode => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.command_code()) {
+            if let Some(value) = adapter.command_code() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::HardwareRevision => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.hardware_revision()) {
+            if let Some(value) = adapter.hardware_revision() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::RsFwRevision => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.rs_fw_revision()) {
+            if let Some(value) = adapter.rs_fw_revision() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::OsFwRevision => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.os_fw_revision()) {
+            if let Some(value) = adapter.os_fw_revision() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::ProductRevision => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.product_revision()) {
+            if let Some(value) = adapter.product_revision() {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::BootCount => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.boot_count()) {
+            if let Some(value) = adapter.boot_count() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::DipSwitches => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.dip_switches()) {
+            if let Some(value) = adapter.dip_switches() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::BITFIELD16);
             }
         }
         Point::NumDetectedSensors => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.num_detected_sensors()) {
+            if let Some(value) = adapter.num_detected_sensors() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::NumCommunicatingSensors => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.num_communicating_sensors()) {
+            if let Some(value) = adapter.num_communicating_sensors() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::SystemStatus => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.system_status()) {
+            if let Some(value) = adapter.system_status() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::BITFIELD16);
             }
         }
         Point::SystemConfiguration => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.system_configuration()) {
+            if let Some(value) = adapter.system_configuration() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::BITFIELD16);
             }
         }
         Point::LedBlinkThreshold => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.led_blink_threshold()) {
+            if let Some(value) = adapter.led_blink_threshold() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::LedOnThreshold => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.led_on_threshold()) {
+            if let Some(value) = adapter.led_on_threshold() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::Reserved => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.reserved()) {
+            if let Some(value) = adapter.reserved() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::LocationString => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.location_string()) {
+            if let Some(value) = adapter.location_string() {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Sensor1UnitId => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor_1_unit_id()) {
+            if let Some(value) = adapter.sensor_1_unit_id() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::Sensor1Address => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor_1_address()) {
+            if let Some(value) = adapter.sensor_1_address() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::Sensor1OsVersion => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor_1_os_version()) {
+            if let Some(value) = adapter.sensor_1_os_version() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::Sensor1ProductVersion => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor_1_product_version()) {
+            if let Some(value) = adapter.sensor_1_product_version() {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Sensor1SerialNum => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor_1_serial_num()) {
+            if let Some(value) = adapter.sensor_1_serial_num() {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Sensor2UnitId => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor_2_unit_id()) {
+            if let Some(value) = adapter.sensor_2_unit_id() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::Sensor2Address => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor_2_address()) {
+            if let Some(value) = adapter.sensor_2_address() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::Sensor2OsVersion => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor_2_os_version()) {
+            if let Some(value) = adapter.sensor_2_os_version() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::Sensor2ProductVersion => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor_2_product_version()) {
+            if let Some(value) = adapter.sensor_2_product_version() {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Sensor2SerialNum => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor_2_serial_num()) {
+            if let Some(value) = adapter.sensor_2_serial_num() {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Sensor3UnitId => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor_3_unit_id()) {
+            if let Some(value) = adapter.sensor_3_unit_id() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::Sensor3Address => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor_3_address()) {
+            if let Some(value) = adapter.sensor_3_address() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::Sensor3OsVersion => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor_3_os_version()) {
+            if let Some(value) = adapter.sensor_3_os_version() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::Sensor3ProductVersion => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor_3_product_version()) {
+            if let Some(value) = adapter.sensor_3_product_version() {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Sensor3SerialNum => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor_3_serial_num()) {
+            if let Some(value) = adapter.sensor_3_serial_num() {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Sensor4UnitId => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor_4_unit_id()) {
+            if let Some(value) = adapter.sensor_4_unit_id() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::Sensor4Address => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor_4_address()) {
+            if let Some(value) = adapter.sensor_4_address() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::Sensor4OsVersion => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor_4_os_version()) {
+            if let Some(value) = adapter.sensor_4_os_version() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::Sensor4ProductVersion => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor_4_product_version()) {
+            if let Some(value) = adapter.sensor_4_product_version() {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Sensor4SerialNum => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor_4_serial_num()) {
+            if let Some(value) = adapter.sensor_4_serial_num() {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();

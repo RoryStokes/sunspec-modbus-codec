@@ -66,7 +66,7 @@ impl<'ad> ModelSpec<'ad> for Model304 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: Option<&Self::ReadAdapter>,
+        adapter: &Self::ReadAdapter,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -136,7 +136,7 @@ impl<'ad> ModelSpec<'ad> for Model304 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model304,
-    adapter: Option<&dyn ReadAdapter>,
+    adapter: &dyn ReadAdapter,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -149,21 +149,17 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::InclX => {
-            if let Some(value) = adapter.map(|adapter| adapter.incl_x()) {
-                buffer.write_i32(value, offset);
-            } else {
-                buffer.write_i32(crate::not_implemented::INT32, offset);
-            }
+            buffer.write_i32(adapter.incl_x(), offset);
         }
         Point::InclY => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.incl_y()) {
+            if let Some(value) = adapter.incl_y() {
                 buffer.write_i32(value, offset);
             } else {
                 buffer.write_i32(crate::not_implemented::INT32, offset);
             }
         }
         Point::InclZ => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.incl_z()) {
+            if let Some(value) = adapter.incl_z() {
                 buffer.write_i32(value, offset);
             } else {
                 buffer.write_i32(crate::not_implemented::INT32, offset);

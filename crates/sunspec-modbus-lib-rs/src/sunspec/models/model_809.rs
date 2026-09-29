@@ -58,7 +58,7 @@ impl<'ad> ModelSpec<'ad> for Model809 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: Option<&Self::ReadAdapter>,
+        adapter: &Self::ReadAdapter,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -128,7 +128,7 @@ impl<'ad> ModelSpec<'ad> for Model809 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model809,
-    adapter: Option<&dyn ReadAdapter>,
+    adapter: &dyn ReadAdapter,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -141,19 +141,10 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::StackPointsToBeDetermined => {
-            if let Some(value) = adapter.map(|adapter| adapter.stack_points_to_be_determined()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.stack_points_to_be_determined());
         }
         Point::CellCellPointsToBeDetermined => {
-            if let Some(value) = adapter.map(|adapter| adapter.cell_cell_points_to_be_determined())
-            {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.cell_cell_points_to_be_determined());
         }
     }
 }

@@ -247,7 +247,7 @@ impl<'ad> ModelSpec<'ad> for Model64020 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: Option<&Self::ReadAdapter>,
+        adapter: &Self::ReadAdapter,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -317,7 +317,7 @@ impl<'ad> ModelSpec<'ad> for Model64020 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model64020,
-    adapter: Option<&dyn ReadAdapter>,
+    adapter: &dyn ReadAdapter,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -330,241 +330,203 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::Aux0Temperature => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.aux_0_temperature()) {
+            if let Some(value) = adapter.aux_0_temperature() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::Aux1Temperature => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.aux_1_temperature()) {
+            if let Some(value) = adapter.aux_1_temperature() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::Aux2Temperature => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.aux_2_temperature()) {
+            if let Some(value) = adapter.aux_2_temperature() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::Aux3Temperature => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.aux_3_temperature()) {
+            if let Some(value) = adapter.aux_3_temperature() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::Aux4Temperature => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.aux_4_temperature()) {
+            if let Some(value) = adapter.aux_4_temperature() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::ProbeTemperature => {
-            if let Some(value) = adapter.map(|adapter| adapter.probe_temperature()) {
-                buffer.write_i16(value);
-            } else {
-                buffer.write_i16(crate::not_implemented::INT16);
-            }
+            buffer.write_i16(adapter.probe_temperature());
         }
         Point::MainTemperature => {
-            if let Some(value) = adapter.map(|adapter| adapter.main_temperature()) {
-                buffer.write_i16(value);
-            } else {
-                buffer.write_i16(crate::not_implemented::INT16);
-            }
+            buffer.write_i16(adapter.main_temperature());
         }
         Point::VoltageScaleFactorForTheSensors => {
-            if let Some(value) =
-                adapter.map(|adapter| adapter.voltage_scale_factor_for_the_sensors())
-            {
-                buffer.write_i16(value);
-            } else {
-                buffer.write_i16(crate::not_implemented::SUNSSF);
-            }
+            buffer.write_i16(adapter.voltage_scale_factor_for_the_sensors());
         }
         Point::CurrentScaleFactorForTheSensors => {
-            if let Some(value) =
-                adapter.map(|adapter| adapter.current_scale_factor_for_the_sensors())
-            {
-                buffer.write_i16(value);
-            } else {
-                buffer.write_i16(crate::not_implemented::SUNSSF);
-            }
+            buffer.write_i16(adapter.current_scale_factor_for_the_sensors());
         }
         Point::FrequencyScaleFactorForTheSensors => {
-            if let Some(value) =
-                adapter.map(|adapter| adapter.frequency_scale_factor_for_the_sensors())
-            {
-                buffer.write_i16(value);
-            } else {
-                buffer.write_i16(crate::not_implemented::SUNSSF);
-            }
+            buffer.write_i16(adapter.frequency_scale_factor_for_the_sensors());
         }
         Point::Sensor1Voltage => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor1_voltage()) {
+            if let Some(value) = adapter.sensor1_voltage() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::Sensor2Voltage => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor2_voltage()) {
+            if let Some(value) = adapter.sensor2_voltage() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::Sensor3Voltage => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor3_voltage()) {
+            if let Some(value) = adapter.sensor3_voltage() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::Sensor4Voltage => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor4_voltage()) {
+            if let Some(value) = adapter.sensor4_voltage() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::Sensor5Voltage => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor5_voltage()) {
+            if let Some(value) = adapter.sensor5_voltage() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::Sensor6Voltage => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor6_voltage()) {
+            if let Some(value) = adapter.sensor6_voltage() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::Sensor7Voltage => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor7_voltage()) {
+            if let Some(value) = adapter.sensor7_voltage() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::Sensor1Current => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor1_current()) {
+            if let Some(value) = adapter.sensor1_current() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::Sensor2Current => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor2_current()) {
+            if let Some(value) = adapter.sensor2_current() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::Sensor3Current => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor3_current()) {
+            if let Some(value) = adapter.sensor3_current() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::Sensor4Current => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor4_current()) {
+            if let Some(value) = adapter.sensor4_current() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::Sensor5Current => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor5_current()) {
+            if let Some(value) = adapter.sensor5_current() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::Sensor6Current => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor6_current()) {
+            if let Some(value) = adapter.sensor6_current() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::Sensor7Current => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor7_current()) {
+            if let Some(value) = adapter.sensor7_current() {
                 buffer.write_i16(value);
             } else {
                 buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::Sensor8Frequency => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.sensor8_frequency()) {
+            if let Some(value) = adapter.sensor8_frequency() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::Relay1State => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.relay_1_state()) {
+            if let Some(value) = adapter.relay_1_state() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::Relay2State => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.relay_2_state()) {
+            if let Some(value) = adapter.relay_2_state() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::Relay3State => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.relay_3_state()) {
+            if let Some(value) = adapter.relay_3_state() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::ResetTheAccumulators => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.reset_the_accumulators()) {
+            if let Some(value) = adapter.reset_the_accumulators() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::ResetTheSystem => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.reset_the_system()) {
+            if let Some(value) = adapter.reset_the_system() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::RepeatingSerialNumber => {
-            if let Some(value) = adapter.map(|adapter| adapter.repeating_serial_number()) {
-                buffer.write_string(value, offset);
-            } else {
-                buffer.zero();
-            }
+            buffer.write_string(adapter.repeating_serial_number(), offset);
         }
         Point::RepeatingFirmwareVersion => {
-            if let Some(value) = adapter.map(|adapter| adapter.repeating_firmware_version()) {
-                buffer.write_string(value, offset);
-            } else {
-                buffer.zero();
-            }
+            buffer.write_string(adapter.repeating_firmware_version(), offset);
         }
         Point::RepeatingHardwareVersion => {
-            if let Some(value) = adapter.map(|adapter| adapter.repeating_hardware_version()) {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(adapter.repeating_hardware_version());
         }
     }
 }

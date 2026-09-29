@@ -71,13 +71,11 @@ pub trait ModelSpec<'a> {
     /// this depends on the repeat count carried by `self`.
     fn model_length(&self) -> u16;
 
-    /// Encode this model's points into `buffer`, starting `offset` words into the model.
-    ///
-    /// With no `adapter`, the model id and length are still encoded (so a client can walk
-    /// past the block) and every other point reads as its [`not_implemented`] value.
+    /// Encode this model's points into `buffer`, starting `offset` words into the model. An
+    /// optional point the adapter doesn't provide reads as its [`not_implemented`] value.
     fn traverse_points_read(
         &self,
-        adapter: Option<&Self::ReadAdapter>,
+        adapter: &Self::ReadAdapter,
         buffer: &mut WritableRegisterBuffer<'_>,
         offset: u16,
     ) -> Result<(), ModbusException>;
@@ -149,9 +147,9 @@ pub struct StaticModelSpec {
     /// `write_adapters` array covering only the writable models.
     pub writable: bool,
 
-    /// Encode one model block on a read. A null `adapter` means no adapter for this block: the
-    /// model id and length are still encoded, and every other point reads as its
-    /// [`not_implemented`] value.
+    /// Encode one model block on a read. A null `adapter` is a caller bug (it can't happen
+    /// through `sunspec-modbus-lib-static`, which rejects them up front); a read touching the
+    /// block then fails with [`ModbusException::ServerDeviceFailure`].
     ///
     /// # Safety
     /// `adapter` must be null or point to a live `Model<id>CallbackAdapter` for this model,
@@ -164,8 +162,9 @@ pub struct StaticModelSpec {
         buffer: &mut WritableRegisterBuffer<'_>,
     ),
 
-    /// Encode one model block on a write. A non-writable model, or a null `adapter`, rejects
-    /// the write with [`ModbusException::IllegalDataAddress`].
+    /// Decode one model block on a write. A non-writable model ignores `adapter` and rejects
+    /// the write with [`ModbusException::IllegalDataAddress`]; for a writable model, a null
+    /// `adapter` is treated as for [`visit_read`](StaticModelSpec::visit_read).
     ///
     /// # Safety
     /// As for [`visit_read`](StaticModelSpec::visit_read), and `adapter` must be null or
@@ -306,8 +305,8 @@ impl<L: ModelList> Sunspec<L> {
     }
 
     /// Decode a write of `request_buffer.len()` words starting at `address` into the
-    /// relevant models. A write that touches a block whose `Option` adapter is `None`,
-    /// or a model with no writable points, is rejected, as is (in
+    /// relevant models. A write that touches a model with no writable points is rejected, as
+    /// is (in
     /// [`strict`](SunspecConfig::strict) mode) one that touches the `SunS` identifier or the
     /// end model, or reaches past the end of the map.
     pub fn write_multiple_registers<'a, 'buf, B: Into<ReadableRegisterBuffer<'buf>>>(
@@ -816,7 +815,7 @@ mod tests {
 
         let model = model_701::Model701;
         let mut buf = [0xAA_u8; 155 * 2];
-        model.traverse_points_read(Some(&AcTypeOnly), &mut buf.as_mut_slice().into(), 0)?;
+        model.traverse_points_read(&AcTypeOnly, &mut buf.as_mut_slice().into(), 0)?;
 
         assert_eq!(register(&buf, 0), 701);
         assert_eq!(register(&buf, 1), 153);
@@ -843,27 +842,8 @@ mod tests {
 
         // A read starting part-way into a multi-register point gets the rest of its value.
         let mut tail = [0_u8; 2 * 2];
-        model.traverse_points_read(Some(&AcTypeOnly), &mut tail.as_mut_slice().into(), 21)?;
+        model.traverse_points_read(&AcTypeOnly, &mut tail.as_mut_slice().into(), 21)?;
         assert_eq!([register(&tail, 0), register(&tail, 1)], [0xFFFF; 2]);
-
-        Ok(())
-    }
-
-    /// A block with no adapter at all (a null C adapter) still carries its model id and length,
-    /// so a client can walk past it, and reads every point - mandatory ones included - as not
-    /// implemented.
-    #[test]
-    #[cfg(feature = "test-models")]
-    fn missing_adapter_encodes_header_and_not_implemented_points() -> Result<(), ModbusException> {
-        let model = model_701::Model701;
-        let mut buf = [0xAA_u8; 155 * 2];
-        model.traverse_points_read(None, &mut buf.as_mut_slice().into(), 0)?;
-
-        assert_eq!(register(&buf, 0), 701);
-        assert_eq!(register(&buf, 1), 153);
-        assert_eq!(register(&buf, 2), 0xFFFF, "ACType (mandatory enum16)");
-        assert_eq!(register(&buf, 10), 0x8000, "W (int16)");
-        assert!((123..155).all(|i| register(&buf, i) == 0));
 
         Ok(())
     }

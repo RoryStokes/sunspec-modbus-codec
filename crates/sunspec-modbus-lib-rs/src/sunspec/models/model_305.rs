@@ -82,7 +82,7 @@ impl<'ad> ModelSpec<'ad> for Model305 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: Option<&Self::ReadAdapter>,
+        adapter: &Self::ReadAdapter,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -142,7 +142,7 @@ impl<'ad> ModelSpec<'ad> for Model305 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model305,
-    adapter: Option<&dyn ReadAdapter>,
+    adapter: &dyn ReadAdapter,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -155,42 +155,42 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::Tm => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.tm()) {
+            if let Some(value) = adapter.tm() {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Date => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.date()) {
+            if let Some(value) = adapter.date() {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Location => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.location()) {
+            if let Some(value) = adapter.location() {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Lat => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.lat()) {
+            if let Some(value) = adapter.lat() {
                 buffer.write_i32(value, offset);
             } else {
                 buffer.write_i32(crate::not_implemented::INT32, offset);
             }
         }
         Point::Long => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.long()) {
+            if let Some(value) = adapter.long() {
                 buffer.write_i32(value, offset);
             } else {
                 buffer.write_i32(crate::not_implemented::INT32, offset);
             }
         }
         Point::Altitude => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.altitude()) {
+            if let Some(value) = adapter.altitude() {
                 buffer.write_i32(value, offset);
             } else {
                 buffer.write_i32(crate::not_implemented::INT32, offset);

@@ -303,7 +303,7 @@ impl<'ad> ModelSpec<'ad> for Model64412 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: Option<&Self::ReadAdapter>,
+        adapter: &Self::ReadAdapter,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -363,7 +363,7 @@ impl<'ad> ModelSpec<'ad> for Model64412 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model64412,
-    adapter: Option<&dyn ReadAdapter>,
+    adapter: &dyn ReadAdapter,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -376,301 +376,301 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::DaManipulation => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.da_manipulation()) {
+            if let Some(value) = adapter.da_manipulation() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::FalsifyDeviceIdentity => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.falsify_device_identity()) {
+            if let Some(value) = adapter.falsify_device_identity() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::MeasPAlwaysNameplate => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.meas_p_always_nameplate()) {
+            if let Some(value) = adapter.meas_p_always_nameplate() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::MeasQAlwaysMinimum => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.meas_q_always_minimum()) {
+            if let Some(value) = adapter.meas_q_always_minimum() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::MeasQAlwaysMaximum => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.meas_q_always_maximum()) {
+            if let Some(value) = adapter.meas_q_always_maximum() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::MeasQAlwaysZero => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.meas_q_always_zero()) {
+            if let Some(value) = adapter.meas_q_always_zero() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::MeasZeroP => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.meas_zero_p()) {
+            if let Some(value) = adapter.meas_zero_p() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::MeasInvertQ => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.meas_invert_q()) {
+            if let Some(value) = adapter.meas_invert_q() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::MeasLowV => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.meas_low_v()) {
+            if let Some(value) = adapter.meas_low_v() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::MeasHighV => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.meas_high_v()) {
+            if let Some(value) = adapter.meas_high_v() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::MeasLowL1V => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.meas_low_l1_v()) {
+            if let Some(value) = adapter.meas_low_l1_v() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::MeasHighL1V => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.meas_high_l1_v()) {
+            if let Some(value) = adapter.meas_high_l1_v() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::MeasLowF => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.meas_low_f()) {
+            if let Some(value) = adapter.meas_low_f() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::MeasHighF => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.meas_high_f()) {
+            if let Some(value) = adapter.meas_high_f() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::MeasLowAmps => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.meas_low_amps()) {
+            if let Some(value) = adapter.meas_low_amps() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::MeasHighAmps => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.meas_high_amps()) {
+            if let Some(value) = adapter.meas_high_amps() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::MeasHighS => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.meas_high_s()) {
+            if let Some(value) = adapter.meas_high_s() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::MeasLowS => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.meas_low_s()) {
+            if let Some(value) = adapter.meas_low_s() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::MeasHighQ => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.meas_high_q()) {
+            if let Some(value) = adapter.meas_high_q() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::MeasLowQ => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.meas_low_q()) {
+            if let Some(value) = adapter.meas_low_q() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::MeasLowPf => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.meas_low_pf()) {
+            if let Some(value) = adapter.meas_low_pf() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::MeasLowReversedPf => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.meas_low_reversed_pf()) {
+            if let Some(value) = adapter.meas_low_reversed_pf() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::NameplateHighP => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.nameplate_high_p()) {
+            if let Some(value) = adapter.nameplate_high_p() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::NameplateLowP => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.nameplate_low_p()) {
+            if let Some(value) = adapter.nameplate_low_p() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::NameplateHighS => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.nameplate_high_s()) {
+            if let Some(value) = adapter.nameplate_high_s() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::NameplateLowS => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.nameplate_low_s()) {
+            if let Some(value) = adapter.nameplate_low_s() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::NameplateHighQ => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.nameplate_high_q()) {
+            if let Some(value) = adapter.nameplate_high_q() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::NameplateLowQ => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.nameplate_low_q()) {
+            if let Some(value) = adapter.nameplate_low_q() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::NameplateHighNomV => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.nameplate_high_nom_v()) {
+            if let Some(value) = adapter.nameplate_high_nom_v() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::NameplateLowNomV => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.nameplate_low_nom_v()) {
+            if let Some(value) = adapter.nameplate_low_nom_v() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::NameplateLowAmps => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.nameplate_low_amps()) {
+            if let Some(value) = adapter.nameplate_low_amps() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::NameplateLowVarmaxinj => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.nameplate_low_varmaxinj()) {
+            if let Some(value) = adapter.nameplate_low_varmaxinj() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::NameplateLowVarmaxabs => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.nameplate_low_varmaxabs()) {
+            if let Some(value) = adapter.nameplate_low_varmaxabs() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::NameplateLowPf => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.nameplate_low_pf()) {
+            if let Some(value) = adapter.nameplate_low_pf() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::SettingsHighNomV => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.settings_high_nom_v()) {
+            if let Some(value) = adapter.settings_high_nom_v() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::SettingsLowAmps => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.settings_low_amps()) {
+            if let Some(value) = adapter.settings_low_amps() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::SettingsHighP => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.settings_high_p()) {
+            if let Some(value) = adapter.settings_high_p() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::SettingsLowP => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.settings_low_p()) {
+            if let Some(value) = adapter.settings_low_p() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::SettingsHighVaMax => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.settings_high_va_max()) {
+            if let Some(value) = adapter.settings_high_va_max() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::SettingsHighVarmaxinj => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.settings_high_varmaxinj()) {
+            if let Some(value) = adapter.settings_high_varmaxinj() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::SettingsHighVarmaxabs => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.settings_high_varmaxabs()) {
+            if let Some(value) = adapter.settings_high_varmaxabs() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::ChangeCommonModelId => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.change_common_model_id()) {
+            if let Some(value) = adapter.change_common_model_id() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::ChangeCommonModelLength => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.change_common_model_length()) {
+            if let Some(value) = adapter.change_common_model_length() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);

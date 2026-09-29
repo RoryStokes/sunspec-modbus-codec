@@ -69,7 +69,7 @@ impl<'ad> ModelSpec<'ad> for Model10 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: Option<&Self::ReadAdapter>,
+        adapter: &Self::ReadAdapter,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -129,7 +129,7 @@ impl<'ad> ModelSpec<'ad> for Model10 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model10,
-    adapter: Option<&dyn ReadAdapter>,
+    adapter: &dyn ReadAdapter,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -142,21 +142,17 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::InterfaceStatus => {
-            if let Some(value) = adapter.map(|adapter| adapter.interface_status()) {
-                buffer.write_u16(value as u16);
-            } else {
-                buffer.write_u16(crate::not_implemented::ENUM16);
-            }
+            buffer.write_u16(adapter.interface_status() as u16);
         }
         Point::InterfaceControl => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.interface_control()) {
+            if let Some(value) = adapter.interface_control() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::PhysicalAccessType => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.physical_access_type()) {
+            if let Some(value) = adapter.physical_access_type() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);

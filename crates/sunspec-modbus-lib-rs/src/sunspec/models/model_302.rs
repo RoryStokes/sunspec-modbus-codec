@@ -78,7 +78,7 @@ impl<'ad> ModelSpec<'ad> for Model302 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: Option<&Self::ReadAdapter>,
+        adapter: &Self::ReadAdapter,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -148,7 +148,7 @@ impl<'ad> ModelSpec<'ad> for Model302 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model302,
-    adapter: Option<&dyn ReadAdapter>,
+    adapter: &dyn ReadAdapter,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -161,35 +161,35 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::RepeatingGhi => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.repeating_ghi()) {
+            if let Some(value) = adapter.repeating_ghi() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::RepeatingPoai => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.repeating_poai()) {
+            if let Some(value) = adapter.repeating_poai() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::RepeatingDfi => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.repeating_dfi()) {
+            if let Some(value) = adapter.repeating_dfi() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::RepeatingDni => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.repeating_dni()) {
+            if let Some(value) = adapter.repeating_dni() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::RepeatingOti => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.repeating_oti()) {
+            if let Some(value) = adapter.repeating_oti() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);

@@ -253,8 +253,8 @@ pub fn generate_adapters_mod(models: &[ResolvedModel]) -> Scope {
              \n\
              # Safety\n\
              Building this variant asserts `descriptor` and `adapter` uphold\n\
-             [`StaticModelSpec::visit_read`]'s contract: `adapter` is either null or points to\n\
-             a live `Model<id>CallbackAdapter` valid for the traversal.",
+             [`StaticModelSpec::visit_read`]'s contract: `adapter` points to a live\n\
+             `Model<id>CallbackAdapter` valid for the traversal.",
         )
         .named("descriptor", "&'a StaticModelSpec")
         .named("adapter", "*const c_void")
@@ -292,9 +292,8 @@ pub fn generate_adapters_mod(models: &[ResolvedModel]) -> Scope {
              \n\
              # Safety\n\
              Building this variant asserts `descriptor` and `adapter` uphold\n\
-             [`StaticModelSpec::visit_write`]'s contract: `adapter` is either null or\n\
-             uniquely borrowable, pointing to a live `Model<id>CallbackAdapter` valid for the\n\
-             traversal.",
+             [`StaticModelSpec::visit_write`]'s contract: `adapter` is uniquely borrowable,\n\
+             pointing to a live `Model<id>CallbackAdapter` valid for the traversal.",
         )
         .named("descriptor", "&'a StaticModelSpec")
         .named("adapter", "*mut c_void")
@@ -311,7 +310,7 @@ pub fn generate_adapters_mod(models: &[ResolvedModel]) -> Scope {
 
         model_match.line("cursor.visit_source_block(");
         model_match.line("model.model_length(),");
-        model_match.line("|offset, from, len| { model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset) }");
+        model_match.line("|offset, from, len| { model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset) }");
         model_match.line(");");
         read_match.push_block(model_match);
     }
@@ -497,12 +496,12 @@ fn generate_c_model_dispatch(model: &ResolvedModel, scope: &mut Scope) {
         .ret("u16")
         .line(format!("({ctor}).model_length()"));
 
-    // A null `adapter` means no adapter for this block; the traversal still encodes the model
-    // id and length, and every other point as its SunSpec "not implemented" value.
+    // `sunspec-modbus-lib-static` rejects null adapters before dispatching, so a null here is a
+    // broken caller: fail the request - only if it touches this block - rather than dereference.
     scope.raw(format!(
         "/// # Safety\n\
-         /// `adapter` must be null or point to a live `Model{n}CallbackAdapter`, valid for the\n\
-         /// duration of the call.\n\
+         /// `adapter` must point to a live `Model{n}CallbackAdapter`, valid for the duration of\n\
+         /// the call.\n\
          unsafe fn {sc}_c_visit_read(\n\
          \x20   adapter: *const c_void,\n\
          \x20   {count_arg_0}: u16,\n\
@@ -512,10 +511,10 @@ fn generate_c_model_dispatch(model: &ResolvedModel, scope: &mut Scope) {
          ) {{\n\
          \x20   let model = {ctor};\n\
          \x20   // SAFETY: as required by this function's own contract.\n\
-         \x20   let adapter = unsafe {{ (adapter as *const {pc}CallbackAdapter).as_ref() }}\n\
-         \x20       .map(|adapter| adapter as &dyn ReadAdapter);\n\
-         \x20   cursor.visit_source_block(model.model_length(), |offset, from, len| {{\n\
-         \x20       model.traverse_points_read(adapter, &mut buffer.slice(from, len), offset)\n\
+         \x20   let adapter = unsafe {{ (adapter as *const {pc}CallbackAdapter).as_ref() }};\n\
+         \x20   cursor.visit_source_block(model.model_length(), |offset, from, len| match adapter {{\n\
+         \x20       Some(adapter) => model.traverse_points_read(adapter, &mut buffer.slice(from, len), offset),\n\
+         \x20       None => Err(ModbusException::ServerDeviceFailure),\n\
          \x20   }});\n\
          }}\n\n"
     ));
@@ -527,7 +526,7 @@ fn generate_c_model_dispatch(model: &ResolvedModel, scope: &mut Scope) {
              \x20   let adapter = unsafe {{ (adapter as *mut {pc}CallbackAdapter).as_mut() }};\n\
              \x20   cursor.visit_source_block(model.model_length(), |offset, from, len| match adapter {{\n\
              \x20       Some(adapter) => model.traverse_points_write(adapter, &buffer.slice(from, len), offset),\n\
-             \x20       None => Err(ModbusException::IllegalDataAddress),\n\
+             \x20       None => Err(ModbusException::ServerDeviceFailure),\n\
              \x20   }});\n"
         )
     } else {
@@ -817,15 +816,8 @@ fn populate_model_writer(group: &ResolvedGroup, writer_block: &mut Block) {
             PointValueType::Adapter => {
                 let dereferenced_args: Vec<String> =
                     index_args.iter().map(|arg| format!("*{arg}")).collect();
-                // No adapter (a block the device doesn't back) reads the same as an absent
-                // optional point: the type's "not implemented" value.
                 let value_reader = format!(
-                    "adapter.{}(|adapter| adapter.{}({}))",
-                    if point.mandatory == PointMandatory::M {
-                        "map"
-                    } else {
-                        "and_then"
-                    },
+                    "adapter.{}({})",
                     point.name_snake_case(),
                     dereferenced_args.join(", ")
                 );
@@ -844,16 +836,26 @@ fn populate_model_writer(group: &ResolvedGroup, writer_block: &mut Block) {
                     .unwrap_or_default();
 
                 let mut match_block = Block::new(match_arm);
-                let mut some_block = Block::new(format!("if let Some(value) = {value_reader}"));
-                some_block.line(format!(
-                    "buffer.{}(value{value_cast}{rest_args});",
-                    point.point_type.writer_function_name
-                ));
-                let mut else_block = Block::new("else");
-                else_block.line(&point.point_type.not_implemented_writer);
+                if point.mandatory == PointMandatory::M {
+                    match_block
+                        .line(format!(
+                            "buffer.{}({value_reader}{value_cast}{rest_args});",
+                            point.point_type.writer_function_name
+                        ))
+                        .after(",");
+                } else {
+                    // An absent optional point reads as its type's "not implemented" value.
+                    let mut some_block = Block::new(format!("if let Some(value) = {value_reader}"));
+                    some_block.line(format!(
+                        "buffer.{}(value{value_cast}{rest_args});",
+                        point.point_type.writer_function_name
+                    ));
+                    let mut else_block = Block::new("else");
+                    else_block.line(&point.point_type.not_implemented_writer);
 
-                match_block.push_block(some_block);
-                match_block.push_block(else_block);
+                    match_block.push_block(some_block);
+                    match_block.push_block(else_block);
+                };
                 writer_block.push_block(match_block);
             }
             PointValueType::ModelLength => {
@@ -1106,7 +1108,7 @@ fn generate_traverse_points_fn(
         TraverseDirection::Read => {
             fn_def
                 .arg_ref_self()
-                .arg("adapter", "Option<&Self::ReadAdapter>")
+                .arg("adapter", "&Self::ReadAdapter")
                 .arg("buffer", "&mut WritableRegisterBuffer<'a>")
                 .arg("offset", "u16")
                 .ret("Result<(), ModbusException>");
@@ -1249,7 +1251,7 @@ pub fn generate_model(model: &ResolvedModel) -> Scope {
         .generic("'a")
         .vis("pub(crate)")
         .arg("model", format!("&{}", model.name_pascal_case()))
-        .arg("adapter", "Option<&dyn ReadAdapter>")
+        .arg("adapter", "&dyn ReadAdapter")
         .arg("point", "&Point")
         .arg("buffer", "&mut WritableRegisterBuffer<'a>")
         .arg("offset", "u16")

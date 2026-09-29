@@ -147,7 +147,7 @@ impl<'ad> ModelSpec<'ad> for Model501 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: Option<&Self::ReadAdapter>,
+        adapter: &Self::ReadAdapter,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -207,7 +207,7 @@ impl<'ad> ModelSpec<'ad> for Model501 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model501,
-    adapter: Option<&dyn ReadAdapter>,
+    adapter: &dyn ReadAdapter,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -220,119 +220,111 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::Status => {
-            if let Some(value) = adapter.map(|adapter| adapter.status()) {
-                buffer.write_u16(value as u16);
-            } else {
-                buffer.write_u16(crate::not_implemented::ENUM16);
-            }
+            buffer.write_u16(adapter.status() as u16);
         }
         Point::VendorStatus => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.vendor_status()) {
+            if let Some(value) = adapter.vendor_status() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::Events => {
-            if let Some(value) = adapter.map(|adapter| adapter.events()) {
-                buffer.write_u32(value, offset);
-            } else {
-                buffer.write_u32(crate::not_implemented::BITFIELD32, offset);
-            }
+            buffer.write_u32(adapter.events(), offset);
         }
         Point::VendorModuleEventFlags => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.vendor_module_event_flags()) {
+            if let Some(value) = adapter.vendor_module_event_flags() {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.write_u32(crate::not_implemented::BITFIELD32, offset);
             }
         }
         Point::Control => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.control()) {
+            if let Some(value) = adapter.control() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::VendorControl => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.vendor_control()) {
+            if let Some(value) = adapter.vendor_control() {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.write_u32(crate::not_implemented::ENUM32, offset);
             }
         }
         Point::ControlValue => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.control_value()) {
+            if let Some(value) = adapter.control_value() {
                 buffer.write_i32(value, offset);
             } else {
                 buffer.write_i32(crate::not_implemented::INT32, offset);
             }
         }
         Point::Timestamp => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.timestamp()) {
+            if let Some(value) = adapter.timestamp() {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.write_u32(crate::not_implemented::UINT32, offset);
             }
         }
         Point::OutputCurrent => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.output_current()) {
+            if let Some(value) = adapter.output_current() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::OutputVoltage => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.output_voltage()) {
+            if let Some(value) = adapter.output_voltage() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::OutputEnergy => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.output_energy()) {
+            if let Some(value) = adapter.output_energy() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::OutputPower => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.output_power()) {
+            if let Some(value) = adapter.output_power() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::Temp => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.temp()) {
+            if let Some(value) = adapter.temp() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::InputCurrent => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.input_current()) {
+            if let Some(value) = adapter.input_current() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::InputVoltage => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.input_voltage()) {
+            if let Some(value) = adapter.input_voltage() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::InputEnergy => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.input_energy()) {
+            if let Some(value) = adapter.input_energy() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::InputPower => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.input_power()) {
+            if let Some(value) = adapter.input_power() {
                 buffer.write_f32(value, offset);
             } else {
                 buffer.write_f32(crate::not_implemented::FLOAT32, offset);

@@ -76,7 +76,7 @@ impl<'ad> ModelSpec<'ad> for Model64415 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: Option<&Self::ReadAdapter>,
+        adapter: &Self::ReadAdapter,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -136,7 +136,7 @@ impl<'ad> ModelSpec<'ad> for Model64415 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model64415,
-    adapter: Option<&dyn ReadAdapter>,
+    adapter: &dyn ReadAdapter,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -149,35 +149,35 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::LogEventModeEnable => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.log_event_mode_enable()) {
+            if let Some(value) = adapter.log_event_mode_enable() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::HttpMessageModeEnable => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.http_message_mode_enable()) {
+            if let Some(value) = adapter.http_message_mode_enable() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::Comm004Certificate => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.comm_004_certificate()) {
+            if let Some(value) = adapter.comm_004_certificate() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::SubscribedResourceUrl => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.subscribed_resource_url()) {
+            if let Some(value) = adapter.subscribed_resource_url() {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::SubscribtionEnable => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.subscribtion_enable()) {
+            if let Some(value) = adapter.subscribtion_enable() {
                 buffer.write_u16(value as u16);
             } else {
                 buffer.write_u16(crate::not_implemented::ENUM16);

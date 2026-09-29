@@ -69,7 +69,7 @@ impl<'ad> ModelSpec<'ad> for Model306 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: Option<&Self::ReadAdapter>,
+        adapter: &Self::ReadAdapter,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -129,7 +129,7 @@ impl<'ad> ModelSpec<'ad> for Model306 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model306,
-    adapter: Option<&dyn ReadAdapter>,
+    adapter: &dyn ReadAdapter,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -142,28 +142,28 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::Ghi => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.ghi()) {
+            if let Some(value) = adapter.ghi() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::Amps => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.amps()) {
+            if let Some(value) = adapter.amps() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::Voltage => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.voltage()) {
+            if let Some(value) = adapter.voltage() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::Temperature => {
-            if let Some(value) = adapter.and_then(|adapter| adapter.temperature()) {
+            if let Some(value) = adapter.temperature() {
                 buffer.write_u16(value);
             } else {
                 buffer.write_u16(crate::not_implemented::UINT16);

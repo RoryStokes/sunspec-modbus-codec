@@ -1,8 +1,8 @@
 //! The SunSpec "not implemented" value for each point type.
 //!
-//! A read of a point the device doesn't provide - an optional point whose adapter returns
-//! `None`, or any point in a block with no adapter at all - encodes the value for its type
-//! here, so a client can tell an absent point from a real reading. Defined by section 6.4 of
+//! A read of an optional point the device doesn't provide - its adapter returns `None` -
+//! encodes the value for its type here, so a client can tell an absent point from a real
+//! reading. Defined by section 6.4 of
 //! the SunSpec Device Information Model Specification.
 //!
 //! `string`, `acc*`, `ipaddr` and `ipv6addr` points are not implemented when all-zero, so they

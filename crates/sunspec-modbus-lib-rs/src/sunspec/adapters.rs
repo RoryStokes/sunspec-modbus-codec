@@ -281,8 +281,8 @@ pub enum ReadBinding<'a> {
     ///
     /// # Safety
     /// Building this variant asserts `descriptor` and `adapter` uphold
-    /// [`StaticModelSpec::visit_read`]'s contract: `adapter` is either null or points to
-    /// a live `Model<id>CallbackAdapter` valid for the traversal.
+    /// [`StaticModelSpec::visit_read`]'s contract: `adapter` points to a live
+    /// `Model<id>CallbackAdapter` valid for the traversal.
     Extern {
         descriptor: &'a StaticModelSpec,
         adapter: *const c_void,
@@ -551,9 +551,8 @@ pub enum WriteBinding<'a> {
     ///
     /// # Safety
     /// Building this variant asserts `descriptor` and `adapter` uphold
-    /// [`StaticModelSpec::visit_write`]'s contract: `adapter` is either null or
-    /// uniquely borrowable, pointing to a live `Model<id>CallbackAdapter` valid for the
-    /// traversal.
+    /// [`StaticModelSpec::visit_write`]'s contract: `adapter` is uniquely borrowable,
+    /// pointing to a live `Model<id>CallbackAdapter` valid for the traversal.
     Extern {
         descriptor: &'a StaticModelSpec,
         adapter: *mut c_void,
@@ -573,673 +572,673 @@ pub fn read_model<'a>(
         #[cfg(feature = "model_1")]
         ReadBinding::Model1(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_2")]
         ReadBinding::Model2(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_3")]
         ReadBinding::Model3(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_4")]
         ReadBinding::Model4(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_5")]
         ReadBinding::Model5(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_6")]
         ReadBinding::Model6(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_7")]
         ReadBinding::Model7(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_8")]
         ReadBinding::Model8(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_9")]
         ReadBinding::Model9(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_10")]
         ReadBinding::Model10(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_11")]
         ReadBinding::Model11(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_12")]
         ReadBinding::Model12(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_13")]
         ReadBinding::Model13(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_14")]
         ReadBinding::Model14(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_15")]
         ReadBinding::Model15(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_16")]
         ReadBinding::Model16(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_17")]
         ReadBinding::Model17(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_18")]
         ReadBinding::Model18(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_19")]
         ReadBinding::Model19(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_101")]
         ReadBinding::Model101(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_102")]
         ReadBinding::Model102(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_103")]
         ReadBinding::Model103(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_111")]
         ReadBinding::Model111(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_112")]
         ReadBinding::Model112(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_113")]
         ReadBinding::Model113(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_120")]
         ReadBinding::Model120(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_121")]
         ReadBinding::Model121(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_122")]
         ReadBinding::Model122(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_123")]
         ReadBinding::Model123(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_124")]
         ReadBinding::Model124(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_125")]
         ReadBinding::Model125(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_126")]
         ReadBinding::Model126(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_127")]
         ReadBinding::Model127(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_128")]
         ReadBinding::Model128(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_129")]
         ReadBinding::Model129(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_130")]
         ReadBinding::Model130(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_131")]
         ReadBinding::Model131(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_132")]
         ReadBinding::Model132(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_133")]
         ReadBinding::Model133(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_134")]
         ReadBinding::Model134(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_135")]
         ReadBinding::Model135(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_136")]
         ReadBinding::Model136(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_137")]
         ReadBinding::Model137(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_138")]
         ReadBinding::Model138(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_139")]
         ReadBinding::Model139(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_140")]
         ReadBinding::Model140(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_141")]
         ReadBinding::Model141(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_142")]
         ReadBinding::Model142(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_143")]
         ReadBinding::Model143(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_144")]
         ReadBinding::Model144(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_145")]
         ReadBinding::Model145(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_160")]
         ReadBinding::Model160(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_201")]
         ReadBinding::Model201(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_202")]
         ReadBinding::Model202(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_203")]
         ReadBinding::Model203(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_204")]
         ReadBinding::Model204(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_211")]
         ReadBinding::Model211(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_212")]
         ReadBinding::Model212(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_213")]
         ReadBinding::Model213(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_214")]
         ReadBinding::Model214(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_220")]
         ReadBinding::Model220(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_302")]
         ReadBinding::Model302(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_303")]
         ReadBinding::Model303(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_304")]
         ReadBinding::Model304(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_305")]
         ReadBinding::Model305(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_306")]
         ReadBinding::Model306(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_307")]
         ReadBinding::Model307(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_308")]
         ReadBinding::Model308(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_401")]
         ReadBinding::Model401(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_402")]
         ReadBinding::Model402(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_403")]
         ReadBinding::Model403(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_404")]
         ReadBinding::Model404(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_501")]
         ReadBinding::Model501(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_502")]
         ReadBinding::Model502(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_601")]
         ReadBinding::Model601(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_701")]
         ReadBinding::Model701(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_702")]
         ReadBinding::Model702(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_703")]
         ReadBinding::Model703(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_704")]
         ReadBinding::Model704(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_705")]
         ReadBinding::Model705(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_706")]
         ReadBinding::Model706(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_707")]
         ReadBinding::Model707(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_708")]
         ReadBinding::Model708(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_709")]
         ReadBinding::Model709(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_710")]
         ReadBinding::Model710(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_711")]
         ReadBinding::Model711(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_712")]
         ReadBinding::Model712(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_713")]
         ReadBinding::Model713(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_714")]
         ReadBinding::Model714(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_715")]
         ReadBinding::Model715(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_801")]
         ReadBinding::Model801(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_802")]
         ReadBinding::Model802(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_803")]
         ReadBinding::Model803(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_804")]
         ReadBinding::Model804(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_805")]
         ReadBinding::Model805(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_806")]
         ReadBinding::Model806(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_807")]
         ReadBinding::Model807(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_808")]
         ReadBinding::Model808(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_809")]
         ReadBinding::Model809(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_63001")]
         ReadBinding::Model63001(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_63002")]
         ReadBinding::Model63002(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_64001")]
         ReadBinding::Model64001(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_64020")]
         ReadBinding::Model64020(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_64101")]
         ReadBinding::Model64101(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_64111")]
         ReadBinding::Model64111(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_64112")]
         ReadBinding::Model64112(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_64410")]
         ReadBinding::Model64410(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_64411")]
         ReadBinding::Model64411(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_64412")]
         ReadBinding::Model64412(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_64413")]
         ReadBinding::Model64413(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_64414")]
         ReadBinding::Model64414(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         #[cfg(feature = "model_64415")]
         ReadBinding::Model64415(model, adapter) => {
             cursor.visit_source_block(model.model_length(), |offset, from, len| {
-                model.traverse_points_read(Some(adapter), &mut buffer.slice(from, len), offset)
+                model.traverse_points_read(&*adapter, &mut buffer.slice(from, len), offset)
             });
         }
         ReadBinding::Extern {
