@@ -169,7 +169,7 @@ impl<'ad> ModelSpec<'ad> for Model601 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: &Self::ReadAdapter,
+        adapter: Option<&Self::ReadAdapter>,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -239,7 +239,7 @@ impl<'ad> ModelSpec<'ad> for Model601 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model601,
-    adapter: &dyn ReadAdapter,
+    adapter: Option<&dyn ReadAdapter>,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -252,131 +252,143 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::Controller => {
-            if let Some(value) = adapter.controller() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.controller()) {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Typ => {
-            buffer.write_u16(adapter.typ() as u16);
+            if let Some(value) = adapter.map(|adapter| adapter.typ()) {
+                buffer.write_u16(value as u16);
+            } else {
+                buffer.write_u16(crate::not_implemented::ENUM16);
+            }
         }
         Point::Date => {
-            if let Some(value) = adapter.date() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.date()) {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Time => {
-            if let Some(value) = adapter.time() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.time()) {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Day => {
-            if let Some(value) = adapter.day() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.day()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::ManualElevation => {
-            if let Some(value) = adapter.manual_elevation() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.manual_elevation()) {
                 buffer.write_i32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_i32(crate::not_implemented::INT32, offset);
             }
         }
         Point::ManualAzimuth => {
-            if let Some(value) = adapter.manual_azimuth() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.manual_azimuth()) {
                 buffer.write_i32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_i32(crate::not_implemented::INT32, offset);
             }
         }
         Point::GlobalMode => {
-            if let Some(value) = adapter.global_mode() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.global_mode()) {
                 buffer.write_u16(value as u16);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::GlobalAlarm => {
-            if let Some(value) = adapter.global_alarm() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.global_alarm()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::BITFIELD16);
             }
         }
         Point::Sf => {
-            buffer.write_i16(adapter.sf());
+            if let Some(value) = adapter.map(|adapter| adapter.sf()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::SUNSSF);
+            }
         }
         Point::Trackers => {
-            buffer.write_u16(adapter.trackers());
+            if let Some(value) = adapter.map(|adapter| adapter.trackers()) {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::UINT16);
+            }
         }
         Point::TrackerTracker => {
-            if let Some(value) = adapter.tracker_tracker() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.tracker_tracker()) {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::TrackerTargetElevation => {
-            if let Some(value) = adapter.tracker_target_elevation() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.tracker_target_elevation()) {
                 buffer.write_i32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_i32(crate::not_implemented::INT32, offset);
             }
         }
         Point::TrackerTargetAzimuth => {
-            if let Some(value) = adapter.tracker_target_azimuth() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.tracker_target_azimuth()) {
                 buffer.write_i32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_i32(crate::not_implemented::INT32, offset);
             }
         }
         Point::TrackerElevation => {
-            if let Some(value) = adapter.tracker_elevation() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.tracker_elevation()) {
                 buffer.write_i32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_i32(crate::not_implemented::INT32, offset);
             }
         }
         Point::TrackerAzimuth => {
-            if let Some(value) = adapter.tracker_azimuth() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.tracker_azimuth()) {
                 buffer.write_i32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_i32(crate::not_implemented::INT32, offset);
             }
         }
         Point::TrackerManualElevation => {
-            if let Some(value) = adapter.tracker_manual_elevation() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.tracker_manual_elevation()) {
                 buffer.write_i32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_i32(crate::not_implemented::INT32, offset);
             }
         }
         Point::TrackerManualAzimuth => {
-            if let Some(value) = adapter.tracker_manual_azimuth() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.tracker_manual_azimuth()) {
                 buffer.write_i32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_i32(crate::not_implemented::INT32, offset);
             }
         }
         Point::TrackerMode => {
-            if let Some(value) = adapter.tracker_mode() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.tracker_mode()) {
                 buffer.write_u16(value as u16);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::TrackerAlarm => {
-            if let Some(value) = adapter.tracker_alarm() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.tracker_alarm()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::BITFIELD16);
             }
         }
     }

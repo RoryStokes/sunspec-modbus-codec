@@ -100,7 +100,7 @@ impl<'ad> ModelSpec<'ad> for Model64414 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: &Self::ReadAdapter,
+        adapter: Option<&Self::ReadAdapter>,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -160,7 +160,7 @@ impl<'ad> ModelSpec<'ad> for Model64414 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model64414,
-    adapter: &dyn ReadAdapter,
+    adapter: Option<&dyn ReadAdapter>,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -173,66 +173,66 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::TimeOffset => {
-            if let Some(value) = adapter.time_offset() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.time_offset()) {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Temperature => {
-            if let Some(value) = adapter.temperature() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.temperature()) {
                 buffer.write_f32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::GridModelSource => {
-            if let Some(value) = adapter.grid_model_source() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.grid_model_source()) {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::IrradianceModelSource => {
-            if let Some(value) = adapter.irradiance_model_source() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.irradiance_model_source()) {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Irradiance => {
-            if let Some(value) = adapter.irradiance() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.irradiance()) {
                 buffer.write_f32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::GridVoltageA => {
-            if let Some(value) = adapter.grid_voltage_a() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.grid_voltage_a()) {
                 buffer.write_f32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::GridVoltageB => {
-            if let Some(value) = adapter.grid_voltage_b() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.grid_voltage_b()) {
                 buffer.write_f32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::GridVoltageC => {
-            if let Some(value) = adapter.grid_voltage_c() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.grid_voltage_c()) {
                 buffer.write_f32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
         Point::GridFrequency => {
-            if let Some(value) = adapter.grid_frequency() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.grid_frequency()) {
                 buffer.write_f32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_f32(crate::not_implemented::FLOAT32, offset);
             }
         }
     }

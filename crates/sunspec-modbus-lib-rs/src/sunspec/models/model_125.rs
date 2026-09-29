@@ -93,7 +93,7 @@ impl<'ad> ModelSpec<'ad> for Model125 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: &Self::ReadAdapter,
+        adapter: Option<&Self::ReadAdapter>,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -153,7 +153,7 @@ impl<'ad> ModelSpec<'ad> for Model125 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model125,
-    adapter: &dyn ReadAdapter,
+    adapter: Option<&dyn ReadAdapter>,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -166,44 +166,56 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::ModEna => {
-            buffer.write_u16(adapter.mod_ena());
+            if let Some(value) = adapter.map(|adapter| adapter.mod_ena()) {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::BITFIELD16);
+            }
         }
         Point::SigType => {
-            if let Some(value) = adapter.sig_type() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.sig_type()) {
                 buffer.write_u16(value as u16);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::Sig => {
-            buffer.write_i16(adapter.sig());
+            if let Some(value) = adapter.map(|adapter| adapter.sig()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::INT16);
+            }
         }
         Point::WinTms => {
-            if let Some(value) = adapter.win_tms() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.win_tms()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::RvtTms => {
-            if let Some(value) = adapter.rvt_tms() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.rvt_tms()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::RmpTms => {
-            if let Some(value) = adapter.rmp_tms() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.rmp_tms()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::SigSf => {
-            buffer.write_i16(adapter.sig_sf());
+            if let Some(value) = adapter.map(|adapter| adapter.sig_sf()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::SUNSSF);
+            }
         }
         Point::Pad => {
-            buffer.write_u16(0);
+            buffer.write_u16(crate::not_implemented::PAD);
         }
     }
 }

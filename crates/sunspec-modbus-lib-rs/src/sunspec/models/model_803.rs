@@ -363,7 +363,7 @@ impl<'ad> ModelSpec<'ad> for Model803 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: &Self::ReadAdapter,
+        adapter: Option<&Self::ReadAdapter>,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -449,7 +449,7 @@ impl<'ad> ModelSpec<'ad> for Model803 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model803,
-    adapter: &dyn ReadAdapter,
+    adapter: Option<&dyn ReadAdapter>,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -462,284 +462,408 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::StringCount => {
-            buffer.write_u16(adapter.string_count());
-        }
-        Point::ConnectedStringCount => {
-            buffer.write_u16(adapter.connected_string_count());
-        }
-        Point::MaxModuleTemperature => {
-            buffer.write_i16(adapter.max_module_temperature());
-        }
-        Point::MaxModuleTemperatureString => {
-            if let Some(value) = adapter.max_module_temperature_string() {
+            if let Some(value) = adapter.map(|adapter| adapter.string_count()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
+            }
+        }
+        Point::ConnectedStringCount => {
+            if let Some(value) = adapter.map(|adapter| adapter.connected_string_count()) {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::UINT16);
+            }
+        }
+        Point::MaxModuleTemperature => {
+            if let Some(value) = adapter.map(|adapter| adapter.max_module_temperature()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::INT16);
+            }
+        }
+        Point::MaxModuleTemperatureString => {
+            if let Some(value) = adapter.and_then(|adapter| adapter.max_module_temperature_string())
+            {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::MaxModuleTemperatureModule => {
-            if let Some(value) = adapter.max_module_temperature_module() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.max_module_temperature_module())
+            {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::MinModuleTemperature => {
-            buffer.write_i16(adapter.min_module_temperature());
+            if let Some(value) = adapter.map(|adapter| adapter.min_module_temperature()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::INT16);
+            }
         }
         Point::MinModuleTemperatureString => {
-            if let Some(value) = adapter.min_module_temperature_string() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.min_module_temperature_string())
+            {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::MinModuleTemperatureModule => {
-            if let Some(value) = adapter.min_module_temperature_module() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.min_module_temperature_module())
+            {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::AverageModuleTemperature => {
-            if let Some(value) = adapter.average_module_temperature() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.average_module_temperature()) {
                 buffer.write_i16(value);
             } else {
-                buffer.zero();
+                buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::MaxStringVoltage => {
-            if let Some(value) = adapter.max_string_voltage() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.max_string_voltage()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::MaxStringVoltageString => {
-            if let Some(value) = adapter.max_string_voltage_string() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.max_string_voltage_string()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::MinStringVoltage => {
-            if let Some(value) = adapter.min_string_voltage() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.min_string_voltage()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::MinStringVoltageString => {
-            if let Some(value) = adapter.min_string_voltage_string() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.min_string_voltage_string()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::AverageStringVoltage => {
-            if let Some(value) = adapter.average_string_voltage() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.average_string_voltage()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::MaxStringCurrent => {
-            if let Some(value) = adapter.max_string_current() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.max_string_current()) {
                 buffer.write_i16(value);
             } else {
-                buffer.zero();
+                buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::MaxStringCurrentString => {
-            if let Some(value) = adapter.max_string_current_string() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.max_string_current_string()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::MinStringCurrent => {
-            if let Some(value) = adapter.min_string_current() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.min_string_current()) {
                 buffer.write_i16(value);
             } else {
-                buffer.zero();
+                buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::MinStringCurrentString => {
-            if let Some(value) = adapter.min_string_current_string() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.min_string_current_string()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::AverageStringCurrent => {
-            if let Some(value) = adapter.average_string_current() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.average_string_current()) {
                 buffer.write_i16(value);
             } else {
-                buffer.zero();
+                buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::BatteryCellBalancingCount => {
-            if let Some(value) = adapter.battery_cell_balancing_count() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.battery_cell_balancing_count())
+            {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::CellVSf => {
-            buffer.write_i16(adapter.cell_v_sf());
-        }
-        Point::ModTmpSf => {
-            buffer.write_i16(adapter.mod_tmp_sf());
-        }
-        Point::ASf => {
-            buffer.write_i16(adapter.a_sf());
-        }
-        Point::SoHSf => {
-            if let Some(value) = adapter.so_h_sf() {
+            if let Some(value) = adapter.map(|adapter| adapter.cell_v_sf()) {
                 buffer.write_i16(value);
             } else {
-                buffer.zero();
+                buffer.write_i16(crate::not_implemented::SUNSSF);
+            }
+        }
+        Point::ModTmpSf => {
+            if let Some(value) = adapter.map(|adapter| adapter.mod_tmp_sf()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::SUNSSF);
+            }
+        }
+        Point::ASf => {
+            if let Some(value) = adapter.map(|adapter| adapter.a_sf()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::SUNSSF);
+            }
+        }
+        Point::SoHSf => {
+            if let Some(value) = adapter.and_then(|adapter| adapter.so_h_sf()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::SUNSSF);
             }
         }
         Point::SoCSf => {
-            buffer.write_i16(adapter.so_c_sf());
-        }
-        Point::VSf => {
-            if let Some(value) = adapter.v_sf() {
+            if let Some(value) = adapter.map(|adapter| adapter.so_c_sf()) {
                 buffer.write_i16(value);
             } else {
-                buffer.zero();
+                buffer.write_i16(crate::not_implemented::SUNSSF);
+            }
+        }
+        Point::VSf => {
+            if let Some(value) = adapter.and_then(|adapter| adapter.v_sf()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::SUNSSF);
             }
         }
         Point::StringModuleCount { string_index } => {
-            buffer.write_u16(adapter.string_module_count(*string_index));
+            if let Some(value) = adapter.map(|adapter| adapter.string_module_count(*string_index)) {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::UINT16);
+            }
         }
         Point::StringStringStatus { string_index } => {
-            buffer.write_u32(adapter.string_string_status(*string_index), offset);
+            if let Some(value) = adapter.map(|adapter| adapter.string_string_status(*string_index))
+            {
+                buffer.write_u32(value, offset);
+            } else {
+                buffer.write_u32(crate::not_implemented::BITFIELD32, offset);
+            }
         }
         Point::StringConnectionFailureReason { string_index } => {
-            if let Some(value) = adapter.string_connection_failure_reason(*string_index) {
+            if let Some(value) =
+                adapter.and_then(|adapter| adapter.string_connection_failure_reason(*string_index))
+            {
                 buffer.write_u16(value as u16);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::StringStringStateOfCharge { string_index } => {
-            buffer.write_u16(adapter.string_string_state_of_charge(*string_index));
-        }
-        Point::StringStringStateOfHealth { string_index } => {
-            if let Some(value) = adapter.string_string_state_of_health(*string_index) {
+            if let Some(value) =
+                adapter.map(|adapter| adapter.string_string_state_of_charge(*string_index))
+            {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
+            }
+        }
+        Point::StringStringStateOfHealth { string_index } => {
+            if let Some(value) =
+                adapter.and_then(|adapter| adapter.string_string_state_of_health(*string_index))
+            {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::StringStringCurrent { string_index } => {
-            buffer.write_i16(adapter.string_string_current(*string_index));
+            if let Some(value) = adapter.map(|adapter| adapter.string_string_current(*string_index))
+            {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::INT16);
+            }
         }
         Point::StringMaxCellVoltage { string_index } => {
-            buffer.write_u16(adapter.string_max_cell_voltage(*string_index));
-        }
-        Point::StringMaxCellVoltageModule { string_index } => {
-            if let Some(value) = adapter.string_max_cell_voltage_module(*string_index) {
+            if let Some(value) =
+                adapter.map(|adapter| adapter.string_max_cell_voltage(*string_index))
+            {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
+            }
+        }
+        Point::StringMaxCellVoltageModule { string_index } => {
+            if let Some(value) =
+                adapter.and_then(|adapter| adapter.string_max_cell_voltage_module(*string_index))
+            {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::StringMinCellVoltage { string_index } => {
-            buffer.write_u16(adapter.string_min_cell_voltage(*string_index));
-        }
-        Point::StringMinCellVoltageModule { string_index } => {
-            if let Some(value) = adapter.string_min_cell_voltage_module(*string_index) {
+            if let Some(value) =
+                adapter.map(|adapter| adapter.string_min_cell_voltage(*string_index))
+            {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
+            }
+        }
+        Point::StringMinCellVoltageModule { string_index } => {
+            if let Some(value) =
+                adapter.and_then(|adapter| adapter.string_min_cell_voltage_module(*string_index))
+            {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::StringAverageCellVoltage { string_index } => {
-            buffer.write_u16(adapter.string_average_cell_voltage(*string_index));
-        }
-        Point::StringMaxModuleTemperature { string_index } => {
-            buffer.write_i16(adapter.string_max_module_temperature(*string_index));
-        }
-        Point::StringMaxModuleTemperatureModule { string_index } => {
-            if let Some(value) = adapter.string_max_module_temperature_module(*string_index) {
+            if let Some(value) =
+                adapter.map(|adapter| adapter.string_average_cell_voltage(*string_index))
+            {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
+            }
+        }
+        Point::StringMaxModuleTemperature { string_index } => {
+            if let Some(value) =
+                adapter.map(|adapter| adapter.string_max_module_temperature(*string_index))
+            {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::INT16);
+            }
+        }
+        Point::StringMaxModuleTemperatureModule { string_index } => {
+            if let Some(value) = adapter
+                .and_then(|adapter| adapter.string_max_module_temperature_module(*string_index))
+            {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::StringMinModuleTemperature { string_index } => {
-            buffer.write_i16(adapter.string_min_module_temperature(*string_index));
+            if let Some(value) =
+                adapter.map(|adapter| adapter.string_min_module_temperature(*string_index))
+            {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::INT16);
+            }
         }
         Point::StringMinModuleTemperatureModule { string_index } => {
-            if let Some(value) = adapter.string_min_module_temperature_module(*string_index) {
+            if let Some(value) = adapter
+                .and_then(|adapter| adapter.string_min_module_temperature_module(*string_index))
+            {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::StringAverageModuleTemperature { string_index } => {
-            buffer.write_i16(adapter.string_average_module_temperature(*string_index));
+            if let Some(value) =
+                adapter.map(|adapter| adapter.string_average_module_temperature(*string_index))
+            {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::INT16);
+            }
         }
         Point::StringDisabledReason { string_index } => {
-            if let Some(value) = adapter.string_disabled_reason(*string_index) {
+            if let Some(value) =
+                adapter.and_then(|adapter| adapter.string_disabled_reason(*string_index))
+            {
                 buffer.write_u16(value as u16);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::StringContactorStatus { string_index } => {
-            if let Some(value) = adapter.string_contactor_status(*string_index) {
+            if let Some(value) =
+                adapter.and_then(|adapter| adapter.string_contactor_status(*string_index))
+            {
                 buffer.write_u32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_u32(crate::not_implemented::BITFIELD32, offset);
             }
         }
         Point::StringStringEvent1 { string_index } => {
-            buffer.write_u32(adapter.string_string_event_1(*string_index), offset);
-        }
-        Point::StringStringEvent2 { string_index } => {
-            if let Some(value) = adapter.string_string_event_2(*string_index) {
+            if let Some(value) = adapter.map(|adapter| adapter.string_string_event_1(*string_index))
+            {
                 buffer.write_u32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_u32(crate::not_implemented::BITFIELD32, offset);
+            }
+        }
+        Point::StringStringEvent2 { string_index } => {
+            if let Some(value) =
+                adapter.and_then(|adapter| adapter.string_string_event_2(*string_index))
+            {
+                buffer.write_u32(value, offset);
+            } else {
+                buffer.write_u32(crate::not_implemented::BITFIELD32, offset);
             }
         }
         Point::StringVendorStringEventBitfield1 { string_index } => {
-            if let Some(value) = adapter.string_vendor_string_event_bitfield_1(*string_index) {
+            if let Some(value) = adapter
+                .and_then(|adapter| adapter.string_vendor_string_event_bitfield_1(*string_index))
+            {
                 buffer.write_u32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_u32(crate::not_implemented::BITFIELD32, offset);
             }
         }
         Point::StringVendorStringEventBitfield2 { string_index } => {
-            if let Some(value) = adapter.string_vendor_string_event_bitfield_2(*string_index) {
+            if let Some(value) = adapter
+                .and_then(|adapter| adapter.string_vendor_string_event_bitfield_2(*string_index))
+            {
                 buffer.write_u32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_u32(crate::not_implemented::BITFIELD32, offset);
             }
         }
         Point::StringEnableDisableString { string_index } => {
-            if let Some(value) = adapter.string_enable_disable_string(*string_index) {
+            if let Some(value) =
+                adapter.and_then(|adapter| adapter.string_enable_disable_string(*string_index))
+            {
                 buffer.write_u16(value as u16);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::StringConnectDisconnectString { string_index } => {
-            if let Some(value) = adapter.string_connect_disconnect_string(*string_index) {
+            if let Some(value) =
+                adapter.and_then(|adapter| adapter.string_connect_disconnect_string(*string_index))
+            {
                 buffer.write_u16(value as u16);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::Pad1 { string_index } => {
-            buffer.write_u16(0);
+            buffer.write_u16(crate::not_implemented::PAD);
         }
         Point::Pad2 { string_index } => {
-            buffer.write_u16(0);
+            buffer.write_u16(crate::not_implemented::PAD);
         }
     }
 }

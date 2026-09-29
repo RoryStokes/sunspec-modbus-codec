@@ -72,7 +72,7 @@ impl<'ad> ModelSpec<'ad> for Model63002 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: &Self::ReadAdapter,
+        adapter: Option<&Self::ReadAdapter>,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -142,7 +142,7 @@ impl<'ad> ModelSpec<'ad> for Model63002 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model63002,
-    adapter: &dyn ReadAdapter,
+    adapter: Option<&dyn ReadAdapter>,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -155,31 +155,31 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::RepeatingSunssf1 => {
-            if let Some(value) = adapter.repeating_sunssf_1() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.repeating_sunssf_1()) {
                 buffer.write_i16(value);
             } else {
-                buffer.zero();
+                buffer.write_i16(crate::not_implemented::SUNSSF);
             }
         }
         Point::RepeatingInt161 => {
-            if let Some(value) = adapter.repeating_int16_1() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.repeating_int16_1()) {
                 buffer.write_i16(value);
             } else {
-                buffer.zero();
+                buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::RepeatingInt162 => {
-            if let Some(value) = adapter.repeating_int16_2() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.repeating_int16_2()) {
                 buffer.write_i16(value);
             } else {
-                buffer.zero();
+                buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::RepeatingSunssf2 => {
-            if let Some(value) = adapter.repeating_sunssf_2() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.repeating_sunssf_2()) {
                 buffer.write_i16(value);
             } else {
-                buffer.zero();
+                buffer.write_i16(crate::not_implemented::SUNSSF);
             }
         }
     }

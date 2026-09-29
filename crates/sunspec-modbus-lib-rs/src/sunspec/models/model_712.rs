@@ -158,7 +158,7 @@ impl<'ad> ModelSpec<'ad> for Model712 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: &Self::ReadAdapter,
+        adapter: Option<&Self::ReadAdapter>,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -262,7 +262,7 @@ impl<'ad> ModelSpec<'ad> for Model712 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model712,
-    adapter: &dyn ReadAdapter,
+    adapter: Option<&dyn ReadAdapter>,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -275,81 +275,127 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::DerWattVarModuleEnable => {
-            buffer.write_u16(adapter.der_watt_var_module_enable() as u16);
+            if let Some(value) = adapter.map(|adapter| adapter.der_watt_var_module_enable()) {
+                buffer.write_u16(value as u16);
+            } else {
+                buffer.write_u16(crate::not_implemented::ENUM16);
+            }
         }
         Point::ActiveCurveRequest => {
-            buffer.write_u16(adapter.active_curve_request());
+            if let Some(value) = adapter.map(|adapter| adapter.active_curve_request()) {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::UINT16);
+            }
         }
         Point::SetActiveCurveResult => {
-            buffer.write_u16(adapter.set_active_curve_result() as u16);
+            if let Some(value) = adapter.map(|adapter| adapter.set_active_curve_result()) {
+                buffer.write_u16(value as u16);
+            } else {
+                buffer.write_u16(crate::not_implemented::ENUM16);
+            }
         }
         Point::NumberOfPoints => {
-            buffer.write_u16(adapter.number_of_points());
+            if let Some(value) = adapter.map(|adapter| adapter.number_of_points()) {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::UINT16);
+            }
         }
         Point::StoredCurveCount => {
-            buffer.write_u16(adapter.stored_curve_count());
+            if let Some(value) = adapter.map(|adapter| adapter.stored_curve_count()) {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::UINT16);
+            }
         }
         Point::ReversionTimeout => {
-            if let Some(value) = adapter.reversion_timeout() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.reversion_timeout()) {
                 buffer.write_u32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_u32(crate::not_implemented::UINT32, offset);
             }
         }
         Point::ReversionTimeLeft => {
-            if let Some(value) = adapter.reversion_time_left() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.reversion_time_left()) {
                 buffer.write_u32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_u32(crate::not_implemented::UINT32, offset);
             }
         }
         Point::ReversionCurve => {
-            if let Some(value) = adapter.reversion_curve() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.reversion_curve()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::ActivePowerScaleFactor => {
-            buffer.write_i16(adapter.active_power_scale_factor());
+            if let Some(value) = adapter.map(|adapter| adapter.active_power_scale_factor()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::SUNSSF);
+            }
         }
         Point::VarScaleFactor => {
-            buffer.write_i16(adapter.var_scale_factor());
+            if let Some(value) = adapter.map(|adapter| adapter.var_scale_factor()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::SUNSSF);
+            }
         }
         Point::CrvActivePoints { crv_index } => {
-            buffer.write_u16(adapter.crv_active_points(*crv_index));
+            if let Some(value) = adapter.map(|adapter| adapter.crv_active_points(*crv_index)) {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::UINT16);
+            }
         }
         Point::CrvDependentReference { crv_index } => {
-            buffer.write_u16(adapter.crv_dependent_reference(*crv_index) as u16);
-        }
-        Point::CrvPowerPriority { crv_index } => {
-            if let Some(value) = adapter.crv_power_priority(*crv_index) {
+            if let Some(value) = adapter.map(|adapter| adapter.crv_dependent_reference(*crv_index))
+            {
                 buffer.write_u16(value as u16);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::ENUM16);
+            }
+        }
+        Point::CrvPowerPriority { crv_index } => {
+            if let Some(value) = adapter.and_then(|adapter| adapter.crv_power_priority(*crv_index))
+            {
+                buffer.write_u16(value as u16);
+            } else {
+                buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::CrvCurveAccess { crv_index } => {
-            buffer.write_u16(adapter.crv_curve_access(*crv_index) as u16);
+            if let Some(value) = adapter.map(|adapter| adapter.crv_curve_access(*crv_index)) {
+                buffer.write_u16(value as u16);
+            } else {
+                buffer.write_u16(crate::not_implemented::ENUM16);
+            }
         }
         Point::PtActivePowerPoint {
             crv_index,
             pt_index,
         } => {
-            if let Some(value) = adapter.pt_active_power_point(*crv_index, *pt_index) {
+            if let Some(value) =
+                adapter.and_then(|adapter| adapter.pt_active_power_point(*crv_index, *pt_index))
+            {
                 buffer.write_i16(value);
             } else {
-                buffer.zero();
+                buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::PtReactivePowerPoint {
             crv_index,
             pt_index,
         } => {
-            if let Some(value) = adapter.pt_reactive_power_point(*crv_index, *pt_index) {
+            if let Some(value) =
+                adapter.and_then(|adapter| adapter.pt_reactive_power_point(*crv_index, *pt_index))
+            {
                 buffer.write_i16(value);
             } else {
-                buffer.zero();
+                buffer.write_i16(crate::not_implemented::INT16);
             }
         }
     }

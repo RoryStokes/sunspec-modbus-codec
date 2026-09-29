@@ -9,7 +9,7 @@ use core::slice;
 use core::{ffi::c_char, panic::PanicInfo};
 
 use sunspec_modbus_lib_rs::sunspec::adapters::{ReadBinding, WriteBinding};
-use sunspec_modbus_lib_rs::{ModelList, StaticModelSpec, Sunspec};
+use sunspec_modbus_lib_rs::{ModelList, StaticModelSpec, Sunspec, SunspecConfig};
 
 #[cfg(not(feature = "std"))]
 unsafe extern "C" {
@@ -78,8 +78,8 @@ pub struct SunspecAdapter {
     /// [`SUNSPEC_RC_ADAPTER_MODEL_MISMATCH`] before any registers are touched.
     pub model_spec: *const StaticModelSpec,
     /// Pointer to the model's `Model<id>CallbackAdapter`, built by that model's
-    /// `sunspec_model_<id>_callback` constructor, or null for no adapter - the block then
-    /// reads as `0xffff` and rejects writes.
+    /// `sunspec_model_<id>_callback` constructor, or null for no adapter - the block's points
+    /// then read as their SunSpec "not implemented" values, and writes to it are rejected.
     pub adapter: *mut c_void,
 }
 
@@ -130,6 +130,16 @@ fn check_write_alignment(models: &[CModelSpec], adapters: &[SunspecAdapter]) -> 
     Ok(())
 }
 
+/// Reads the caller's optional config, falling back to [`SunspecConfig::DEFAULT`] when null.
+///
+/// # Safety
+/// `config` must be null or point to a valid, live [`SunspecConfig`].
+unsafe fn config_or_default(config: *const SunspecConfig) -> SunspecConfig {
+    unsafe { config.as_ref() }
+        .copied()
+        .unwrap_or(SunspecConfig::DEFAULT)
+}
+
 /// A [`ModelList`] view over a borrowed slice of C descriptors. Per-request adapters are
 /// threaded through [`ModelList::ReadAdapters`] / [`ModelList::WriteAdapters`].
 struct CModelList<'a> {
@@ -157,6 +167,20 @@ impl ModelList for CModelList<'_> {
         = &'a [SunspecAdapter]
     where
         Self: 'a;
+
+    fn models_length(&self) -> u32 {
+        self.models
+            .iter()
+            .map(|model| {
+                // SAFETY: as for `read_iter`.
+                let descriptor = unsafe { Self::descriptor(model) };
+                u32::from((descriptor.length)(
+                    model.repeat_count_0,
+                    model.repeat_count_1,
+                ))
+            })
+            .sum()
+    }
 
     /// One [`ReadBinding::Extern`] per model, in map order — the codec drives each through
     /// its `StaticModelSpec` vtable. `adapters` is index-aligned with the models (checked by
@@ -212,13 +236,16 @@ impl ModelList for CModelList<'_> {
 #[unsafe(no_mangle)]
 /// Handle a SunSpec Modbus holding-register read and write the encoded response.
 ///
-/// Registers past the end of the model map are filled with `0xffff`. Returns
+/// A read past the end of the model map is rejected with `IllegalDataAddress` in strict mode
+/// (the default - see [`SunspecConfig::strict`]), and otherwise filled with `0xffff`. Returns
 /// [`SUNSPEC_RC_OK`], a negative `SUNSPEC_RC_*` argument error, or a positive Modbus
 /// exception code (`0x01`..=`0x0B`) to reply with.
 ///
 /// # Safety
 /// - `models` must point to `model_count` valid, live [`CModelSpec`]s, each
 ///   `model` pointing at a codec `SUNSPEC_MODEL_<id>` static.
+/// - `config` must be null (use the default configuration) or point to a valid
+///   [`SunspecConfig`].
 /// - `read_adapters` must point to `adapter_count` valid [`SunspecAdapter`]s, index-aligned
 ///   with `models`, each `adapter` pointer either null or pointing to a live
 ///   `Model<id>CallbackAdapter` for its model.
@@ -227,6 +254,7 @@ impl ModelList for CModelList<'_> {
 pub unsafe extern "C" fn sunspec_read_registers(
     models: *const CModelSpec,
     model_count: usize,
+    config: *const SunspecConfig,
     address: u16,
     response_buffer: *mut u8,
     buffer_length: u16,
@@ -246,7 +274,7 @@ pub unsafe extern "C" fn sunspec_read_registers(
     let buffer =
         unsafe { slice::from_raw_parts_mut(response_buffer, (buffer_length as usize) * 2) };
 
-    let codec = Sunspec::new(CModelList { models });
+    let codec = Sunspec::new(CModelList { models }, unsafe { config_or_default(config) });
     match codec.read_registers(address, buffer, adapters) {
         Ok(()) => SUNSPEC_RC_OK,
         Err(exception) => exception as i32,
@@ -262,6 +290,8 @@ pub unsafe extern "C" fn sunspec_read_registers(
 /// # Safety
 /// - `models` must point to `model_count` valid, live [`CModelSpec`]s, each
 ///   `model` pointing at a codec `SUNSPEC_MODEL_<id>` static.
+/// - `config` must be null (use the default configuration) or point to a valid
+///   [`SunspecConfig`].
 /// - `write_adapters` must point to `adapter_count` valid [`SunspecAdapter`]s, one per
 ///   **writable** model (a model whose `StaticModelSpec::writable` is set), index-aligned with the
 ///   writable subsequence of `models` and in the same order; each `adapter` pointer must be
@@ -272,6 +302,7 @@ pub unsafe extern "C" fn sunspec_read_registers(
 pub unsafe extern "C" fn sunspec_write_multiple_registers(
     models: *const CModelSpec,
     model_count: usize,
+    config: *const SunspecConfig,
     address: u16,
     request_buffer: *const u8,
     buffer_length: u16,
@@ -290,7 +321,7 @@ pub unsafe extern "C" fn sunspec_write_multiple_registers(
 
     let buffer = unsafe { slice::from_raw_parts(request_buffer, (buffer_length as usize) * 2) };
 
-    let codec = Sunspec::new(CModelList { models });
+    let codec = Sunspec::new(CModelList { models }, unsafe { config_or_default(config) });
     match codec.write_multiple_registers(address, buffer, adapters) {
         Ok(()) => SUNSPEC_RC_OK,
         Err(exception) => exception as i32,
@@ -306,6 +337,8 @@ pub unsafe extern "C" fn sunspec_write_multiple_registers(
 /// # Safety
 /// - `models` must point to `model_count` valid, live [`CModelSpec`]s, each
 ///   `model` pointing at a codec `SUNSPEC_MODEL_<id>` static.
+/// - `config` must be null (use the default configuration) or point to a valid
+///   [`SunspecConfig`].
 /// - `write_adapters` must point to `adapter_count` valid [`SunspecAdapter`]s, one per
 ///   **writable** model (a model whose `StaticModelSpec::writable` is set), index-aligned with the
 ///   writable subsequence of `models` and in the same order; each `adapter` pointer must be
@@ -315,6 +348,7 @@ pub unsafe extern "C" fn sunspec_write_multiple_registers(
 pub unsafe extern "C" fn sunspec_write_single_register(
     models: *const CModelSpec,
     model_count: usize,
+    config: *const SunspecConfig,
     address: u16,
     value: u16,
     write_adapters: *const SunspecAdapter,
@@ -330,7 +364,7 @@ pub unsafe extern "C" fn sunspec_write_single_register(
         return rc;
     }
 
-    let codec = Sunspec::new(CModelList { models });
+    let codec = Sunspec::new(CModelList { models }, unsafe { config_or_default(config) });
     match codec.write_single_register(address, value, adapters) {
         Ok(()) => SUNSPEC_RC_OK,
         Err(exception) => exception as i32,

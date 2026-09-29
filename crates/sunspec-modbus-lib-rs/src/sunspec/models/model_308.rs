@@ -69,7 +69,7 @@ impl<'ad> ModelSpec<'ad> for Model308 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: &Self::ReadAdapter,
+        adapter: Option<&Self::ReadAdapter>,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -129,7 +129,7 @@ impl<'ad> ModelSpec<'ad> for Model308 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model308,
-    adapter: &dyn ReadAdapter,
+    adapter: Option<&dyn ReadAdapter>,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -142,31 +142,31 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::Ghi => {
-            if let Some(value) = adapter.ghi() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.ghi()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::Temp => {
-            if let Some(value) = adapter.temp() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.temp()) {
                 buffer.write_i16(value);
             } else {
-                buffer.zero();
+                buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::AmbientTemperature => {
-            if let Some(value) = adapter.ambient_temperature() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.ambient_temperature()) {
                 buffer.write_i16(value);
             } else {
-                buffer.zero();
+                buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::WindSpeed => {
-            if let Some(value) = adapter.wind_speed() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.wind_speed()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
     }

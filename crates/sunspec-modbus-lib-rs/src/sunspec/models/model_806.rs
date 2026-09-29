@@ -58,7 +58,7 @@ impl<'ad> ModelSpec<'ad> for Model806 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: &Self::ReadAdapter,
+        adapter: Option<&Self::ReadAdapter>,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -128,7 +128,7 @@ impl<'ad> ModelSpec<'ad> for Model806 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model806,
-    adapter: &dyn ReadAdapter,
+    adapter: Option<&dyn ReadAdapter>,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -141,10 +141,20 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::BatteryPointsToBeDetermined => {
-            buffer.write_u16(adapter.battery_points_to_be_determined());
+            if let Some(value) = adapter.map(|adapter| adapter.battery_points_to_be_determined()) {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::UINT16);
+            }
         }
         Point::BatteryStringBatteryStringPointsToBeDetermined => {
-            buffer.write_u16(adapter.battery_string_battery_string_points_to_be_determined());
+            if let Some(value) = adapter
+                .map(|adapter| adapter.battery_string_battery_string_points_to_be_determined())
+            {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::UINT16);
+            }
         }
     }
 }

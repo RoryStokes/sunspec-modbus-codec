@@ -153,7 +153,7 @@ impl<'ad> ModelSpec<'ad> for Model711 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: &Self::ReadAdapter,
+        adapter: Option<&Self::ReadAdapter>,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -231,7 +231,7 @@ impl<'ad> ModelSpec<'ad> for Model711 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model711,
-    adapter: &dyn ReadAdapter,
+    adapter: Option<&dyn ReadAdapter>,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -244,71 +244,136 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::DerFrequencyDroopModuleEnable => {
-            buffer.write_u16(adapter.der_frequency_droop_module_enable() as u16);
+            if let Some(value) = adapter.map(|adapter| adapter.der_frequency_droop_module_enable())
+            {
+                buffer.write_u16(value as u16);
+            } else {
+                buffer.write_u16(crate::not_implemented::ENUM16);
+            }
         }
         Point::ActiveControlRequest => {
-            buffer.write_u16(adapter.active_control_request());
+            if let Some(value) = adapter.map(|adapter| adapter.active_control_request()) {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::UINT16);
+            }
         }
         Point::SetActiveControlResult => {
-            buffer.write_u16(adapter.set_active_control_result() as u16);
+            if let Some(value) = adapter.map(|adapter| adapter.set_active_control_result()) {
+                buffer.write_u16(value as u16);
+            } else {
+                buffer.write_u16(crate::not_implemented::ENUM16);
+            }
         }
         Point::StoredControlCount => {
-            buffer.write_u16(adapter.stored_control_count());
+            if let Some(value) = adapter.map(|adapter| adapter.stored_control_count()) {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::UINT16);
+            }
         }
         Point::ReversionTimeout => {
-            if let Some(value) = adapter.reversion_timeout() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.reversion_timeout()) {
                 buffer.write_u32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_u32(crate::not_implemented::UINT32, offset);
             }
         }
         Point::ReversionTimeLeft => {
-            if let Some(value) = adapter.reversion_time_left() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.reversion_time_left()) {
                 buffer.write_u32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_u32(crate::not_implemented::UINT32, offset);
             }
         }
         Point::ReversionControl => {
-            if let Some(value) = adapter.reversion_control() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.reversion_control()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::DeadbandScaleFactor => {
-            buffer.write_i16(adapter.deadband_scale_factor());
-        }
-        Point::FrequencyChangeScaleFactor => {
-            buffer.write_i16(adapter.frequency_change_scale_factor());
-        }
-        Point::OpenLoopScaleFactor => {
-            buffer.write_i16(adapter.open_loop_scale_factor());
-        }
-        Point::CtlOverFrequencyDeadband { ctl_index } => {
-            buffer.write_u32(adapter.ctl_over_frequency_deadband(*ctl_index), offset);
-        }
-        Point::CtlUnderFrequencyDeadband { ctl_index } => {
-            buffer.write_u32(adapter.ctl_under_frequency_deadband(*ctl_index), offset);
-        }
-        Point::CtlOverFrequencyChangeRatio { ctl_index } => {
-            buffer.write_u16(adapter.ctl_over_frequency_change_ratio(*ctl_index));
-        }
-        Point::CtlUnderFrequencyChangeRatio { ctl_index } => {
-            buffer.write_u16(adapter.ctl_under_frequency_change_ratio(*ctl_index));
-        }
-        Point::CtlOpenLoopResponseTime { ctl_index } => {
-            buffer.write_u32(adapter.ctl_open_loop_response_time(*ctl_index), offset);
-        }
-        Point::CtlMinimumActivePower { ctl_index } => {
-            if let Some(value) = adapter.ctl_minimum_active_power(*ctl_index) {
+            if let Some(value) = adapter.map(|adapter| adapter.deadband_scale_factor()) {
                 buffer.write_i16(value);
             } else {
-                buffer.zero();
+                buffer.write_i16(crate::not_implemented::SUNSSF);
+            }
+        }
+        Point::FrequencyChangeScaleFactor => {
+            if let Some(value) = adapter.map(|adapter| adapter.frequency_change_scale_factor()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::SUNSSF);
+            }
+        }
+        Point::OpenLoopScaleFactor => {
+            if let Some(value) = adapter.map(|adapter| adapter.open_loop_scale_factor()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::SUNSSF);
+            }
+        }
+        Point::CtlOverFrequencyDeadband { ctl_index } => {
+            if let Some(value) =
+                adapter.map(|adapter| adapter.ctl_over_frequency_deadband(*ctl_index))
+            {
+                buffer.write_u32(value, offset);
+            } else {
+                buffer.write_u32(crate::not_implemented::UINT32, offset);
+            }
+        }
+        Point::CtlUnderFrequencyDeadband { ctl_index } => {
+            if let Some(value) =
+                adapter.map(|adapter| adapter.ctl_under_frequency_deadband(*ctl_index))
+            {
+                buffer.write_u32(value, offset);
+            } else {
+                buffer.write_u32(crate::not_implemented::UINT32, offset);
+            }
+        }
+        Point::CtlOverFrequencyChangeRatio { ctl_index } => {
+            if let Some(value) =
+                adapter.map(|adapter| adapter.ctl_over_frequency_change_ratio(*ctl_index))
+            {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::UINT16);
+            }
+        }
+        Point::CtlUnderFrequencyChangeRatio { ctl_index } => {
+            if let Some(value) =
+                adapter.map(|adapter| adapter.ctl_under_frequency_change_ratio(*ctl_index))
+            {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::UINT16);
+            }
+        }
+        Point::CtlOpenLoopResponseTime { ctl_index } => {
+            if let Some(value) =
+                adapter.map(|adapter| adapter.ctl_open_loop_response_time(*ctl_index))
+            {
+                buffer.write_u32(value, offset);
+            } else {
+                buffer.write_u32(crate::not_implemented::UINT32, offset);
+            }
+        }
+        Point::CtlMinimumActivePower { ctl_index } => {
+            if let Some(value) =
+                adapter.and_then(|adapter| adapter.ctl_minimum_active_power(*ctl_index))
+            {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::INT16);
             }
         }
         Point::CtlControlAccess { ctl_index } => {
-            buffer.write_u16(adapter.ctl_control_access(*ctl_index) as u16);
+            if let Some(value) = adapter.map(|adapter| adapter.ctl_control_access(*ctl_index)) {
+                buffer.write_u16(value as u16);
+            } else {
+                buffer.write_u16(crate::not_implemented::ENUM16);
+            }
         }
     }
 }

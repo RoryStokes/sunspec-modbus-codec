@@ -105,7 +105,7 @@ impl<'ad> ModelSpec<'ad> for Model2 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: &Self::ReadAdapter,
+        adapter: Option<&Self::ReadAdapter>,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -165,7 +165,7 @@ impl<'ad> ModelSpec<'ad> for Model2 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model2,
-    adapter: &dyn ReadAdapter,
+    adapter: Option<&dyn ReadAdapter>,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -178,53 +178,73 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::Aid => {
-            buffer.write_u16(adapter.aid());
-        }
-        Point::N => {
-            buffer.write_u16(adapter.n());
-        }
-        Point::Un => {
-            buffer.write_u16(adapter.un());
-        }
-        Point::Status => {
-            buffer.write_u16(adapter.status() as u16);
-        }
-        Point::VendorStatus => {
-            if let Some(value) = adapter.vendor_status() {
+            if let Some(value) = adapter.map(|adapter| adapter.aid()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
+            }
+        }
+        Point::N => {
+            if let Some(value) = adapter.map(|adapter| adapter.n()) {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::UINT16);
+            }
+        }
+        Point::Un => {
+            if let Some(value) = adapter.map(|adapter| adapter.un()) {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::UINT16);
+            }
+        }
+        Point::Status => {
+            if let Some(value) = adapter.map(|adapter| adapter.status()) {
+                buffer.write_u16(value as u16);
+            } else {
+                buffer.write_u16(crate::not_implemented::ENUM16);
+            }
+        }
+        Point::VendorStatus => {
+            if let Some(value) = adapter.and_then(|adapter| adapter.vendor_status()) {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::EventCode => {
-            buffer.write_u32(adapter.event_code(), offset);
-        }
-        Point::VendorEventCode => {
-            if let Some(value) = adapter.vendor_event_code() {
+            if let Some(value) = adapter.map(|adapter| adapter.event_code()) {
                 buffer.write_u32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_u32(crate::not_implemented::BITFIELD32, offset);
+            }
+        }
+        Point::VendorEventCode => {
+            if let Some(value) = adapter.and_then(|adapter| adapter.vendor_event_code()) {
+                buffer.write_u32(value, offset);
+            } else {
+                buffer.write_u32(crate::not_implemented::BITFIELD32, offset);
             }
         }
         Point::Control => {
-            if let Some(value) = adapter.control() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.control()) {
                 buffer.write_u16(value as u16);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::VendorControl => {
-            if let Some(value) = adapter.vendor_control() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.vendor_control()) {
                 buffer.write_u32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_u32(crate::not_implemented::ENUM32, offset);
             }
         }
         Point::ControlValue => {
-            if let Some(value) = adapter.control_value() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.control_value()) {
                 buffer.write_u32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_u32(crate::not_implemented::ENUM32, offset);
             }
         }
     }

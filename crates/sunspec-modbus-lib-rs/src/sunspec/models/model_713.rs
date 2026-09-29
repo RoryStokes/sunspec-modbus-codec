@@ -87,7 +87,7 @@ impl<'ad> ModelSpec<'ad> for Model713 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: &Self::ReadAdapter,
+        adapter: Option<&Self::ReadAdapter>,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -147,7 +147,7 @@ impl<'ad> ModelSpec<'ad> for Model713 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model713,
-    adapter: &dyn ReadAdapter,
+    adapter: Option<&dyn ReadAdapter>,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -160,52 +160,52 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(7);
         }
         Point::EnergyRating => {
-            if let Some(value) = adapter.energy_rating() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.energy_rating()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::EnergyAvailable => {
-            if let Some(value) = adapter.energy_available() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.energy_available()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::StateOfCharge => {
-            if let Some(value) = adapter.state_of_charge() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.state_of_charge()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::StateOfHealth => {
-            if let Some(value) = adapter.state_of_health() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.state_of_health()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::Status => {
-            if let Some(value) = adapter.status() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.status()) {
                 buffer.write_u16(value as u16);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::ENUM16);
             }
         }
         Point::EnergyScaleFactor => {
-            if let Some(value) = adapter.energy_scale_factor() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.energy_scale_factor()) {
                 buffer.write_i16(value);
             } else {
-                buffer.zero();
+                buffer.write_i16(crate::not_implemented::SUNSSF);
             }
         }
         Point::PercentScaleFactor => {
-            if let Some(value) = adapter.percent_scale_factor() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.percent_scale_factor()) {
                 buffer.write_i16(value);
             } else {
-                buffer.zero();
+                buffer.write_i16(crate::not_implemented::SUNSSF);
             }
         }
     }

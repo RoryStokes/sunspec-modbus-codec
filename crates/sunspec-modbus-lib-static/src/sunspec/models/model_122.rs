@@ -219,16 +219,10 @@ unsafe fn model_122_c_visit_read(
 ) {
     let model = Model122;
     // SAFETY: as required by this function's own contract.
-    let adapter = unsafe { (adapter as *const Model122CallbackAdapter).as_ref() };
+    let adapter = unsafe { (adapter as *const Model122CallbackAdapter).as_ref() }
+        .map(|adapter| adapter as &dyn ReadAdapter);
     cursor.visit_source_block(model.model_length(), |offset, from, len| {
-        let mut block = buffer.slice(from, len);
-        match adapter {
-            Some(adapter) => model.traverse_points_read(adapter, &mut block, offset),
-            None => {
-                block.fill(&[0xff, 0xff]);
-                Ok(())
-            }
-        }
+        model.traverse_points_read(adapter, &mut buffer.slice(from, len), offset)
     });
 }
 

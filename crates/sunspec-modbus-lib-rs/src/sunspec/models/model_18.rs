@@ -76,7 +76,7 @@ impl<'ad> ModelSpec<'ad> for Model18 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: &Self::ReadAdapter,
+        adapter: Option<&Self::ReadAdapter>,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -136,7 +136,7 @@ impl<'ad> ModelSpec<'ad> for Model18 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model18,
-    adapter: &dyn ReadAdapter,
+    adapter: Option<&dyn ReadAdapter>,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -149,35 +149,35 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::Name => {
-            if let Some(value) = adapter.name() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.name()) {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Imei => {
-            if let Some(value) = adapter.imei() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.imei()) {
                 buffer.write_u32(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_u32(crate::not_implemented::UINT32, offset);
             }
         }
         Point::Apn => {
-            if let Some(value) = adapter.apn() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.apn()) {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Number => {
-            if let Some(value) = adapter.number() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.number()) {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Pin => {
-            if let Some(value) = adapter.pin() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.pin()) {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();

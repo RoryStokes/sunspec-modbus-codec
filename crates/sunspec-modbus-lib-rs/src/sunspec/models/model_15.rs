@@ -123,7 +123,7 @@ impl<'ad> ModelSpec<'ad> for Model15 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: &Self::ReadAdapter,
+        adapter: Option<&Self::ReadAdapter>,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -183,7 +183,7 @@ impl<'ad> ModelSpec<'ad> for Model15 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model15,
-    adapter: &dyn ReadAdapter,
+    adapter: Option<&dyn ReadAdapter>,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -196,91 +196,91 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::Clear => {
-            if let Some(value) = adapter.clear() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.clear()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::InputCount => {
-            if let Some(value) = adapter.input_count() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.input_count()) {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::InputUnicastCount => {
-            if let Some(value) = adapter.input_unicast_count() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.input_unicast_count()) {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::InputNonUnicastCount => {
-            if let Some(value) = adapter.input_non_unicast_count() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.input_non_unicast_count()) {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::InputDiscardedCount => {
-            if let Some(value) = adapter.input_discarded_count() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.input_discarded_count()) {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::InputErrorCount => {
-            if let Some(value) = adapter.input_error_count() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.input_error_count()) {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::InputUnknownCount => {
-            if let Some(value) = adapter.input_unknown_count() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.input_unknown_count()) {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::OutputCount => {
-            if let Some(value) = adapter.output_count() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.output_count()) {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::OutputUnicastCount => {
-            if let Some(value) = adapter.output_unicast_count() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.output_unicast_count()) {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::OutputNonUnicastCount => {
-            if let Some(value) = adapter.output_non_unicast_count() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.output_non_unicast_count()) {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::OutputDiscardedCount => {
-            if let Some(value) = adapter.output_discarded_count() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.output_discarded_count()) {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::OutputErrorCount => {
-            if let Some(value) = adapter.output_error_count() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.output_error_count()) {
                 buffer.write_u32(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Pad => {
-            buffer.write_u16(0);
+            buffer.write_u16(crate::not_implemented::PAD);
         }
     }
 }

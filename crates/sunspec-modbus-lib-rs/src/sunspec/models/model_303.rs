@@ -52,7 +52,7 @@ impl<'ad> ModelSpec<'ad> for Model303 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: &Self::ReadAdapter,
+        adapter: Option<&Self::ReadAdapter>,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -122,7 +122,7 @@ impl<'ad> ModelSpec<'ad> for Model303 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model303,
-    adapter: &dyn ReadAdapter,
+    adapter: Option<&dyn ReadAdapter>,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -135,7 +135,11 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::TempTemp => {
-            buffer.write_i16(adapter.temp_temp());
+            if let Some(value) = adapter.map(|adapter| adapter.temp_temp()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::INT16);
+            }
         }
     }
 }

@@ -105,7 +105,7 @@ impl<'ad> ModelSpec<'ad> for Model127 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: &Self::ReadAdapter,
+        adapter: Option<&Self::ReadAdapter>,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -165,7 +165,7 @@ impl<'ad> ModelSpec<'ad> for Model127 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model127,
-    adapter: &dyn ReadAdapter,
+    adapter: Option<&dyn ReadAdapter>,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -178,50 +178,70 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::WGra => {
-            buffer.write_u16(adapter.w_gra());
-        }
-        Point::HzStr => {
-            buffer.write_i16(adapter.hz_str());
-        }
-        Point::HzStop => {
-            buffer.write_i16(adapter.hz_stop());
-        }
-        Point::HysEna => {
-            buffer.write_u16(adapter.hys_ena());
-        }
-        Point::ModEna => {
-            buffer.write_u16(adapter.mod_ena());
-        }
-        Point::HzStopWGra => {
-            if let Some(value) = adapter.hz_stop_w_gra() {
+            if let Some(value) = adapter.map(|adapter| adapter.w_gra()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
+            }
+        }
+        Point::HzStr => {
+            if let Some(value) = adapter.map(|adapter| adapter.hz_str()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::INT16);
+            }
+        }
+        Point::HzStop => {
+            if let Some(value) = adapter.map(|adapter| adapter.hz_stop()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::INT16);
+            }
+        }
+        Point::HysEna => {
+            if let Some(value) = adapter.map(|adapter| adapter.hys_ena()) {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::BITFIELD16);
+            }
+        }
+        Point::ModEna => {
+            if let Some(value) = adapter.map(|adapter| adapter.mod_ena()) {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::BITFIELD16);
+            }
+        }
+        Point::HzStopWGra => {
+            if let Some(value) = adapter.and_then(|adapter| adapter.hz_stop_w_gra()) {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::WGraSf => {
-            if let Some(value) = adapter.w_gra_sf() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.w_gra_sf()) {
                 buffer.write_i16(value);
             } else {
-                buffer.zero();
+                buffer.write_i16(crate::not_implemented::SUNSSF);
             }
         }
         Point::HzStrStopSf => {
-            if let Some(value) = adapter.hz_str_stop_sf() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.hz_str_stop_sf()) {
                 buffer.write_i16(value);
             } else {
-                buffer.zero();
+                buffer.write_i16(crate::not_implemented::SUNSSF);
             }
         }
         Point::RmpIncDecSf => {
-            if let Some(value) = adapter.rmp_inc_dec_sf() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.rmp_inc_dec_sf()) {
                 buffer.write_i16(value);
             } else {
-                buffer.zero();
+                buffer.write_i16(crate::not_implemented::SUNSSF);
             }
         }
         Point::Pad => {
-            buffer.write_u16(0);
+            buffer.write_u16(crate::not_implemented::PAD);
         }
     }
 }

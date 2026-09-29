@@ -112,7 +112,7 @@ impl<'ad> ModelSpec<'ad> for Model16 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: &Self::ReadAdapter,
+        adapter: Option<&Self::ReadAdapter>,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -172,7 +172,7 @@ impl<'ad> ModelSpec<'ad> for Model16 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model16,
-    adapter: &dyn ReadAdapter,
+    adapter: Option<&dyn ReadAdapter>,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -185,61 +185,77 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::Name => {
-            if let Some(value) = adapter.name() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.name()) {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Config => {
-            buffer.write_u16(adapter.config() as u16);
+            if let Some(value) = adapter.map(|adapter| adapter.config()) {
+                buffer.write_u16(value as u16);
+            } else {
+                buffer.write_u16(crate::not_implemented::ENUM16);
+            }
         }
         Point::Control => {
-            buffer.write_u16(adapter.control());
+            if let Some(value) = adapter.map(|adapter| adapter.control()) {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::BITFIELD16);
+            }
         }
         Point::Address => {
-            buffer.write_string(adapter.address(), offset);
+            if let Some(value) = adapter.map(|adapter| adapter.address()) {
+                buffer.write_string(value, offset);
+            } else {
+                buffer.zero();
+            }
         }
         Point::Netmask => {
-            buffer.write_string(adapter.netmask(), offset);
+            if let Some(value) = adapter.map(|adapter| adapter.netmask()) {
+                buffer.write_string(value, offset);
+            } else {
+                buffer.zero();
+            }
         }
         Point::Gateway => {
-            if let Some(value) = adapter.gateway() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.gateway()) {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Dns1 => {
-            if let Some(value) = adapter.dns1() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.dns1()) {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Dns2 => {
-            if let Some(value) = adapter.dns2() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.dns2()) {
                 buffer.write_string(value, offset);
             } else {
                 buffer.zero();
             }
         }
         Point::Mac => {
-            if let Some(value) = adapter.mac() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.mac()) {
                 buffer.write_eui48(value, offset);
             } else {
-                buffer.zero();
+                buffer.write_eui48(&crate::not_implemented::EUI48, offset);
             }
         }
         Point::LinkControl => {
-            if let Some(value) = adapter.link_control() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.link_control()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::BITFIELD16);
             }
         }
         Point::Pad => {
-            buffer.write_u16(0);
+            buffer.write_u16(crate::not_implemented::PAD);
         }
     }
 }

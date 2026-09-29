@@ -201,7 +201,7 @@ impl<'ad> ModelSpec<'ad> for Model120 {
 
     fn traverse_points_read<'a>(
         &self,
-        adapter: &Self::ReadAdapter,
+        adapter: Option<&Self::ReadAdapter>,
         buffer: &mut WritableRegisterBuffer<'a>,
         offset: u16,
     ) -> Result<(), ModbusException> {
@@ -261,7 +261,7 @@ impl<'ad> ModelSpec<'ad> for Model120 {
 
 pub(crate) fn write_point_to_buffer<'a>(
     model: &Model120,
-    adapter: &dyn ReadAdapter,
+    adapter: Option<&dyn ReadAdapter>,
     point: &Point,
     buffer: &mut WritableRegisterBuffer<'a>,
     offset: u16,
@@ -274,114 +274,182 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::DerTyp => {
-            buffer.write_u16(adapter.der_typ() as u16);
+            if let Some(value) = adapter.map(|adapter| adapter.der_typ()) {
+                buffer.write_u16(value as u16);
+            } else {
+                buffer.write_u16(crate::not_implemented::ENUM16);
+            }
         }
         Point::WRtg => {
-            buffer.write_u16(adapter.w_rtg());
-        }
-        Point::WRtgSf => {
-            buffer.write_i16(adapter.w_rtg_sf());
-        }
-        Point::VaRtg => {
-            buffer.write_u16(adapter.va_rtg());
-        }
-        Point::VaRtgSf => {
-            buffer.write_i16(adapter.va_rtg_sf());
-        }
-        Point::VArRtgQ1 => {
-            buffer.write_i16(adapter.v_ar_rtg_q1());
-        }
-        Point::VArRtgQ2 => {
-            buffer.write_i16(adapter.v_ar_rtg_q2());
-        }
-        Point::VArRtgQ3 => {
-            buffer.write_i16(adapter.v_ar_rtg_q3());
-        }
-        Point::VArRtgQ4 => {
-            buffer.write_i16(adapter.v_ar_rtg_q4());
-        }
-        Point::VArRtgSf => {
-            buffer.write_i16(adapter.v_ar_rtg_sf());
-        }
-        Point::ARtg => {
-            buffer.write_u16(adapter.a_rtg());
-        }
-        Point::ARtgSf => {
-            buffer.write_i16(adapter.a_rtg_sf());
-        }
-        Point::PfRtgQ1 => {
-            buffer.write_i16(adapter.pf_rtg_q1());
-        }
-        Point::PfRtgQ2 => {
-            buffer.write_i16(adapter.pf_rtg_q2());
-        }
-        Point::PfRtgQ3 => {
-            buffer.write_i16(adapter.pf_rtg_q3());
-        }
-        Point::PfRtgQ4 => {
-            buffer.write_i16(adapter.pf_rtg_q4());
-        }
-        Point::PfRtgSf => {
-            buffer.write_i16(adapter.pf_rtg_sf());
-        }
-        Point::WhRtg => {
-            if let Some(value) = adapter.wh_rtg() {
+            if let Some(value) = adapter.map(|adapter| adapter.w_rtg()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
+            }
+        }
+        Point::WRtgSf => {
+            if let Some(value) = adapter.map(|adapter| adapter.w_rtg_sf()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::SUNSSF);
+            }
+        }
+        Point::VaRtg => {
+            if let Some(value) = adapter.map(|adapter| adapter.va_rtg()) {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::UINT16);
+            }
+        }
+        Point::VaRtgSf => {
+            if let Some(value) = adapter.map(|adapter| adapter.va_rtg_sf()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::SUNSSF);
+            }
+        }
+        Point::VArRtgQ1 => {
+            if let Some(value) = adapter.map(|adapter| adapter.v_ar_rtg_q1()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::INT16);
+            }
+        }
+        Point::VArRtgQ2 => {
+            if let Some(value) = adapter.map(|adapter| adapter.v_ar_rtg_q2()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::INT16);
+            }
+        }
+        Point::VArRtgQ3 => {
+            if let Some(value) = adapter.map(|adapter| adapter.v_ar_rtg_q3()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::INT16);
+            }
+        }
+        Point::VArRtgQ4 => {
+            if let Some(value) = adapter.map(|adapter| adapter.v_ar_rtg_q4()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::INT16);
+            }
+        }
+        Point::VArRtgSf => {
+            if let Some(value) = adapter.map(|adapter| adapter.v_ar_rtg_sf()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::SUNSSF);
+            }
+        }
+        Point::ARtg => {
+            if let Some(value) = adapter.map(|adapter| adapter.a_rtg()) {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::UINT16);
+            }
+        }
+        Point::ARtgSf => {
+            if let Some(value) = adapter.map(|adapter| adapter.a_rtg_sf()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::SUNSSF);
+            }
+        }
+        Point::PfRtgQ1 => {
+            if let Some(value) = adapter.map(|adapter| adapter.pf_rtg_q1()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::INT16);
+            }
+        }
+        Point::PfRtgQ2 => {
+            if let Some(value) = adapter.map(|adapter| adapter.pf_rtg_q2()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::INT16);
+            }
+        }
+        Point::PfRtgQ3 => {
+            if let Some(value) = adapter.map(|adapter| adapter.pf_rtg_q3()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::INT16);
+            }
+        }
+        Point::PfRtgQ4 => {
+            if let Some(value) = adapter.map(|adapter| adapter.pf_rtg_q4()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::INT16);
+            }
+        }
+        Point::PfRtgSf => {
+            if let Some(value) = adapter.map(|adapter| adapter.pf_rtg_sf()) {
+                buffer.write_i16(value);
+            } else {
+                buffer.write_i16(crate::not_implemented::SUNSSF);
+            }
+        }
+        Point::WhRtg => {
+            if let Some(value) = adapter.and_then(|adapter| adapter.wh_rtg()) {
+                buffer.write_u16(value);
+            } else {
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::WhRtgSf => {
-            if let Some(value) = adapter.wh_rtg_sf() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.wh_rtg_sf()) {
                 buffer.write_i16(value);
             } else {
-                buffer.zero();
+                buffer.write_i16(crate::not_implemented::SUNSSF);
             }
         }
         Point::AhrRtg => {
-            if let Some(value) = adapter.ahr_rtg() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.ahr_rtg()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::AhrRtgSf => {
-            if let Some(value) = adapter.ahr_rtg_sf() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.ahr_rtg_sf()) {
                 buffer.write_i16(value);
             } else {
-                buffer.zero();
+                buffer.write_i16(crate::not_implemented::SUNSSF);
             }
         }
         Point::MaxChaRte => {
-            if let Some(value) = adapter.max_cha_rte() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.max_cha_rte()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::MaxChaRteSf => {
-            if let Some(value) = adapter.max_cha_rte_sf() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.max_cha_rte_sf()) {
                 buffer.write_i16(value);
             } else {
-                buffer.zero();
+                buffer.write_i16(crate::not_implemented::SUNSSF);
             }
         }
         Point::MaxDisChaRte => {
-            if let Some(value) = adapter.max_dis_cha_rte() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.max_dis_cha_rte()) {
                 buffer.write_u16(value);
             } else {
-                buffer.zero();
+                buffer.write_u16(crate::not_implemented::UINT16);
             }
         }
         Point::MaxDisChaRteSf => {
-            if let Some(value) = adapter.max_dis_cha_rte_sf() {
+            if let Some(value) = adapter.and_then(|adapter| adapter.max_dis_cha_rte_sf()) {
                 buffer.write_i16(value);
             } else {
-                buffer.zero();
+                buffer.write_i16(crate::not_implemented::SUNSSF);
             }
         }
         Point::Pad => {
-            buffer.write_u16(0);
+            buffer.write_u16(crate::not_implemented::PAD);
         }
     }
 }
