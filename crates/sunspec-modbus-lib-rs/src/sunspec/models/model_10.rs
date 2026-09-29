@@ -145,18 +145,19 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(adapter.interface_status() as u16);
         }
         Point::InterfaceControl => {
-            if let Some(value) = adapter.interface_control() {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(
+                adapter
+                    .interface_control()
+                    .unwrap_or(crate::not_implemented::UINT16),
+            );
         }
         Point::PhysicalAccessType => {
-            if let Some(value) = adapter.physical_access_type() {
-                buffer.write_u16(value as u16);
-            } else {
-                buffer.write_u16(crate::not_implemented::ENUM16);
-            }
+            buffer.write_u16(
+                adapter
+                    .physical_access_type()
+                    .map(|enum_value| enum_value as u16)
+                    .unwrap_or(crate::not_implemented::ENUM16),
+            );
         }
         Point::Pad => {
             buffer.write_u16(crate::not_implemented::PAD);

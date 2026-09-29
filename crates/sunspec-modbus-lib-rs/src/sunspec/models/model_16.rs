@@ -185,11 +185,7 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::Name => {
-            if let Some(value) = adapter.name() {
-                buffer.write_string(value, offset);
-            } else {
-                buffer.zero();
-            }
+            buffer.write_string(adapter.name().unwrap_or(c""), offset);
         }
         Point::Config => {
             buffer.write_u16(adapter.config() as u16);
@@ -204,39 +200,26 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_string(adapter.netmask(), offset);
         }
         Point::Gateway => {
-            if let Some(value) = adapter.gateway() {
-                buffer.write_string(value, offset);
-            } else {
-                buffer.zero();
-            }
+            buffer.write_string(adapter.gateway().unwrap_or(c""), offset);
         }
         Point::Dns1 => {
-            if let Some(value) = adapter.dns1() {
-                buffer.write_string(value, offset);
-            } else {
-                buffer.zero();
-            }
+            buffer.write_string(adapter.dns1().unwrap_or(c""), offset);
         }
         Point::Dns2 => {
-            if let Some(value) = adapter.dns2() {
-                buffer.write_string(value, offset);
-            } else {
-                buffer.zero();
-            }
+            buffer.write_string(adapter.dns2().unwrap_or(c""), offset);
         }
         Point::Mac => {
-            if let Some(value) = adapter.mac() {
-                buffer.write_eui48(value, offset);
-            } else {
-                buffer.write_eui48(&crate::not_implemented::EUI48, offset);
-            }
+            buffer.write_eui48(
+                adapter.mac().unwrap_or(&crate::not_implemented::EUI48),
+                offset,
+            );
         }
         Point::LinkControl => {
-            if let Some(value) = adapter.link_control() {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::BITFIELD16);
-            }
+            buffer.write_u16(
+                adapter
+                    .link_control()
+                    .unwrap_or(crate::not_implemented::BITFIELD16),
+            );
         }
         Point::Pad => {
             buffer.write_u16(crate::not_implemented::PAD);

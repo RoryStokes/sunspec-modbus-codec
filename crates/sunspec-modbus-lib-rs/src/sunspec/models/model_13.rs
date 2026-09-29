@@ -215,11 +215,7 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::Name => {
-            if let Some(value) = adapter.name() {
-                buffer.write_string(value, offset);
-            } else {
-                buffer.zero();
-            }
+            buffer.write_string(adapter.name().unwrap_or(c""), offset);
         }
         Point::ConfigStatus => {
             buffer.write_u16(adapter.config_status() as u16);
@@ -240,60 +236,28 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_string(adapter.ip(), offset);
         }
         Point::Cidr => {
-            if let Some(value) = adapter.cidr() {
-                buffer.write_string(value, offset);
-            } else {
-                buffer.zero();
-            }
+            buffer.write_string(adapter.cidr().unwrap_or(c""), offset);
         }
         Point::Gateway => {
-            if let Some(value) = adapter.gateway() {
-                buffer.write_string(value, offset);
-            } else {
-                buffer.zero();
-            }
+            buffer.write_string(adapter.gateway().unwrap_or(c""), offset);
         }
         Point::Dns1 => {
-            if let Some(value) = adapter.dns1() {
-                buffer.write_string(value, offset);
-            } else {
-                buffer.zero();
-            }
+            buffer.write_string(adapter.dns1().unwrap_or(c""), offset);
         }
         Point::Dns2 => {
-            if let Some(value) = adapter.dns2() {
-                buffer.write_string(value, offset);
-            } else {
-                buffer.zero();
-            }
+            buffer.write_string(adapter.dns2().unwrap_or(c""), offset);
         }
         Point::Ntp1 => {
-            if let Some(value) = adapter.ntp1() {
-                buffer.write_string(value, offset);
-            } else {
-                buffer.zero();
-            }
+            buffer.write_string(adapter.ntp1().unwrap_or(c""), offset);
         }
         Point::Ntp2 => {
-            if let Some(value) = adapter.ntp2() {
-                buffer.write_string(value, offset);
-            } else {
-                buffer.zero();
-            }
+            buffer.write_string(adapter.ntp2().unwrap_or(c""), offset);
         }
         Point::Domain => {
-            if let Some(value) = adapter.domain() {
-                buffer.write_string(value, offset);
-            } else {
-                buffer.zero();
-            }
+            buffer.write_string(adapter.domain().unwrap_or(c""), offset);
         }
         Point::HostName => {
-            if let Some(value) = adapter.host_name() {
-                buffer.write_string(value, offset);
-            } else {
-                buffer.zero();
-            }
+            buffer.write_string(adapter.host_name().unwrap_or(c""), offset);
         }
         Point::Pad => {
             buffer.write_u16(crate::not_implemented::PAD);

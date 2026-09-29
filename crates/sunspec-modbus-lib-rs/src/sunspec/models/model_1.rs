@@ -167,28 +167,20 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_string(adapter.model(), offset);
         }
         Point::Options => {
-            if let Some(value) = adapter.options() {
-                buffer.write_string(value, offset);
-            } else {
-                buffer.zero();
-            }
+            buffer.write_string(adapter.options().unwrap_or(c""), offset);
         }
         Point::Version => {
-            if let Some(value) = adapter.version() {
-                buffer.write_string(value, offset);
-            } else {
-                buffer.zero();
-            }
+            buffer.write_string(adapter.version().unwrap_or(c""), offset);
         }
         Point::SerialNumber => {
             buffer.write_string(adapter.serial_number(), offset);
         }
         Point::DeviceAddress => {
-            if let Some(value) = adapter.device_address() {
-                buffer.write_u16(value);
-            } else {
-                buffer.write_u16(crate::not_implemented::UINT16);
-            }
+            buffer.write_u16(
+                adapter
+                    .device_address()
+                    .unwrap_or(crate::not_implemented::UINT16),
+            );
         }
         Point::Pad => {
             buffer.write_u16(crate::not_implemented::PAD);

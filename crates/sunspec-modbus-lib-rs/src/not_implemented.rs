@@ -8,6 +8,8 @@
 //! `string`, `acc*`, `ipaddr` and `ipv6addr` points are not implemented when all-zero, so they
 //! have no constant of their own: the encoder zeroes their registers.
 
+use core::ffi::CStr;
+
 /// `int16`: `0x8000`.
 pub const INT16: i16 = i16::MIN;
 /// `uint16`: `0xFFFF`.
@@ -47,3 +49,5 @@ pub const FLOAT64: f64 = f64::from_bits(0x7FF8_0000_0000_0000);
 /// `eui48`: `FF:FF:FF:FF:FF:FF`. The specification doesn't define one for `eui48`; this is
 /// the value SunSpec's reference library, pysunspec2, uses.
 pub const EUI48: [u8; 6] = [0xFF; 6];
+
+pub const STRING: &CStr = c"";

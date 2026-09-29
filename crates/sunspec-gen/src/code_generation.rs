@@ -827,35 +827,32 @@ fn populate_model_writer(group: &ResolvedGroup, writer_block: &mut Block) {
                     ""
                 };
 
-                let value_cast = point
+                let value = point
                     .point_type
                     .enum_repr
                     .as_ref()
-                    .map(|ty| format!(" as {ty}"))
-                    .clone()
-                    .unwrap_or_default();
+                    .map(|ty| {
+                        if point.mandatory == PointMandatory::M {
+                            format!("{value_reader} as {ty}")
+                        } else {
+                            format!("{value_reader}.map(|enum_value| enum_value as {ty})",)
+                        }
+                    })
+                    .unwrap_or(value_reader);
+
+                let value_fallback = if point.mandatory == PointMandatory::M {
+                    "".to_string()
+                } else {
+                    format!(".unwrap_or({})", point.point_type.not_implemented_writer,)
+                };
 
                 let mut match_block = Block::new(match_arm);
-                if point.mandatory == PointMandatory::M {
-                    match_block
-                        .line(format!(
-                            "buffer.{}({value_reader}{value_cast}{rest_args});",
-                            point.point_type.writer_function_name
-                        ))
-                        .after(",");
-                } else {
-                    // An absent optional point reads as its type's "not implemented" value.
-                    let mut some_block = Block::new(format!("if let Some(value) = {value_reader}"));
-                    some_block.line(format!(
-                        "buffer.{}(value{value_cast}{rest_args});",
+                match_block
+                    .line(format!(
+                        "buffer.{}({value}{value_fallback}{rest_args});",
                         point.point_type.writer_function_name
-                    ));
-                    let mut else_block = Block::new("else");
-                    else_block.line(&point.point_type.not_implemented_writer);
-
-                    match_block.push_block(some_block);
-                    match_block.push_block(else_block);
-                };
+                    ))
+                    .after(",");
                 writer_block.push_block(match_block);
             }
             PointValueType::ModelLength => {

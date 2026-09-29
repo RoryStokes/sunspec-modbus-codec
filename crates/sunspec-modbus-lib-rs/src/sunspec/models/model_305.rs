@@ -155,46 +155,31 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::Tm => {
-            if let Some(value) = adapter.tm() {
-                buffer.write_string(value, offset);
-            } else {
-                buffer.zero();
-            }
+            buffer.write_string(adapter.tm().unwrap_or(c""), offset);
         }
         Point::Date => {
-            if let Some(value) = adapter.date() {
-                buffer.write_string(value, offset);
-            } else {
-                buffer.zero();
-            }
+            buffer.write_string(adapter.date().unwrap_or(c""), offset);
         }
         Point::Location => {
-            if let Some(value) = adapter.location() {
-                buffer.write_string(value, offset);
-            } else {
-                buffer.zero();
-            }
+            buffer.write_string(adapter.location().unwrap_or(c""), offset);
         }
         Point::Lat => {
-            if let Some(value) = adapter.lat() {
-                buffer.write_i32(value, offset);
-            } else {
-                buffer.write_i32(crate::not_implemented::INT32, offset);
-            }
+            buffer.write_i32(
+                adapter.lat().unwrap_or(crate::not_implemented::INT32),
+                offset,
+            );
         }
         Point::Long => {
-            if let Some(value) = adapter.long() {
-                buffer.write_i32(value, offset);
-            } else {
-                buffer.write_i32(crate::not_implemented::INT32, offset);
-            }
+            buffer.write_i32(
+                adapter.long().unwrap_or(crate::not_implemented::INT32),
+                offset,
+            );
         }
         Point::Altitude => {
-            if let Some(value) = adapter.altitude() {
-                buffer.write_i32(value, offset);
-            } else {
-                buffer.write_i32(crate::not_implemented::INT32, offset);
-            }
+            buffer.write_i32(
+                adapter.altitude().unwrap_or(crate::not_implemented::INT32),
+                offset,
+            );
         }
     }
 }

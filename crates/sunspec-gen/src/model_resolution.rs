@@ -352,12 +352,10 @@ fn resolve_point_type(
             } else {
                 ""
             };
-            let rest_args = if writer_allow_offset { ", offset" } else { "" };
-            format!(
-                "buffer.{writer_function_name}({reference}crate::not_implemented::{constant}{rest_args});"
-            )
+            format!("{reference}crate::not_implemented::{constant}")
         }
-        None => "buffer.zero();".to_string(),
+        _ if point.type_ == PointType::String => "c\"\"".to_string(),
+        None => "0".to_string(),
     };
 
     ResolvedType {
