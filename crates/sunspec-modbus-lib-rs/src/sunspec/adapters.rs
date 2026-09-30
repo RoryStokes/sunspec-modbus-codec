@@ -551,8 +551,9 @@ pub enum WriteBinding<'a> {
     ///
     /// # Safety
     /// Building this variant asserts `descriptor` and `adapter` uphold
-    /// [`StaticModelSpec::visit_write`]'s contract: `adapter` is uniquely borrowable,
-    /// pointing to a live `Model<id>CallbackAdapter` valid for the traversal.
+    /// [`StaticModelSpec::visit_write`]'s contract: `adapter` is null if
+    /// `descriptor.writable` is `false`, and otherwise uniquely borrowable, pointing to a
+    /// live `Model<id>CallbackAdapter` valid for the traversal.
     Extern {
         descriptor: &'a StaticModelSpec,
         adapter: *mut c_void,

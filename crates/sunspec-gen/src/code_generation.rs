@@ -292,8 +292,9 @@ pub fn generate_adapters_mod(models: &[ResolvedModel]) -> Scope {
              \n\
              # Safety\n\
              Building this variant asserts `descriptor` and `adapter` uphold\n\
-             [`StaticModelSpec::visit_write`]'s contract: `adapter` is uniquely borrowable,\n\
-             pointing to a live `Model<id>CallbackAdapter` valid for the traversal.",
+             [`StaticModelSpec::visit_write`]'s contract: `adapter` is null if\n\
+             `descriptor.writable` is `false`, and otherwise uniquely borrowable, pointing to a\n\
+             live `Model<id>CallbackAdapter` valid for the traversal.",
         )
         .named("descriptor", "&'a StaticModelSpec")
         .named("adapter", "*mut c_void")
