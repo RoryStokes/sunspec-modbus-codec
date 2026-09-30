@@ -344,9 +344,8 @@ impl<L: ModelList> Sunspec<L> {
         access: Access,
     ) -> Result<u16, ModbusException> {
         let base_address = self.config.base_address;
-        if address < base_address
-            || u32::from(address) + u32::from(count) > u32::from(u16::MAX) + 1
-        {
+        let request_end = u32::from(address) + u32::from(count);
+        if address < base_address || request_end > u32::from(u16::MAX) + 1 {
             return Err(ModbusException::IllegalDataAddress);
         }
 
@@ -368,7 +367,8 @@ impl<L: ModelList> Sunspec<L> {
                 Access::Read => (0, models_end + SUNS_END_MODEL_WORDS),
                 Access::Write => (SUNS_HEADER_WORDS, models_end),
             };
-            if offset < start || offset + count > end {
+            let offset_end = u32::from(offset) + u32::from(count);
+            if offset < start || offset_end > u32::from(end) {
                 return Err(ModbusException::IllegalDataAddress);
             }
         }
