@@ -302,7 +302,10 @@ pub(crate) fn write_point_to_buffer<'a>(
             );
         }
         Point::TmSrc => {
-            buffer.write_string(adapter.tm_src().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.tm_src().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Tms => {
             buffer.write_u32(

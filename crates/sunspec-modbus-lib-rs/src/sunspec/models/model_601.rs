@@ -252,16 +252,27 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::Controller => {
-            buffer.write_string(adapter.controller().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .controller()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Typ => {
             buffer.write_u16(adapter.typ() as u16);
         }
         Point::Date => {
-            buffer.write_string(adapter.date().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.date().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Time => {
-            buffer.write_string(adapter.time().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.time().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Day => {
             buffer.write_u16(adapter.day().unwrap_or(crate::not_implemented::UINT16));
@@ -304,7 +315,12 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(adapter.trackers());
         }
         Point::TrackerTracker => {
-            buffer.write_string(adapter.tracker_tracker().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .tracker_tracker()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::TrackerTargetElevation => {
             buffer.write_i32(

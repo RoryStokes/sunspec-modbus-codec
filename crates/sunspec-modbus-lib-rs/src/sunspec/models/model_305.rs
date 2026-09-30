@@ -155,13 +155,22 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::Tm => {
-            buffer.write_string(adapter.tm().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.tm().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Date => {
-            buffer.write_string(adapter.date().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.date().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Location => {
-            buffer.write_string(adapter.location().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.location().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Lat => {
             buffer.write_i32(

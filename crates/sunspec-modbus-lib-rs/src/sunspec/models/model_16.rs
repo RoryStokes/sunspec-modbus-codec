@@ -185,7 +185,10 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::Name => {
-            buffer.write_string(adapter.name().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.name().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Config => {
             buffer.write_u16(adapter.config() as u16);
@@ -200,13 +203,22 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_string(adapter.netmask(), offset);
         }
         Point::Gateway => {
-            buffer.write_string(adapter.gateway().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.gateway().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Dns1 => {
-            buffer.write_string(adapter.dns1().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.dns1().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Dns2 => {
-            buffer.write_string(adapter.dns2().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.dns2().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Mac => {
             buffer.write_eui48(

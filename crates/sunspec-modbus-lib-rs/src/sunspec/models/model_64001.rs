@@ -357,7 +357,12 @@ pub(crate) fn write_point_to_buffer<'a>(
             );
         }
         Point::ProductRevision => {
-            buffer.write_string(adapter.product_revision().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .product_revision()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::BootCount => {
             buffer.write_u16(
@@ -419,7 +424,12 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(adapter.reserved().unwrap_or(crate::not_implemented::UINT16));
         }
         Point::LocationString => {
-            buffer.write_string(adapter.location_string().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .location_string()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Sensor1UnitId => {
             buffer.write_u16(
@@ -443,10 +453,20 @@ pub(crate) fn write_point_to_buffer<'a>(
             );
         }
         Point::Sensor1ProductVersion => {
-            buffer.write_string(adapter.sensor_1_product_version().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .sensor_1_product_version()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Sensor1SerialNum => {
-            buffer.write_string(adapter.sensor_1_serial_num().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .sensor_1_serial_num()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Sensor2UnitId => {
             buffer.write_u16(
@@ -470,10 +490,20 @@ pub(crate) fn write_point_to_buffer<'a>(
             );
         }
         Point::Sensor2ProductVersion => {
-            buffer.write_string(adapter.sensor_2_product_version().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .sensor_2_product_version()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Sensor2SerialNum => {
-            buffer.write_string(adapter.sensor_2_serial_num().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .sensor_2_serial_num()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Sensor3UnitId => {
             buffer.write_u16(
@@ -497,10 +527,20 @@ pub(crate) fn write_point_to_buffer<'a>(
             );
         }
         Point::Sensor3ProductVersion => {
-            buffer.write_string(adapter.sensor_3_product_version().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .sensor_3_product_version()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Sensor3SerialNum => {
-            buffer.write_string(adapter.sensor_3_serial_num().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .sensor_3_serial_num()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Sensor4UnitId => {
             buffer.write_u16(
@@ -524,10 +564,20 @@ pub(crate) fn write_point_to_buffer<'a>(
             );
         }
         Point::Sensor4ProductVersion => {
-            buffer.write_string(adapter.sensor_4_product_version().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .sensor_4_product_version()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Sensor4SerialNum => {
-            buffer.write_string(adapter.sensor_4_serial_num().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .sensor_4_serial_num()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
     }
 }

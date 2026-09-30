@@ -149,7 +149,10 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::Name => {
-            buffer.write_string(adapter.name().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.name().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Imei => {
             buffer.write_u32(
@@ -158,13 +161,22 @@ pub(crate) fn write_point_to_buffer<'a>(
             );
         }
         Point::Apn => {
-            buffer.write_string(adapter.apn().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.apn().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Number => {
-            buffer.write_string(adapter.number().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.number().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Pin => {
-            buffer.write_string(adapter.pin().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.pin().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
     }
 }

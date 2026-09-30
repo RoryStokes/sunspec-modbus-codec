@@ -722,38 +722,74 @@ pub(crate) fn write_point_to_buffer<'a>(
             );
         }
         Point::VoltageHarmonicsPhaseA => {
-            buffer.write_string(adapter.voltage_harmonics_phase_a().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .voltage_harmonics_phase_a()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::VoltageHarmonicsPhaseB => {
-            buffer.write_string(adapter.voltage_harmonics_phase_b().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .voltage_harmonics_phase_b()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::VoltageHarmonicsPhaseC => {
-            buffer.write_string(adapter.voltage_harmonics_phase_c().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .voltage_harmonics_phase_c()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::CurrentHarmonicsPhaseA => {
-            buffer.write_string(adapter.current_harmonics_phase_a().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .current_harmonics_phase_a()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::CurrentHarmonicsPhaseB => {
-            buffer.write_string(adapter.current_harmonics_phase_b().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .current_harmonics_phase_b()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::CurrentHarmonicsPhaseC => {
-            buffer.write_string(adapter.current_harmonics_phase_c().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .current_harmonics_phase_c()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::CurrentInterharmonicsPhaseA => {
             buffer.write_string(
-                adapter.current_interharmonics_phase_a().unwrap_or(c""),
+                adapter
+                    .current_interharmonics_phase_a()
+                    .unwrap_or(crate::not_implemented::STRING),
                 offset,
             );
         }
         Point::CurrentInterharmonicsPhaseB => {
             buffer.write_string(
-                adapter.current_interharmonics_phase_b().unwrap_or(c""),
+                adapter
+                    .current_interharmonics_phase_b()
+                    .unwrap_or(crate::not_implemented::STRING),
                 offset,
             );
         }
         Point::CurrentInterharmonicsPhaseC => {
             buffer.write_string(
-                adapter.current_interharmonics_phase_c().unwrap_or(c""),
+                adapter
+                    .current_interharmonics_phase_c()
+                    .unwrap_or(crate::not_implemented::STRING),
                 offset,
             );
         }
@@ -839,7 +875,9 @@ pub(crate) fn write_point_to_buffer<'a>(
         }
         Point::ProfProfileName { prof_index } => {
             buffer.write_string(
-                adapter.prof_profile_name(*prof_index).unwrap_or(c""),
+                adapter
+                    .prof_profile_name(*prof_index)
+                    .unwrap_or(crate::not_implemented::STRING),
                 offset,
             );
         }

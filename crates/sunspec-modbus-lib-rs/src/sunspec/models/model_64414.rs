@@ -173,7 +173,12 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::TimeOffset => {
-            buffer.write_string(adapter.time_offset().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .time_offset()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Temperature => {
             buffer.write_f32(
@@ -184,10 +189,20 @@ pub(crate) fn write_point_to_buffer<'a>(
             );
         }
         Point::GridModelSource => {
-            buffer.write_string(adapter.grid_model_source().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .grid_model_source()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::IrradianceModelSource => {
-            buffer.write_string(adapter.irradiance_model_source().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .irradiance_model_source()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Irradiance => {
             buffer.write_f32(

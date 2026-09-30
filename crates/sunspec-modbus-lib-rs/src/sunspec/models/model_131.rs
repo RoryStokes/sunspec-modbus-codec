@@ -675,7 +675,12 @@ pub(crate) fn write_point_to_buffer<'a>(
             );
         }
         Point::CurveCrvNam => {
-            buffer.write_string(adapter.curve_crv_nam().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .curve_crv_nam()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::CurveRmpPt1Tms => {
             buffer.write_u16(

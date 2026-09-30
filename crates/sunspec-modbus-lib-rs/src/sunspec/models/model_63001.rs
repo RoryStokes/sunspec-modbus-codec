@@ -756,10 +756,20 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u64(adapter.acc64_u().unwrap_or(0), offset);
         }
         Point::Ipv6addr => {
-            buffer.write_ipv6_addr(adapter.ipv6addr().unwrap_or(0), offset);
+            buffer.write_ipv6_addr(
+                adapter
+                    .ipv6addr()
+                    .unwrap_or(&crate::not_implemented::IPV6ADDR),
+                offset,
+            );
         }
         Point::Ipv6addrU => {
-            buffer.write_ipv6_addr(adapter.ipv6addr_u().unwrap_or(0), offset);
+            buffer.write_ipv6_addr(
+                adapter
+                    .ipv6addr_u()
+                    .unwrap_or(&crate::not_implemented::IPV6ADDR),
+                offset,
+            );
         }
         Point::Float32 => {
             buffer.write_f32(
@@ -776,10 +786,16 @@ pub(crate) fn write_point_to_buffer<'a>(
             );
         }
         Point::String => {
-            buffer.write_string(adapter.string().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.string().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::StringU => {
-            buffer.write_string(adapter.string_u().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.string_u().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Sunssf5 => {
             buffer.write_i16(adapter.sunssf_5().unwrap_or(crate::not_implemented::SUNSSF));

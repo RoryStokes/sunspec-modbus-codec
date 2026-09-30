@@ -167,10 +167,16 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_string(adapter.model(), offset);
         }
         Point::Options => {
-            buffer.write_string(adapter.options().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.options().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Version => {
-            buffer.write_string(adapter.version().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.version().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::SerialNumber => {
             buffer.write_string(adapter.serial_number(), offset);

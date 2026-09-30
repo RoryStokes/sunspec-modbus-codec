@@ -981,7 +981,12 @@ pub(crate) fn write_point_to_buffer<'a>(
             );
         }
         Point::ManufacturerAlarmInfo => {
-            buffer.write_string(adapter.manufacturer_alarm_info().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .manufacturer_alarm_info()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
     }
 }

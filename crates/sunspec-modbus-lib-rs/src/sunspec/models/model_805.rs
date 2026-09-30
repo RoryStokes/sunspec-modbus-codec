@@ -400,7 +400,12 @@ pub(crate) fn write_point_to_buffer<'a>(
             );
         }
         Point::SerialNumber => {
-            buffer.write_string(adapter.serial_number().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .serial_number()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::SoCSf => {
             buffer.write_i16(adapter.so_c_sf().unwrap_or(crate::not_implemented::SUNSSF));

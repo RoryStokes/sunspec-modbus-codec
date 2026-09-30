@@ -333,28 +333,28 @@ fn resolve_point_type(
         PointType::Float32 => Some("FLOAT32"),
         PointType::Float64 => Some("FLOAT64"),
         PointType::Eui48 => Some("EUI48"),
+        PointType::Ipv6addr => Some("IPV6ADDR"),
+        PointType::String => Some("STRING"),
         // All-zero is "not implemented" for these. `raw16` has no defined value (and no model
         // uses it); `pad` is always its static not-implemented value, never adapter-backed -
         // see `resolve_point`.
         PointType::Acc16
         | PointType::Acc32
         | PointType::Acc64
-        | PointType::String
         | PointType::Ipaddr
-        | PointType::Ipv6addr
         | PointType::Raw16
         | PointType::Pad => None,
     };
     let not_implemented_writer = match not_implemented_constant {
         Some(constant) => {
-            let reference = if point.type_ == PointType::Eui48 {
+            let reference = if point.type_ == PointType::Eui48 || point.type_ == PointType::Ipv6addr
+            {
                 "&"
             } else {
                 ""
             };
             format!("{reference}crate::not_implemented::{constant}")
         }
-        _ if point.type_ == PointType::String => "c\"\"".to_string(),
         None => "0".to_string(),
     };
 

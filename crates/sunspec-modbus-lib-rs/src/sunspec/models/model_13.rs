@@ -215,7 +215,10 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_u16(model.model_length() - 2);
         }
         Point::Name => {
-            buffer.write_string(adapter.name().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.name().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::ConfigStatus => {
             buffer.write_u16(adapter.config_status() as u16);
@@ -236,28 +239,54 @@ pub(crate) fn write_point_to_buffer<'a>(
             buffer.write_string(adapter.ip(), offset);
         }
         Point::Cidr => {
-            buffer.write_string(adapter.cidr().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.cidr().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Gateway => {
-            buffer.write_string(adapter.gateway().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.gateway().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Dns1 => {
-            buffer.write_string(adapter.dns1().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.dns1().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Dns2 => {
-            buffer.write_string(adapter.dns2().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.dns2().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Ntp1 => {
-            buffer.write_string(adapter.ntp1().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.ntp1().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Ntp2 => {
-            buffer.write_string(adapter.ntp2().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.ntp2().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Domain => {
-            buffer.write_string(adapter.domain().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.domain().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::HostName => {
-            buffer.write_string(adapter.host_name().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .host_name()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::Pad => {
             buffer.write_u16(crate::not_implemented::PAD);

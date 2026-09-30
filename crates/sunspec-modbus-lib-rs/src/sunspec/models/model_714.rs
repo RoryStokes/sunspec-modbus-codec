@@ -367,7 +367,9 @@ pub(crate) fn write_point_to_buffer<'a>(
         }
         Point::PrtPortIdString { prt_index } => {
             buffer.write_string(
-                adapter.prt_port_id_string(*prt_index).unwrap_or(c""),
+                adapter
+                    .prt_port_id_string(*prt_index)
+                    .unwrap_or(crate::not_implemented::STRING),
                 offset,
             );
         }

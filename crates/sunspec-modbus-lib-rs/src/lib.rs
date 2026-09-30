@@ -344,18 +344,29 @@ impl<L: ModelList> Sunspec<L> {
         access: Access,
     ) -> Result<u16, ModbusException> {
         let base_address = self.config.base_address;
-        if address < base_address || address > u16::MAX - count {
+        if address < base_address || address - 1 > u16::MAX - count {
             return Err(ModbusException::IllegalDataAddress);
         }
+
+        // Total model length must be u16 addressable
+        if u32::from(base_address)
+            + self.models.models_length()
+            + u32::from(SUNS_HEADER_WORDS)
+            + u32::from(SUNS_END_MODEL_WORDS)
+            > u32::from(u16::MAX)
+        {
+            return Err(ModbusException::ServerDeviceFailure);
+        };
+
         let offset = address - base_address;
 
         if self.config.strict {
-            let models_end = u32::from(SUNS_HEADER_WORDS) + self.models.models_length();
+            let models_end = SUNS_HEADER_WORDS + self.models.models_length() as u16;
             let (start, end) = match access {
-                Access::Read => (0, models_end + u32::from(SUNS_END_MODEL_WORDS)),
-                Access::Write => (u32::from(SUNS_HEADER_WORDS), models_end),
+                Access::Read => (0, models_end + SUNS_END_MODEL_WORDS),
+                Access::Write => (SUNS_HEADER_WORDS, models_end),
             };
-            if u32::from(offset) < start || u32::from(offset) + u32::from(count) > end {
+            if offset < start || offset + count > end {
                 return Err(ModbusException::IllegalDataAddress);
             }
         }

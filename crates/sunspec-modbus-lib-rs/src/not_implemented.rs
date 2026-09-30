@@ -50,4 +50,8 @@ pub const FLOAT64: f64 = f64::from_bits(0x7FF8_0000_0000_0000);
 /// the value SunSpec's reference library, pysunspec2, uses.
 pub const EUI48: [u8; 6] = [0xFF; 6];
 
+/// `ipv61ddr`: all zero
+pub const IPV6ADDR: [u16; 8] = [0; 8];
+
+/// `string`: an empty string
 pub const STRING: &CStr = c"";

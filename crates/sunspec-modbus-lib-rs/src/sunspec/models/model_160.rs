@@ -291,7 +291,12 @@ pub(crate) fn write_point_to_buffer<'a>(
             );
         }
         Point::ModuleInputIdString => {
-            buffer.write_string(adapter.module_input_id_string().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .module_input_id_string()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::ModuleDcCurrent => {
             buffer.write_u16(

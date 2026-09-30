@@ -543,7 +543,12 @@ pub(crate) fn write_point_to_buffer<'a>(
             );
         }
         Point::RepeatingNam => {
-            buffer.write_string(adapter.repeating_nam().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .repeating_nam()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::RepeatingWinTms => {
             buffer.write_u16(

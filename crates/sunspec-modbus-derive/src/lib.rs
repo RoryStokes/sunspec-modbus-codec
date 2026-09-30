@@ -194,7 +194,7 @@ pub fn derive_model_list(input: TokenStream) -> TokenStream {
     let model_lengths = fields.iter().map(|field| {
         let self_member = &field.self_member;
         quote! {
-            u32::from(::sunspec_modbus_lib_rs::ModelSpec::model_length(&self.#self_member))
+            ::sunspec_modbus_lib_rs::ModelSpec::model_length(&self.#self_member)
         }
     });
 
@@ -234,7 +234,7 @@ pub fn derive_model_list(input: TokenStream) -> TokenStream {
             type ReadAdapters<'a> = &'a #read_adapters_name<'a>;
             type WriteAdapters<'a> = &'a mut #write_adapters_name<'a>;
 
-            fn models_length(&self) -> u32 {
+            fn models_length(&self) -> u16 {
                 0 #(+ #model_lengths)*
             }
 

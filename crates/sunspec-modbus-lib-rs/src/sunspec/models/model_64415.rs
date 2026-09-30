@@ -173,7 +173,12 @@ pub(crate) fn write_point_to_buffer<'a>(
             );
         }
         Point::SubscribedResourceUrl => {
-            buffer.write_string(adapter.subscribed_resource_url().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter
+                    .subscribed_resource_url()
+                    .unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::SubscribtionEnable => {
             buffer.write_u16(

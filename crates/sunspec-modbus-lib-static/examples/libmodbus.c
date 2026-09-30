@@ -471,7 +471,6 @@ int main(void)
     // Start from the defaults and override only what's needed. Passing NULL instead of
     // &config also uses the defaults.
     SunspecConfig config = SunspecConfig_DEFAULT;
-    config.base_address = 40000;
 
     // Read adapters cover every model, in map order.
     SunspecAdapter read_adapters[] = {

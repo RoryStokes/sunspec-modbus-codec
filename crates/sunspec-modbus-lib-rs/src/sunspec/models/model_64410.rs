@@ -605,7 +605,10 @@ pub(crate) fn write_point_to_buffer<'a>(
             );
         }
         Point::Errors => {
-            buffer.write_string(adapter.errors().unwrap_or(c""), offset);
+            buffer.write_string(
+                adapter.errors().unwrap_or(crate::not_implemented::STRING),
+                offset,
+            );
         }
         Point::NumberOfPoints => {
             buffer.write_u16(adapter.number_of_points());
