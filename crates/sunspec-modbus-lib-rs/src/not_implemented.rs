@@ -5,8 +5,8 @@
 //! reading. Defined by section 6.4 of
 //! the SunSpec Device Information Model Specification.
 //!
-//! `string`, `acc*`, `ipaddr` and `ipv6addr` points are not implemented when all-zero, so they
-//! have no constant of their own: the encoder zeroes their registers.
+//! `acc*` and `ipaddr` points are not implemented when all-zero, so the generator writes zero
+//! directly. `string` and `ipv6addr` use zero-valued constants below for type-correct fallbacks.
 
 use core::ffi::CStr;
 

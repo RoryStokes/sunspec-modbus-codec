@@ -234,8 +234,8 @@ pub fn derive_model_list(input: TokenStream) -> TokenStream {
             type ReadAdapters<'a> = &'a #read_adapters_name<'a>;
             type WriteAdapters<'a> = &'a mut #write_adapters_name<'a>;
 
-            fn models_length(&self) -> u16 {
-                0 #(+ #model_lengths)*
+            fn models_length(&self) -> u32 {
+                0u32 #(+ u32::from(#model_lengths))*
             }
 
             fn read_iter<'a>(
