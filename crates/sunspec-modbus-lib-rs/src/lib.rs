@@ -344,7 +344,9 @@ impl<L: ModelList> Sunspec<L> {
         access: Access,
     ) -> Result<u16, ModbusException> {
         let base_address = self.config.base_address;
-        if address < base_address || address - 1 > u16::MAX - count {
+        if address < base_address
+            || u32::from(address) + u32::from(count) > u32::from(u16::MAX) + 1
+        {
             return Err(ModbusException::IllegalDataAddress);
         }
 
